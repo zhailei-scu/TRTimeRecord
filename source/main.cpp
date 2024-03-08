@@ -1,17 +1,28 @@
 #include <iostream>
 #include <QApplication>
+#include <QFile>
 
 #include "../include/PatientInput.h"
+#include "../include/TRTimeOperator.h"
 
 int main(int argc,char** argv){
     QApplication *app = new QApplication(argc,argv);
 
-    PatientInput *patientInputForm = new PatientInput(nullptr);
+    QFile qss(":/style/QSS/MacOS.qss");
+    qss.open(QFile::ReadOnly);
+    app->setStyleSheet(qss.readAll());
+    qss.close();
 
-    patientInputForm->show();
+    //PatientInput *patientInputForm = new PatientInput(nullptr);
+    //patientInputForm->show();
+
+    TRTimeOperator *trTimeOperatorForm = new TRTimeOperator(nullptr);
+    trTimeOperatorForm->show();
+
 
     app->exec();
-    delete patientInputForm;
+    //delete patientInputForm;
+    delete trTimeOperatorForm;
     delete app;
     return 0;
 }

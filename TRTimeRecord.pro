@@ -11,3 +11,6 @@ HEADERS += \
 
 FORMS += \
     ui/Form/TRTimeOperator.ui
+
+RESOURCES += \
+    ui/qrc/style.qrc
