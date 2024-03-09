@@ -19,7 +19,7 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="pushButton_PatentComeIn">
    <property name="geometry">
     <rect>
      <x>310</x>
@@ -38,7 +38,7 @@
     <string>Patient Come in</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="pushButton_PatentImaging">
    <property name="geometry">
     <rect>
      <x>310</x>
@@ -54,7 +54,7 @@
     <string>Imaging/Position</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="pushButton_Theraphy">
    <property name="geometry">
     <rect>
      <x>310</x>
@@ -83,7 +83,7 @@
     <enum>Qt::Vertical</enum>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_4">
+  <widget class="QPushButton" name="pushButton_LeavingRoom">
    <property name="geometry">
     <rect>
      <x>310</x>
@@ -120,6 +120,9 @@
      <width>21</width>
      <height>61</height>
     </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>SizeVerCursor</cursorShape>
    </property>
    <property name="autoFillBackground">
     <bool>false</bool>

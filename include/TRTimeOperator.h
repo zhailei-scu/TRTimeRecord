@@ -2,6 +2,7 @@
 #define TRTIMEOPERATOR_H
 
 #include <QWidget>
+#include <QButtonGroup>
 
 namespace Ui{
     class TRTimeOperator;
@@ -13,15 +14,22 @@ class TRTimeOperator: public QWidget{
 public:
     TRTimeOperator(QWidget* parent = nullptr);
     virtual ~TRTimeOperator();
-private slots:
-    void on_pushButton_clicked();
-
-    void on_pushButton_2_clicked();
 
 private:
     Ui::TRTimeOperator *uiForm;
 
+    QButtonGroup *buttonGroup;
+
+private:
     void setupUi(TRTimeOperator*);
+    void clear();
+
+/*
+signals:
+    void buttonGroup_Click();
+*/
+private slots:
+    void HandleSignal(int ID);
 };
 
 #endif

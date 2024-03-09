@@ -19,7 +19,6 @@ int main(int argc,char** argv){
     TRTimeOperator *trTimeOperatorForm = new TRTimeOperator(nullptr);
     trTimeOperatorForm->show();
 
-
     app->exec();
     //delete patientInputForm;
     delete trTimeOperatorForm;
