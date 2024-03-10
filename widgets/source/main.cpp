@@ -18,6 +18,7 @@ int main(int argc,char** argv){
     //patientInputForm->show();
 
     /*StartDataBase*/
+    app->addLibraryPath(app->applicationDirPath() + "/plugins/sqldrivers");
     DAO::Start();
 
     TRTimeOperator *trTimeOperatorForm = new TRTimeOperator(nullptr);
