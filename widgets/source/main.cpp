@@ -4,6 +4,7 @@
 
 #include "../include/PatientInput.h"
 #include "../include/TRTimeOperator.h"
+#include "../include/DAO.h"
 
 int main(int argc,char** argv){
     QApplication *app = new QApplication(argc,argv);
@@ -15,6 +16,9 @@ int main(int argc,char** argv){
 
     //PatientInput *patientInputForm = new PatientInput(nullptr);
     //patientInputForm->show();
+
+    /*StartDataBase*/
+    DAO::Start();
 
     TRTimeOperator *trTimeOperatorForm = new TRTimeOperator(nullptr);
     trTimeOperatorForm->show();

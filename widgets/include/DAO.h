@@ -1,7 +1,7 @@
 #ifndef DAO_H
 #define DAO_H
 
-#include <QtSql/QSqlDatabase>
+#include <QSqlDatabase>
 
 /**/
 class DAO{
@@ -15,8 +15,12 @@ public:
 private:
     static DAO * thePtr;
 
+private:
+    QSqlDatabase *theDataBase = NULL;
+
 public:
-    DAO * getInstance();
+    static DAO * getInstance();
+    static void Start();
 
 private:
     QSqlDatabase *dataBase = nullptr;
