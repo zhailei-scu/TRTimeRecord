@@ -6,9 +6,10 @@
 /**/
 class DAO{
 private:
-    DAO() = delete;
+    DAO();
     DAO(const DAO &) = delete;
     const DAO & operator = (const DAO &) = delete;
+    virtual ~DAO();
 public:
 
 private:
@@ -21,12 +22,16 @@ private:
     QSqlDatabase *dataBase = nullptr;
 
 private:
+    void clear();
+
+private:
     class GbClear{
-        void clear();
+    public:
+        GbClear();
+        ~GbClear();
     };
 
     static GbClear m_GbClear;
-
 };
 
 #endif // DAO_H

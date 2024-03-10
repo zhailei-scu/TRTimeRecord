@@ -17,12 +17,18 @@ public:
 
 private:
     Ui::TRTimeOperator *uiForm;
+    QButtonGroup *buttonGroup = NULL;
 
-    QButtonGroup *buttonGroup;
+private:
+    std::map<int,QAbstractButton*> *buttonsMap = NULL;
 
 private:
     void setupUi(TRTimeOperator*);
     void clear();
+
+private:
+    void timeRecord(int);
+    void changeButtonStatus(int);
 
 /*
 signals:

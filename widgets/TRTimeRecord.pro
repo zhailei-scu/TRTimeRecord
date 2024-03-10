@@ -1,5 +1,7 @@
 QT       += widgets
 
+CONFIG += c++17
+
 SOURCES += \
     source/DAO.cpp \
     source/PatientInput.cpp \
