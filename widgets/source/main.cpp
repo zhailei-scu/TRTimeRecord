@@ -1,6 +1,7 @@
 #include <iostream>
 #include <QApplication>
 #include <QFile>
+#include <QString>
 
 #include "../include/PatientInput.h"
 #include "../include/TRTimeOperator.h"
@@ -14,6 +15,11 @@ int main(int argc,char** argv){
     app->setStyleSheet(qss.readAll());
     qss.close();
 
+    QStringList drivers = QSqlDatabase::drivers();
+
+    for(QStringList::iterator it = drivers.begin();it != drivers.end(); it++){
+        qDebug()<<*it;
+    }
     //PatientInput *patientInputForm = new PatientInput(nullptr);
     //patientInputForm->show();
 

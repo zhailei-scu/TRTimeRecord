@@ -23,9 +23,6 @@ public:
     static void Start();
 
 private:
-    QSqlDatabase *dataBase = nullptr;
-
-private:
     void clear();
 
 private:

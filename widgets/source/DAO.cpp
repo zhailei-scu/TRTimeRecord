@@ -12,13 +12,12 @@ DAO::GbClear DAO::m_GbClear;
 
 DAO::DAO(){
     this->clear();
-    this->dataBase = new QSqlDatabase();
-    this->dataBase->addDatabase("QODBC");
+    this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QODBC"));
 
-    this->dataBase->setDatabaseName(dataBaseStr);
+    this->theDataBase->setDatabaseName(dataBaseStr);
 
-    if(!this->dataBase->isOpen()){
-        QMessageBox::information(nullptr, "Error",this->dataBase->lastError().text());
+    if(!this->theDataBase->isOpen()){
+        QMessageBox::information(nullptr, "Error",this->theDataBase->lastError().text());
 
     }else{
         QMessageBox::information(nullptr, "Success", "DataBase connect success");
