@@ -4,35 +4,32 @@
 #include <QSqlError>
 #include <QMessageBox>
 
-static QString dataBaseStr(QString("DRIVER={Microsoft Access Driver (*.mdb, *accdb)};FIL={MS Access};DBQ=%1;Uid=%2,Pwd=%3")
-                               .arg("D:\\Development\\TRTime\\dataBase\\TRTimeRecord.accdb")
-                               .arg("hfcim")
-                               .arg("hfcim"));
+static QString systemDBPath = "E:\\TRTimeRecord\\dataBase\\TR.db";
+static QString systemCSVPath = "E:\\TRTimeRecord\\dataBase\\TR.csv";
+
+/*
+ * In current softwares, there are two place to record the operation data:
+ * (1) The .csv file recorded the patient therapy time, located in user specialed path
+ * (2) An opensource lightting database-SQLite database recorded all operations data, which located in default path.
+*/
+
+/* May change to MS access
+ * static QString dataBaseStr(QString("DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};FIL={TR};DBQ=%1").arg(dbmFilePath));
+ * QSqlDatabase sq = QSqlDatabase::addDatabase("QODBC");
+ * sq.setDatabaseName(dataBaseStr);
+ * but always error
+*/
 
 DAO* DAO::thePtr = nullptr;
 DAO::GbClear DAO::m_GbClear;
 
 DAO::DAO(){
     this->clear();
-    /*
-    this->theDataBase = new QSqlDatabase();
-    this->theDataBase->addDatabase("QODBC");
-    this->theDataBase->setDatabaseName(dataBaseStr);
-*/
-
-    QSqlDatabase sq = QSqlDatabase::addDatabase("QODBC");
-    sq.setDatabaseName(dataBaseStr);
-
-    /*
-    if(!this->theDataBase->isOpen()){
+    this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
+    this->theDataBase->setDatabaseName(systemDBPath);
+    if(!this->theDataBase->open()){
         QMessageBox::information(nullptr, "Error",this->theDataBase->lastError().text());
     }
-    */
-
-    if(!sq.isOpen()){
-        QMessageBox::information(nullptr, "Error",sq.lastError().text());
-    }
-
 }
 
 DAO::~DAO(){
@@ -52,7 +49,7 @@ void DAO::Start(){
 
 void DAO::clear(){
     if(this->theDataBase){
-        this->theDataBase->removeDatabase(dataBaseStr);
+        this->theDataBase->removeDatabase(systemDBPath);
         delete this->theDataBase;
         this->theDataBase = NULL;
     }
