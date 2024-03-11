@@ -45,6 +45,7 @@ DAO * DAO::getInstance(){
 
 void DAO::Start(){
     getInstance();
+    qDebug()<<"DataBase Started...";
 }
 
 void DAO::clear(){

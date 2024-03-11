@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/StartGUI.jpg</file>
+        <file>img/StartGUI.bmp</file>
+    </qresource>
+</RCC>

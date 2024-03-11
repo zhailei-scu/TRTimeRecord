@@ -2,13 +2,23 @@
 #include <QApplication>
 #include <QFile>
 #include <QString>
+#include <QSplashScreen>
+#include <windows.h>
 
 #include "../include/PatientInput.h"
 #include "../include/TRTimeOperator.h"
+#include "../include/ConfigLoader.h"
 #include "../include/DAO.h"
 
 int main(int argc,char** argv){
+    /*Start QT compents*/
     QApplication *app = new QApplication(argc,argv);
+    /*Loadding GUI*/
+    QPixmap pix(":/img/StartGUI.bmp");
+    QSplashScreen splan(pix);
+    splan.show();
+    Sleep(2000);
+    splan.close();
 
     QFile qss(":/style/QSS/MacOS.qss");
     qss.open(QFile::ReadOnly);
