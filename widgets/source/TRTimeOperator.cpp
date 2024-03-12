@@ -1,5 +1,7 @@
 #include "../include/TRTimeOperator.h"
 #include "../ui_TRTimeOperator.h"
+#include "../include/DAO.h"
+#include "../include/ConfigLoader.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
@@ -67,12 +69,26 @@ void TRTimeOperator::HandleSignal(int ID){
     QMessageBox::information(nullptr, "Message", ss.str().c_str());
 }
 
-
 void TRTimeOperator::timeRecord(int buttonID){
-    QString date = QDate::currentDate().toString("yyyy-MM-dd");
-    qDebug()<<date;
+    QString tableName = "Date_";
+    tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
+    if(!DAO::getInstance()->tableExisted(tableName)){
+        qDebug()<<"Table is not existed";
+        DAO::getInstance()->createEmptyTable(tableName);
+        //DAO::createEmptyTable(tableName);
+    }
+
+    if(uint(buttonID+1) == ConfigLoader::getInstance()->getTheOperatorPatten()->size()){
+        DAO::getInstance()->appendARow();
+    }
+    /*
+    int rowCount = model->rowCount();
+    model->insertRow(rowCount);
+    model->setData(model->index(0,0), QTime::currentTime().toString("hh:mm:ss"));
+    model->submitAll();
+    qDebug()<<tableName;
     QString time = QTime::currentTime().toString("hh:mm:ss");
-    qDebug()<<time;
+    */
 }
 
 void TRTimeOperator::changeButtonStatus(int buttonID){

@@ -2,6 +2,7 @@
 #define CONFIGLOADER_H
 
 #include <QJsonObject>
+#include <map>
 
 /**/
 class ConfigLoader{
@@ -17,8 +18,13 @@ private:
 
 public:
     static ConfigLoader* getInstance();
+    const std::map<int,QString>* getTheOperatorPatten() const;
 
 private:
+    std::map<int,QString>* theOperatorPatten = NULL;
+
+private:
+    void ConstructOperationPatten();
     void clear();
 
 private:

@@ -12,6 +12,7 @@ SOURCES += \
 HEADERS += \
     include/ConfigLoader.h \
     include/DAO.h \
+    include/DAO_Interface.h \
     include/PatientInput.h \
     include/TRTimeOperator.h
 

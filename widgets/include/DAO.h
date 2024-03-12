@@ -2,9 +2,9 @@
 #define DAO_H
 
 #include <QSqlDatabase>
-
+#include "DAO_Interface.h"
 /**/
-class DAO{
+class DAO: public DAO_Interface{
 private:
     DAO();
     DAO(const DAO &) = delete;
@@ -21,6 +21,12 @@ private:
 public:
     static DAO * getInstance();
     static void Start();
+
+/*Realize the interface*/
+    virtual bool tableExisted(const QString & tableName);
+    virtual QString getRowCount(const QString & tableName);
+    virtual void createEmptyTable(const QString & tableName);
+    virtual void appendARow(const QString & tableName,const std::map<int,QString> & operatorTimes);
 
 private:
     void clear();
