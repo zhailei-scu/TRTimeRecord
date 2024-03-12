@@ -20,15 +20,17 @@ private:
     QButtonGroup *buttonGroup = NULL;
 
 private:
-    std::map<int,QAbstractButton*> *buttonsMap = NULL;
+    std::map<unsigned int,QAbstractButton*> *buttonsMap = NULL;
+    std::map<unsigned int,QString> patientInfoRecord;
+    std::map<unsigned int,QString> buttonTimeRecord;
 
 private:
-    void setupUi(TRTimeOperator*);
+    void buttonConstruct();
     void clear();
 
 private:
-    void timeRecord(int);
-    void changeButtonStatus(int);
+    void timeRecord(unsigned int);
+    void changeButtonStatus(unsigned int);
 
 /*
 signals:

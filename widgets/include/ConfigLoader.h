@@ -18,13 +18,16 @@ private:
 
 public:
     static ConfigLoader* getInstance();
-    const std::map<int,QString>* getTheOperatorPatten() const;
+    const std::map<unsigned int,QString>* getTheOperatorPatten() const;
+    const std::map<unsigned int,QString>* getThePatientInfoPatten() const;
 
 private:
-    std::map<int,QString>* theOperatorPatten = NULL;
+    std::map<unsigned int,QString>* theOperatorPatten = NULL;
+    std::map<unsigned int,QString>* thePatientInfoPatten = NULL;
 
 private:
     void ConstructOperationPatten();
+    void ConstructPatientInfoPatten();
     void clear();
 
 private:

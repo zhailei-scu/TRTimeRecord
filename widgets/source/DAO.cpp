@@ -59,47 +59,104 @@ void DAO::clear(){
 
 /*Realize the interface*/
 bool DAO::tableExisted(const QString & tableName){
+    bool result = false;
     QSqlQuery query;
-    query.exec(QString("select  %1 from sqlite_master").arg(tableName));
-    return query.next();
+    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table' AND tbl_name = '%1';").arg(tableName));
+    qDebug()<<query.lastError();
+    if(query.next()){
+        if(query.value(0).isValid() && query.value(0).toString() == tableName){
+            result = true;
+        }
+    }
+
+    return result;
 }
 
 QString DAO::getRowCount(const QString & tableName){
+    QString result("0");
     QSqlQuery query;
-    query.exec(QString("select count (*) as nums from %1").arg(tableName));
-    return query.value("nums").toString();
+    query.exec(QString("select count (*) from %1 ;").arg(tableName));
+    qDebug()<<query.lastError();
+    if(query.next()){
+        if(query.value(0).isValid()){
+            result = query.value(0).toString();
+        }
+    }
+    return result;
 }
 
 void DAO::createEmptyTable(const QString & tableName){
     QSqlQuery query;
     QString str("create table ");
     str.append(tableName).append("(id int primary key");
-    const std::map<int,QString> * operatorPatten = ConfigLoader::getInstance()->getTheOperatorPatten();
-    for(std::map<int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
+
+    const std::map<unsigned int,QString> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,QString>::const_iterator it = patientInfoPatten->begin();
+        it != patientInfoPatten->end();
+        it++){
+        str.append(", ").append(it->second).append(" varchar(50)");
+    }
+
+    const std::map<unsigned int,QString> * operatorPatten = ConfigLoader::getInstance()->getTheOperatorPatten();
+    for(std::map<unsigned int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
         str.append(", ").append(it->second).append("Time varchar(20)");
     }
-    str.append(")");
+    str.append(");");
 
     query.exec(str);
+    qDebug()<<query.lastError();
 }
 
-void DAO::appendARow(const QString & tableName,const std::map<int,QString> & operatorTimes){
-    QString count = getRowCount(tableName);
+void DAO::appendARow(const QString & tableName,
+                     const std::map<unsigned int,QString> & patientInfos,
+                     const std::map<unsigned int,QString> & operatorTimes){
+    QString count;
+    if(!DAO::getInstance()->tableExisted(tableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<tableName;
+        DAO::getInstance()->createEmptyTable(tableName);
+        count = "0";
+    }else{
+        count = getRowCount(tableName);
+    }
+
     QSqlQuery query;
     QString str("INSERT INTO ");
     str.append(tableName).append(" (id");
-    const std::map<int,QString> * operatorPatten = ConfigLoader::getInstance()->getTheOperatorPatten();
-    for(std::map<int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
+    const std::map<unsigned int,QString> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,QString>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
+        str.append(", ").append(it->second);
+    }
+
+    const std::map<unsigned int,QString> * operatorPatten = ConfigLoader::getInstance()->getTheOperatorPatten();
+    for(std::map<unsigned int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
         str.append(", ").append(it->second).append("Time");
     }
+
     str.append(") VALUES (").append(count);
-    for(uint i = 0; i < operatorPatten->size();i++){
-        str.append(", ").append(operatorTimes.at(i));
+
+    for(auto it = patientInfoPatten->begin(); it != patientInfoPatten->end();it++){
+        auto it_find = patientInfos.find(it->first);
+        if(it_find == patientInfoPatten->end()){
+            str.append(", '").append("").append("'");
+        }else{
+            str.append(", '").append(it_find->second).append("'");
+        }
     }
 
-    str.append(")");
+    for(auto it = operatorPatten->begin(); it != operatorPatten->end();it++){
+        auto it_find = operatorTimes.find(it->first);
+        if(it_find == operatorPatten->end()){
+            QMessageBox::information(nullptr, "Warning", QString("Operator %1 time is not found").arg(it->second));
+            str.append(", '").append("").append("'");
+        }else{
+            str.append(", '").append(it_find->second).append("'");
+        }
+    }
+
+    str.append(");");
 
     query.exec(str);
+    qDebug()<<query.lastError();
 }
 
 /*Garbge clear*/

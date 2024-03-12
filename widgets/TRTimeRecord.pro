@@ -14,7 +14,8 @@ HEADERS += \
     include/DAO.h \
     include/DAO_Interface.h \
     include/PatientInput.h \
-    include/TRTimeOperator.h
+    include/TRTimeOperator.h \
+    include/Util.h
 
 FORMS += \
     ui/Form/TRTimeOperator.ui

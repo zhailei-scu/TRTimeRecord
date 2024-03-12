@@ -6,6 +6,7 @@ ConfigLoader::GbClear ConfigLoader::m_GbClear;
 ConfigLoader::ConfigLoader(){
     this->clear();
     this->ConstructOperationPatten();
+    this->ConstructPatientInfoPatten();
     qDebug()<<"Comming";
 }
 
@@ -21,23 +22,41 @@ ConfigLoader* ConfigLoader::getInstance(){
     return thePtr;
 }
 
-const std::map<int,QString>* ConfigLoader::getTheOperatorPatten() const{
+const std::map<unsigned int,QString>* ConfigLoader::getTheOperatorPatten() const{
     return this->theOperatorPatten;
+}
+
+const std::map<unsigned int,QString>* ConfigLoader::getThePatientInfoPatten() const{
+    return this->thePatientInfoPatten;
 }
 
 void ConfigLoader::ConstructOperationPatten(){
     if(this->theOperatorPatten){
-        std::map<int,QString>().swap(*this->theOperatorPatten);
+        std::map<unsigned int,QString>().swap(*this->theOperatorPatten);
         this->theOperatorPatten->clear();
         delete this->theOperatorPatten;
         this->theOperatorPatten = NULL;
     }
 
-    this->theOperatorPatten = new std::map<int,QString>();
-    this->theOperatorPatten->insert(std::pair<int,QString>(0,"PatentComeIn"));
-    this->theOperatorPatten->insert(std::pair<int,QString>(1,"PatentImaging"));
-    this->theOperatorPatten->insert(std::pair<int,QString>(2,"Theraphy"));
-    this->theOperatorPatten->insert(std::pair<int,QString>(3,"LeavingRoom"));
+    this->theOperatorPatten = new std::map<unsigned int,QString>();
+    this->theOperatorPatten->insert(std::pair<unsigned int,QString>(0,"PatientComeIn"));
+    this->theOperatorPatten->insert(std::pair<unsigned int,QString>(1,"PatentImaging"));
+    this->theOperatorPatten->insert(std::pair<unsigned int,QString>(2,"Theraphy"));
+    this->theOperatorPatten->insert(std::pair<unsigned int,QString>(3,"LeavingRoom"));
+}
+
+void ConfigLoader::ConstructPatientInfoPatten(){
+    if(this->thePatientInfoPatten){
+        std::map<unsigned int,QString>().swap(*this->thePatientInfoPatten);
+        this->thePatientInfoPatten->clear();
+        delete this->thePatientInfoPatten;
+        this->thePatientInfoPatten = NULL;
+    }
+
+    this->thePatientInfoPatten = new std::map<unsigned int,QString>();
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,QString>(0,"PatientID"));
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,QString>(1,"PatientName"));
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,QString>(2,"TherapyOrgan"));
 }
 
 void ConfigLoader::clear(){
@@ -50,10 +69,17 @@ void ConfigLoader::clear(){
     }
 
     if(this->theOperatorPatten){
-        std::map<int,QString>().swap(*this->theOperatorPatten);
+        std::map<unsigned int,QString>().swap(*this->theOperatorPatten);
         this->theOperatorPatten->clear();
         delete this->theOperatorPatten;
         this->theOperatorPatten = NULL;
+    }
+
+    if(this->thePatientInfoPatten){
+        std::map<unsigned int,QString>().swap(*this->thePatientInfoPatten);
+        this->thePatientInfoPatten->clear();
+        delete this->thePatientInfoPatten;
+        this->thePatientInfoPatten = NULL;
     }
 }
 

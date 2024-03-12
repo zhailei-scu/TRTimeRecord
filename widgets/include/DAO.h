@@ -26,7 +26,9 @@ public:
     virtual bool tableExisted(const QString & tableName);
     virtual QString getRowCount(const QString & tableName);
     virtual void createEmptyTable(const QString & tableName);
-    virtual void appendARow(const QString & tableName,const std::map<int,QString> & operatorTimes);
+    virtual void appendARow(const QString & tableName,
+                            const std::map<unsigned int,QString> & patientInfos,
+                            const std::map<unsigned int,QString> & operatorTimes);
 
 private:
     void clear();

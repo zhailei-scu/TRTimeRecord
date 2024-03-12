@@ -2,10 +2,11 @@
 #include "../ui_TRTimeOperator.h"
 #include "../include/DAO.h"
 #include "../include/ConfigLoader.h"
+#include "../include/Util.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
-#include <sstream>
+#include <algorithm>
 #include <QDateTime>
 #include <QDate>
 
@@ -13,35 +14,60 @@ TRTimeOperator::TRTimeOperator(QWidget* parent):QWidget(parent),uiForm(new Ui::T
     this->clear();
     uiForm->setupUi(this);
 
-    /*Registe button to buttonGroup for clicked id get and regist button to map*/
-    this->buttonGroup = new QButtonGroup(this);
-    this->buttonsMap = new std::map<int,QAbstractButton*>();
-
-    this->buttonGroup->addButton(this->uiForm->pushButton_PatentComeIn,0);
-    this->buttonsMap->insert(std::pair<int,QAbstractButton*>(0,this->uiForm->pushButton_PatentComeIn));
-
-    this->buttonGroup->addButton(this->uiForm->pushButton_PatentImaging,1);
-    this->buttonsMap->insert(std::pair<int,QAbstractButton*>(1,this->uiForm->pushButton_PatentImaging));
-
-    this->buttonGroup->addButton(this->uiForm->pushButton_Theraphy,2);
-    this->buttonsMap->insert(std::pair<int,QAbstractButton*>(2,this->uiForm->pushButton_Theraphy));
-
-    this->buttonGroup->addButton(this->uiForm->pushButton_LeavingRoom,3);
-    this->buttonsMap->insert(std::pair<int,QAbstractButton*>(3,this->uiForm->pushButton_LeavingRoom));
-
-    this->buttonGroup->setExclusive(true);
-
-    this->changeButtonStatus(0);
-
-    QObject::connect(this->buttonGroup,SIGNAL(idClicked(int)),this,SLOT(HandleSignal(int)));
+    this->buttonConstruct();
 }
 
 TRTimeOperator::~TRTimeOperator(){
     this->clear();
 }
 
-void TRTimeOperator::setupUi(TRTimeOperator*){
+void TRTimeOperator::buttonConstruct(){
+    /*Registe button to buttonGroup for clicked id get and regist button to map*/
+    /*To do: we need to config button based on configure file*/
+    this->buttonGroup = new QButtonGroup(this);
+    this->buttonsMap = new std::map<unsigned int,QAbstractButton*>();
 
+    const auto begin = ConfigLoader::getInstance()->getTheOperatorPatten()->begin();
+    const auto end = ConfigLoader::getInstance()->getTheOperatorPatten()->end();
+
+    auto it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("PatientComeIn"));
+    if(it == end){
+        QMessageBox::information(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentComeIn"));
+        exit(-1);
+    }
+    this->buttonGroup->addButton(this->uiForm->pushButton_PatentComeIn,it->first);
+    this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_PatentComeIn));
+
+
+    it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("PatentImaging"));
+    if(it == end){
+        QMessageBox::information(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentImaging"));
+        exit(-1);
+    }
+    this->buttonGroup->addButton(this->uiForm->pushButton_PatentImaging,it->first);
+    this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_PatentImaging));
+
+    it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("Theraphy"));
+    if(it == end){
+        QMessageBox::information(nullptr, "Error", QString("Button patten %1 is not found").arg("Theraphy"));
+        exit(-1);
+    }
+    this->buttonGroup->addButton(this->uiForm->pushButton_Theraphy,it->first);
+    this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_Theraphy));
+
+    it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("LeavingRoom"));
+    if(it == end){
+        QMessageBox::information(nullptr, "Error", QString("Button patten %1 is not found").arg("LeavingRoom"));
+        exit(-1);
+    }
+    this->buttonGroup->addButton(this->uiForm->pushButton_LeavingRoom,it->first);
+    this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_LeavingRoom));
+
+    this->buttonGroup->setExclusive(true);
+
+    this->changeButtonStatus(0);
+
+    QObject::connect(this->buttonGroup,SIGNAL(idClicked(int)),this,SLOT(HandleSignal(int)));
 }
 
 void TRTimeOperator::clear(){
@@ -51,35 +77,48 @@ void TRTimeOperator::clear(){
     }
 
     if(this->buttonsMap){
-        std::map<int,QAbstractButton*>().swap(*this->buttonsMap);
+        std::map<unsigned int,QAbstractButton*>().swap(*this->buttonsMap);
         this->buttonsMap->clear();
         delete this->buttonsMap;
         this->buttonsMap = NULL;
     }
+
+    std::map<unsigned int,QString>().swap(this->patientInfoRecord);
+    this->patientInfoRecord.clear();
+
+    std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
+    this->buttonTimeRecord.clear();
 }
 
 void TRTimeOperator::HandleSignal(int ID){
     //this->close();
     this->timeRecord(ID);
     this->changeButtonStatus(ID+1);
-
-    std::stringstream ss;
-    ss<< ID << " Button was clicked!";
-
-    QMessageBox::information(nullptr, "Message", ss.str().c_str());
 }
 
-void TRTimeOperator::timeRecord(int buttonID){
+void TRTimeOperator::timeRecord(unsigned int buttonID){
+    QString time = QTime::currentTime().toString("hh:mm:ss");
     QString tableName = "Date_";
+
     tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
-    if(!DAO::getInstance()->tableExisted(tableName)){
-        qDebug()<<"Table is not existed";
-        DAO::getInstance()->createEmptyTable(tableName);
-        //DAO::createEmptyTable(tableName);
+
+    if(this->buttonTimeRecord.find(buttonID) == this->buttonTimeRecord.end()){
+        this->buttonTimeRecord.insert(std::pair<unsigned int,QString>(buttonID,time));
+    }else{
+        QMessageBox::information(nullptr, "Error", QString("Button Index %1 is repeated").arg(buttonID));
+        exit(-1);
     }
 
-    if(uint(buttonID+1) == ConfigLoader::getInstance()->getTheOperatorPatten()->size()){
-        DAO::getInstance()->appendARow();
+    if((unsigned int)(buttonID+1) == ConfigLoader::getInstance()->getTheOperatorPatten()->size()){
+        DAO::getInstance()->appendARow(tableName,patientInfoRecord,buttonTimeRecord);
+
+        std::map<unsigned int,QString>().swap(this->patientInfoRecord);
+        this->patientInfoRecord.clear();
+
+        std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
+        this->buttonTimeRecord.clear();
+
+        QMessageBox::information(nullptr, "Information", "Record successful!");
     }
     /*
     int rowCount = model->rowCount();
@@ -91,17 +130,17 @@ void TRTimeOperator::timeRecord(int buttonID){
     */
 }
 
-void TRTimeOperator::changeButtonStatus(int buttonID){
+void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
     if(0 >= this->buttonsMap->size()){
         QMessageBox::information(nullptr, "Error", "None button registerd!");
         return;
     }
 
-    if(uint(buttonID) < this->buttonsMap->size()){
-        std::map<int,QAbstractButton*>::iterator it = this->buttonsMap->begin();
+    if(buttonID < this->buttonsMap->size()){
+        std::map<unsigned int,QAbstractButton*>::iterator it = this->buttonsMap->begin();
 
         for(;it != this->buttonsMap->end(); it++){
-            if(it->first != buttonID){
+            if(it->first != (unsigned int)buttonID){
                 it->second->setEnabled(false);
                 it->second->setStyleSheet("background-color:grey");
             }else{
@@ -110,7 +149,7 @@ void TRTimeOperator::changeButtonStatus(int buttonID){
             }
         }
     }else{
-        if(uint(buttonID) == this->buttonsMap->size()){
+        if((unsigned int)buttonID == this->buttonsMap->size()){
             this->buttonsMap->at(buttonID-1)->setEnabled(false);
             this->buttonsMap->at(buttonID-1)->setStyleSheet("background-color:grey");
         }else{
