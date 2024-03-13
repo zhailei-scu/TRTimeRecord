@@ -23,7 +23,7 @@ TRTimeOperator::~TRTimeOperator(){
 }
 
 void TRTimeOperator::uiConstruct(){
-    new QHBoxLayout(this);
+    new QHBoxLayout(this); //registe a Layout object for current window
 
     this->menuBarConstruct();
     this->buttonConstruct();
@@ -68,7 +68,7 @@ void TRTimeOperator::buttonConstruct(){
 
     auto it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("PatientComeIn"));
     if(it == end){
-        QMessageBox::information(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentComeIn"));
+        QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentComeIn"));
         exit(-1);
     }
     this->buttonGroup->addButton(this->uiForm->pushButton_PatentComeIn,it->first);
@@ -77,7 +77,7 @@ void TRTimeOperator::buttonConstruct(){
 
     it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("PatentImaging"));
     if(it == end){
-        QMessageBox::information(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentImaging"));
+        QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentImaging"));
         exit(-1);
     }
     this->buttonGroup->addButton(this->uiForm->pushButton_PatentImaging,it->first);
@@ -85,7 +85,7 @@ void TRTimeOperator::buttonConstruct(){
 
     it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("Theraphy"));
     if(it == end){
-        QMessageBox::information(nullptr, "Error", QString("Button patten %1 is not found").arg("Theraphy"));
+        QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("Theraphy"));
         exit(-1);
     }
     this->buttonGroup->addButton(this->uiForm->pushButton_Theraphy,it->first);
@@ -93,7 +93,7 @@ void TRTimeOperator::buttonConstruct(){
 
     it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("LeavingRoom"));
     if(it == end){
-        QMessageBox::information(nullptr, "Error", QString("Button patten %1 is not found").arg("LeavingRoom"));
+        QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("LeavingRoom"));
         exit(-1);
     }
     this->buttonGroup->addButton(this->uiForm->pushButton_LeavingRoom,it->first);
@@ -124,12 +124,16 @@ void TRTimeOperator::clear(){
 }
 
 void TRTimeOperator::HandleSignal(int ID){
-    //this->close();
-    this->timeRecord(ID);
+    bool recorded = this->timeRecord(ID);
     this->changeButtonStatus(ID+1);
+
+    if(recorded){
+        this->queryForNextPatient();
+    }
 }
 
-void TRTimeOperator::timeRecord(unsigned int buttonID){
+bool TRTimeOperator::timeRecord(unsigned int buttonID){
+    bool result = false;
     QString time = QTime::currentTime().toString("hh:mm:ss");
     QString tableName = "Date_";
 
@@ -138,7 +142,7 @@ void TRTimeOperator::timeRecord(unsigned int buttonID){
     if(this->buttonTimeRecord.find(buttonID) == this->buttonTimeRecord.end()){
         this->buttonTimeRecord.insert(std::pair<unsigned int,QString>(buttonID,time));
     }else{
-        QMessageBox::information(nullptr, "Error", QString("Button Index %1 is repeated").arg(buttonID));
+        QMessageBox::critical(nullptr, "Error", QString("Button Index %1 is repeated").arg(buttonID));
         exit(-1);
     }
 
@@ -151,8 +155,12 @@ void TRTimeOperator::timeRecord(unsigned int buttonID){
         std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
         this->buttonTimeRecord.clear();
 
+        result = true;
+
         QMessageBox::information(nullptr, "Information", "Record successful!");
     }
+
+    return result;
     /*
     int rowCount = model->rowCount();
     model->insertRow(rowCount);
@@ -165,8 +173,8 @@ void TRTimeOperator::timeRecord(unsigned int buttonID){
 
 void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
     if(0 >= this->buttonsMap->size()){
-        QMessageBox::information(nullptr, "Error", "None button registerd!");
-        return;
+        QMessageBox::critical(nullptr, "Error", "None button registerd!");
+        exit(-1);
     }
 
     if(buttonID < this->buttonsMap->size()){
@@ -186,9 +194,77 @@ void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
             this->buttonsMap->at(buttonID-1)->setEnabled(false);
             this->buttonsMap->at(buttonID-1)->setStyleSheet("background-color:grey");
         }else{
-            QMessageBox::information(nullptr, "Error", "Button ID exceed!");
-            return;
+            QMessageBox::critical(nullptr, "Error", "Button ID exceed!");
+            exit(-1);
         }
     }
 
 }
+
+void TRTimeOperator::queryForNextPatient(){
+
+    QueryNextPatientDialog dialog(this);
+    int code = dialog.exec();
+    qDebug()<<code;
+    if(QDialog::Accepted == code){
+        QMessageBox::information(nullptr,"Info","Next");
+    }else if(QDialog::Rejected == code){
+        QMessageBox::information(nullptr,"Info","DeleteRecord");
+    }else{
+        QMessageBox::information(nullptr,"Info","Noting to do");
+    }
+}
+
+/*************/
+QueryNextPatientDialog::QueryNextPatientDialog(TRTimeOperator* parent):QDialog(parent){
+    //this->setAttribute(Qt::WA_DeleteOnClose);
+    this->resize(parent->width()/4,parent->height()/5);
+    this->setWindowTitle("Ready for next?");
+
+    this->nextPatient = new QPushButton(this);
+    this->nextPatient->setGeometry(QRect(0,
+                                         0,
+                                         this->geometry().width()/2,
+                                         this->geometry().height()));
+    this->nextPatient->setText("Next Patient");
+
+    this->deleteRecord = new QPushButton(this);
+    this->deleteRecord->setText("Delete record");
+    this->deleteRecord->setGeometry(QRect(this->geometry().width()/2,
+                                          0,
+                                          this->geometry().width()/2,
+                                          this->geometry().height()));
+
+    QObject::connect(this->nextPatient,SIGNAL(pressed()),this,SLOT(nextPatientHandle()));
+    QObject::connect(this->deleteRecord,SIGNAL(pressed()),this,SLOT(deleteRecordHandle()));
+}
+
+QueryNextPatientDialog::~QueryNextPatientDialog(){
+    if(this->nextPatient){
+        delete this->nextPatient;
+        this->nextPatient = NULL;
+    }
+
+    if(this->deleteRecord){
+        delete this->deleteRecord;
+        this->deleteRecord = NULL;
+    }
+}
+
+
+void QueryNextPatientDialog::closeEvent(QCloseEvent *){
+    this->setResult(3);
+}
+
+void QueryNextPatientDialog::nextPatientHandle(){
+    //this->setResult(QDialog::Accepted);
+    //this->close();
+    this->accept();
+}
+
+void QueryNextPatientDialog::deleteRecordHandle(){
+    //this->setResult(QDialog::Rejected);
+    //this->close();
+    this->reject();
+}
+

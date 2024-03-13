@@ -7,7 +7,8 @@ SOURCES += \
     source/DAO.cpp \
     source/PatientInput.cpp \
     source/TRTimeOperator.cpp \
-    source/main.cpp
+    source/main.cpp \
+    ui/Form/dialog.cpp
 
 HEADERS += \
     include/ConfigLoader.h \
@@ -15,10 +16,12 @@ HEADERS += \
     include/DAO_Interface.h \
     include/PatientInput.h \
     include/TRTimeOperator.h \
-    include/Util.h
+    include/Util.h \
+    ui/Form/dialog.h
 
 FORMS += \
-    ui/Form/TRTimeOperator.ui
+    ui/Form/TRTimeOperator.ui \
+    ui/Form/dialog.ui
 
 RESOURCES += \
     ui/qrc/StartUi.qrc \

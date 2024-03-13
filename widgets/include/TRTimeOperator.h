@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QMenuBar>
 #include <QButtonGroup>
+#include <QDialogButtonBox>
+#include <QDialog>
 
 namespace Ui{
     class TRTimeOperator;
@@ -37,8 +39,9 @@ private:
     void clear();
 
 private:
-    void timeRecord(unsigned int);
+    bool timeRecord(unsigned int);
     void changeButtonStatus(unsigned int);
+    void queryForNextPatient();
 
 /*
 signals:
@@ -46,6 +49,26 @@ signals:
 */
 private slots:
     void HandleSignal(int ID);
+};
+
+class QueryNextPatientDialog: public QDialog{
+    Q_OBJECT
+
+public:
+    QueryNextPatientDialog() = delete;
+    QueryNextPatientDialog(TRTimeOperator * parent = NULL);
+    virtual ~QueryNextPatientDialog();
+
+private:
+    QPushButton *nextPatient = NULL;
+    QPushButton *deleteRecord = NULL;
+
+private:
+    void closeEvent(QCloseEvent *) override;
+
+private slots:
+    void nextPatientHandle();
+    void deleteRecordHandle();
 };
 
 #endif
