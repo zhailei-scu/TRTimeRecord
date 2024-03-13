@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>TRTimeOperator</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="accessories-character-map" resource="../qrc/icon.qrc">
+    <normaloff>:/img/logo.ico</normaloff>:/img/logo.ico</iconset>
+  </property>
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
@@ -36,6 +40,9 @@
    </property>
    <property name="text">
     <string>Patient Come in</string>
+   </property>
+   <property name="icon">
+    <iconset theme="address-book-new"/>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_PatentImaging">
@@ -141,6 +148,8 @@ border-color: rgb(255, 255, 255);</string>
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../qrc/icon.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -136,7 +136,7 @@ void DAO::appendARow(const QString & tableName,
 
     for(auto it = patientInfoPatten->begin(); it != patientInfoPatten->end();it++){
         auto it_find = patientInfos.find(it->first);
-        if(it_find == patientInfoPatten->end()){
+        if(it_find == patientInfos.end()){
             str.append(", '").append("").append("'");
         }else{
             str.append(", '").append(it_find->second).append("'");
@@ -145,7 +145,7 @@ void DAO::appendARow(const QString & tableName,
 
     for(auto it = operatorPatten->begin(); it != operatorPatten->end();it++){
         auto it_find = operatorTimes.find(it->first);
-        if(it_find == operatorPatten->end()){
+        if(it_find == operatorTimes.end()){
             QMessageBox::information(nullptr, "Warning", QString("Operator %1 time is not found").arg(it->second));
             str.append(", '").append("").append("'");
         }else{

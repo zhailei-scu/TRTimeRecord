@@ -9,16 +9,52 @@
 #include <algorithm>
 #include <QDateTime>
 #include <QDate>
+#include <QHBoxLayout>
 
 TRTimeOperator::TRTimeOperator(QWidget* parent):QWidget(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
     uiForm->setupUi(this);
 
-    this->buttonConstruct();
+    this->uiConstruct();
 }
 
 TRTimeOperator::~TRTimeOperator(){
     this->clear();
+}
+
+void TRTimeOperator::uiConstruct(){
+    new QHBoxLayout(this);
+
+    this->menuBarConstruct();
+    this->buttonConstruct();
+}
+
+void TRTimeOperator::uiDeconstruct(){
+    if(this->menuBar){
+        delete this->menuBar;
+        this->menuBar = NULL;
+    }
+
+    if(this->buttonGroup){
+        delete this->buttonGroup;
+        this->buttonGroup = NULL;
+    }
+}
+
+void TRTimeOperator::menuBarConstruct(){
+    this->menuBar = new QMenuBar(this);
+
+    this->menuBar->addMenu("Setting");
+    this->menuBar->addSeparator();
+
+    this->menuBar->addMenu("Data");
+    this->menuBar->addSeparator();
+
+    this->menuBar->addMenu("Help?");
+    this->menuBar->addSeparator();
+
+    this->layout()->setMenuBar(this->menuBar);
+    this->menuBar->show();
 }
 
 void TRTimeOperator::buttonConstruct(){
@@ -71,10 +107,7 @@ void TRTimeOperator::buttonConstruct(){
 }
 
 void TRTimeOperator::clear(){
-    if(this->buttonGroup){
-        delete this->buttonGroup;
-        this->buttonGroup = NULL;
-    }
+    this->uiDeconstruct();
 
     if(this->buttonsMap){
         std::map<unsigned int,QAbstractButton*>().swap(*this->buttonsMap);

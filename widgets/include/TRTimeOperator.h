@@ -2,6 +2,7 @@
 #define TRTIMEOPERATOR_H
 
 #include <QWidget>
+#include <QMenuBar>
 #include <QButtonGroup>
 
 namespace Ui{
@@ -17,6 +18,10 @@ public:
 
 private:
     Ui::TRTimeOperator *uiForm;
+
+
+private:
+    QMenuBar *menuBar = NULL;
     QButtonGroup *buttonGroup = NULL;
 
 private:
@@ -25,6 +30,9 @@ private:
     std::map<unsigned int,QString> buttonTimeRecord;
 
 private:
+    void uiConstruct();
+    void uiDeconstruct();
+    void menuBarConstruct();
     void buttonConstruct();
     void clear();
 

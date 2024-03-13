@@ -22,4 +22,5 @@ FORMS += \
 
 RESOURCES += \
     ui/qrc/StartUi.qrc \
+    ui/qrc/icon.qrc \
     ui/qrc/style.qrc

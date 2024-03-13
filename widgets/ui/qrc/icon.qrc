@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>img/StartGUI.bmp</file>
+        <file>img/logo.ico</file>
     </qresource>
 </RCC>
