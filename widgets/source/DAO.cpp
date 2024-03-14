@@ -156,7 +156,27 @@ void DAO::appendARow(const QString & tableName,
     str.append(");");
 
     query.exec(str);
-    qDebug()<<query.lastError();
+    if(QSqlError::NoError != query.lastError().type()){
+        QMessageBox::critical(nullptr,"Error",query.lastError().text());
+        exit(-1);
+    }
+}
+
+void DAO::deleteLastRecord(const QString & tableName){
+    QString str("");
+    if(DAO::getInstance()->tableExisted(tableName)){
+        QSqlQuery query;
+        str = str.append("delete from %1 where id like ("
+                                                     "select id from %1 order by id desc limit 1"
+                                                     ")"
+                         ";").arg(tableName);
+        query.exec(str);
+
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
+    }
 }
 
 /*Garbge clear*/

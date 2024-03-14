@@ -29,6 +29,7 @@ public:
     virtual void appendARow(const QString & tableName,
                             const std::map<unsigned int,QString> & patientInfos,
                             const std::map<unsigned int,QString> & operatorTimes);
+    virtual void deleteLastRecord(const QString & tableName);
 
 private:
     void clear();

@@ -10,6 +10,7 @@
 #include <QDateTime>
 #include <QDate>
 #include <QHBoxLayout>
+#include <QInputDialog>
 
 TRTimeOperator::TRTimeOperator(QWidget* parent):QWidget(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
@@ -121,6 +122,8 @@ void TRTimeOperator::clear(){
 
     std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
     this->buttonTimeRecord.clear();
+
+    this->lastTableName = "";
 }
 
 void TRTimeOperator::HandleSignal(int ID){
@@ -139,6 +142,8 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
 
     tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
 
+    this->lastTableName = tableName;
+
     if(this->buttonTimeRecord.find(buttonID) == this->buttonTimeRecord.end()){
         this->buttonTimeRecord.insert(std::pair<unsigned int,QString>(buttonID,time));
     }else{
@@ -156,8 +161,6 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
         this->buttonTimeRecord.clear();
 
         result = true;
-
-        QMessageBox::information(nullptr, "Information", "Record successful!");
     }
 
     return result;
@@ -202,24 +205,47 @@ void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
 }
 
 void TRTimeOperator::queryForNextPatient(){
+    QueryNextPatientDialog *dialog = new QueryNextPatientDialog(this);
+    /*
+    QueryNextPatientDialog (this);                  //Please do not allocate the QDialog in stack when some compents within
+                                                    //it are allocated in heap, because it would not be released automate
+                                                    //, besides, the Qt::WA_DeleteOnClose flag is also not available(see the)
+                                                    //(explain below).
 
-    QueryNextPatientDialog dialog(this);
-    int code = dialog.exec();
-    qDebug()<<code;
+    dialog.setAttribute(Qt::WA_DeleteOnClose);      //Please call this function careful, beacause
+                                                    //if some compents within the object and allocated in heap
+                                                    //would be released manually when deconstructor are called,
+                                                    //but this flag would also release the compents, so
+                                                    //the compents would be release two times, so the memory error would
+                                                    //occur.
+    */
+    int code = dialog->exec();
     if(QDialog::Accepted == code){
-        QMessageBox::information(nullptr,"Info","Next");
+        this->changeButtonStatus(0);
     }else if(QDialog::Rejected == code){
-        QMessageBox::information(nullptr,"Info","DeleteRecord");
+        bool OK = true;
+        QString inputed;
+        while(!(inputed = QInputDialog::getText(this,QString("Delete confirm"),QString("Please input 'hfimc'"),QLineEdit::Password,0,&OK)).isEmpty() && OK && (inputed != QString("hfimc"))){
+            QMessageBox::information(nullptr,"Error",QString("Input: %1, you should input 'hficm'").arg(inputed));
+        }
+        if(OK){
+            DAO::getInstance()->deleteLastRecord(this->lastTableName);
+        }
+        this->changeButtonStatus(0);
     }else{
-        QMessageBox::information(nullptr,"Info","Noting to do");
+        this->changeButtonStatus(0);
+    }
+
+    if(dialog){
+        delete dialog;
+        dialog = NULL;
     }
 }
 
 /*************/
 QueryNextPatientDialog::QueryNextPatientDialog(TRTimeOperator* parent):QDialog(parent){
-    //this->setAttribute(Qt::WA_DeleteOnClose);
     this->resize(parent->width()/4,parent->height()/5);
-    this->setWindowTitle("Ready for next?");
+    this->setWindowTitle("Record inserted successful!");
 
     this->nextPatient = new QPushButton(this);
     this->nextPatient->setGeometry(QRect(0,
