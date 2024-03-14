@@ -52,14 +52,14 @@ void TRTimeOperator::uiDeconstruct(){
 void TRTimeOperator::menuBarConstruct(){
     this->menuBar = new QMenuBar(this);
 
-    this->menuBar->addMenu(QIcon(":/img/setting.svg"),"Setting");
-    this->menuBar->addSeparator();
+    this->menuBar->addMenu("Setting");
+    //this->menuBar->addSeparator();
 
-    this->menuBar->addMenu(QIcon(":/img/dataBase.svg"),"DataView");
-    this->menuBar->addSeparator();
+    this->menuBar->addMenu("DataView");
+    //this->menuBar->addSeparator();
 
-    this->menuBar->addMenu(QIcon(":/img/help.svg"),"Help?");
-    this->menuBar->addSeparator();
+    this->menuBar->addMenu("Help?");
+    //this->menuBar->addSeparator();
 
     this->layout()->setMenuBar(this->menuBar);
 
@@ -76,14 +76,18 @@ void TRTimeOperator::toolBarConstruct(){
     this->toolBar->addWidget(buttonSetting);
 
     QToolButton *dataView = new QToolButton();
-    buttonSetting->setIcon(QIcon(":/img/dataBase.svg"));
-    buttonSetting->setText("DataView");
+    dataView->setIcon(QIcon(":/img/dataBase.svg"));
+    dataView->setText("DataView");
     this->toolBar->addWidget(dataView);
 
+    qDebug()<<this->menuBar->geometry();
+
     this->toolBar->setGeometry(QRect(this->menuBar->geometry().x(),
-                                     this->menuBar->geometry().y() + this->menuBar->geometry().height(),
+                                     this->menuBar->geometry().bottom(),
                                      this->menuBar->geometry().width(),
                                      this->menuBar->geometry().height()));
+
+    qDebug()<<this->toolBar->geometry();
 
     this->toolBar->show();
 }
