@@ -16,7 +16,7 @@ QMainWindow {
     background-color:#ececec;
 }
 */
-QPushButton, QToolButton, QCommandLinkButton{
+QPushButton, QCommandLinkButton{
     padding: 0 5px 0 5px;
     border-style: solid;
     border-top-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #c1c9cf, stop:1 #d2d8dd);
@@ -29,22 +29,67 @@ QPushButton, QToolButton, QCommandLinkButton{
     font-weight: bold;
     background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #fbfdfd, stop:0.5 #ffffff, stop:1 #fbfdfd);
 }
-QPushButton::default, QToolButton::default, QCommandLinkButton::default{
+QPushButton::default, QCommandLinkButton::default{
     border: 2px solid transparent;
     color: #FFFFFF;
     background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #84afe5, stop:1 #1168e4);
 }
-QPushButton:hover, QToolButton:hover, QCommandLinkButton:hover{
+QPushButton:hover, QCommandLinkButton:hover{
     color: #3d3d3d;
 }
-QPushButton:pressed, QToolButton:pressed, QCommandLinkButton:pressed{
+QPushButton:pressed, QCommandLinkButton:pressed{
     color: #aeaeae;
     background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #ffffff, stop:0.5 #fbfdfd, stop:1 #ffffff);
 }
-QPushButton:disabled, QToolButton:disabled, QCommandLinkButton:disabled{
+QPushButton:disabled, QCommandLinkButton:disabled{
     color: #616161;
     background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #dce7eb, stop:0.5 #e0e8eb, stop:1 #dee7ec);
 }
+
+
+QToolBar {
+    background-color: #4d9a72;
+}
+QToolBar::item {
+    color: #ececec;
+    spacing: 3px;
+    padding: 1px 4px;
+    background-color: #4d9a72;
+}
+QToolBar::item:selected {
+    background-color: #dadada;
+    color: #3d3d3d;
+}
+QToolButton{
+    padding: 0 5px 0 5px;
+    border-style: solid;
+    border-top-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #c1c9cf, stop:1 #d2d8dd);
+    border-right-color: qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:0, stop:0 #c1c9cf, stop:1 #d2d8dd);
+    border-bottom-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #c1c9cf, stop:1 #d2d8dd);
+    border-left-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #c1c9cf, stop:1 #d2d8dd);
+    border-width: 2px;
+    border-radius: 8px;
+    color: #eeeeee;
+    font-weight: bold;
+    background-color: #4d9a72;
+}
+QToolButton::default{
+    border: 2px solid transparent;
+    color: #FFFFFF;
+    background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #84afe5, stop:1 #1168e4);
+}
+QToolButton:hover{
+    color: #3d3d3d;
+}
+QToolButton:pressed{
+    color: #aeaeae;
+    background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #ffffff, stop:0.5 #fbfdfd, stop:1 #ffffff);
+}
+QToolButton:disabled{
+    color: #616161;
+    background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #dce7eb, stop:0.5 #e0e8eb, stop:1 #dee7ec);
+}
+
 QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QTimeEdit, QDateEdit, QDateTimeEdit {
     border-width: 2px;
     border-radius: 8px;
@@ -320,6 +365,9 @@ QMenu::item {
     color: #616161;;
     background-color: #151a1e;
 }
+
+
+
 QTabWidget {
     color:rgb(0,0,0);
     background-color:#000000;

@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>img/logo.ico</file>
+        <file>img/dataBase.svg</file>
+        <file>img/help.svg</file>
+        <file>img/setting.svg</file>
     </qresource>
 </RCC>

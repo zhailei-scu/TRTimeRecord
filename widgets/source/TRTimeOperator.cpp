@@ -11,6 +11,7 @@
 #include <QDate>
 #include <QHBoxLayout>
 #include <QInputDialog>
+#include <QToolButton>
 
 TRTimeOperator::TRTimeOperator(QWidget* parent):QWidget(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
@@ -27,6 +28,7 @@ void TRTimeOperator::uiConstruct(){
     new QHBoxLayout(this); //registe a Layout object for current window
 
     this->menuBarConstruct();
+    this->toolBarConstruct();
     this->buttonConstruct();
 }
 
@@ -34,6 +36,11 @@ void TRTimeOperator::uiDeconstruct(){
     if(this->menuBar){
         delete this->menuBar;
         this->menuBar = NULL;
+    }
+
+    if(this->toolBar){
+        delete this->toolBar;
+        this->toolBar = NULL;
     }
 
     if(this->buttonGroup){
@@ -45,17 +52,40 @@ void TRTimeOperator::uiDeconstruct(){
 void TRTimeOperator::menuBarConstruct(){
     this->menuBar = new QMenuBar(this);
 
-    this->menuBar->addMenu("Setting");
+    this->menuBar->addMenu(QIcon(":/img/setting.svg"),"Setting");
     this->menuBar->addSeparator();
 
-    this->menuBar->addMenu("Data");
+    this->menuBar->addMenu(QIcon(":/img/dataBase.svg"),"DataView");
     this->menuBar->addSeparator();
 
-    this->menuBar->addMenu("Help?");
+    this->menuBar->addMenu(QIcon(":/img/help.svg"),"Help?");
     this->menuBar->addSeparator();
 
     this->layout()->setMenuBar(this->menuBar);
+
     this->menuBar->show();
+}
+
+void TRTimeOperator::toolBarConstruct(){
+    this->toolBar = new QToolBar(this);
+
+
+    QToolButton *buttonSetting = new QToolButton();
+    buttonSetting->setIcon(QIcon(":/img/setting.svg"));
+    buttonSetting->setText("Setting");
+    this->toolBar->addWidget(buttonSetting);
+
+    QToolButton *dataView = new QToolButton();
+    buttonSetting->setIcon(QIcon(":/img/dataBase.svg"));
+    buttonSetting->setText("DataView");
+    this->toolBar->addWidget(dataView);
+
+    this->toolBar->setGeometry(QRect(this->menuBar->geometry().x(),
+                                     this->menuBar->geometry().y() + this->menuBar->geometry().height(),
+                                     this->menuBar->geometry().width(),
+                                     this->menuBar->geometry().height()));
+
+    this->toolBar->show();
 }
 
 void TRTimeOperator::buttonConstruct(){

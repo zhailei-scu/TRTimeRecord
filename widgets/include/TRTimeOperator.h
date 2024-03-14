@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QMenuBar>
+#include <QToolBar>
 #include <QButtonGroup>
 #include <QDialogButtonBox>
 #include <QDialog>
@@ -24,6 +25,7 @@ private:
 
 private:
     QMenuBar *menuBar = NULL;
+    QToolBar *toolBar = NULL;
     QButtonGroup *buttonGroup = NULL;
 
 private:
@@ -36,6 +38,7 @@ private:
     void uiConstruct();
     void uiDeconstruct();
     void menuBarConstruct();
+    void toolBarConstruct();
     void buttonConstruct();
     void clear();
 
