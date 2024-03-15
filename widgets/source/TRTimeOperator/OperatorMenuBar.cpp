@@ -52,7 +52,19 @@ void OperatorMenuBar::clear(){
     }
 }
 
+const QMenu * OperatorMenuBar::getMenu(const QString & name) const{
+    QMenu * result = NULL;
+    if(this->menuMap){
+        std::map<QString,const QMenu &>::const_iterator it = this->menuMap->find(name);
+        if(it != this->menuMap->end()){
+            result = const_cast<QMenu*>(&(it->second));
+        }
+    }
+
+    return result;
+}
+
 /*action slot*/
 void OperatorMenuBar::dataView(){
-    QMessageBox::information(nullptr,"Info","Triggered");
+
 }

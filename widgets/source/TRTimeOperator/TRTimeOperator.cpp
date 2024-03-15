@@ -35,6 +35,8 @@ void TRTimeOperator::uiConstruct(){
                                      this->geometry().width(),
                                      this->geometry().height()/25));
 
+    QObject::connect(*this->menuBar->getMenu("DataView")->actions().begin(),&QAction::triggered,this,&TRTimeOperator::dataView);
+
     this->toolBar = new OperatorToolBar(this);
     this->toolBar->uiConstruct(QRect(0,
                                      this->geometry().height()/25,
@@ -152,6 +154,11 @@ void TRTimeOperator::HandleSignal(int ID){
 
 void TRTimeOperator::removeTable(int index){
     this->uiForm->tabWidget->removeTab(index);
+}
+
+void TRTimeOperator::dataView(){
+    QTableModel *table = new
+    this->uiForm->tabWidget->addTab();
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){

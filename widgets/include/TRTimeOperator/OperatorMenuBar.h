@@ -16,6 +16,9 @@ public:
 private:
     std::map<QString,const QMenu &>* menuMap = NULL;
 
+public:
+    const QMenu * getMenu(const QString & name) const;
+
 private:
     void clear();
 
