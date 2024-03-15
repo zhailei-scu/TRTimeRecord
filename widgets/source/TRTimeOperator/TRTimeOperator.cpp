@@ -13,6 +13,7 @@
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QToolButton>
+#include <QTabBar>
 
 TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_Interface(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
@@ -39,6 +40,17 @@ void TRTimeOperator::uiConstruct(){
                                      this->geometry().height()/25,
                                      this->geometry().width(),
                                      this->geometry().height()/25));
+
+    this->uiForm->tabWidget->setGeometry(0,
+                                         this->toolBar->geometry().bottom(),
+                                         this->geometry().width(),
+                                         this->geometry().height() - this->toolBar->geometry().bottom());
+
+    QObject::connect(this->uiForm->tabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(removeTable(int)));
+
+    this->uiForm->tabWidget->setTabsClosable(true);
+    this->uiForm->tabWidget->tabBar()->setTabButton(0,QTabBar::RightSide,nullptr);
+
     this->buttonConstruct();
 }
 
@@ -136,6 +148,10 @@ void TRTimeOperator::HandleSignal(int ID){
     if(recorded){
         this->queryForNextPatient();
     }
+}
+
+void TRTimeOperator::removeTable(int index){
+    this->uiForm->tabWidget->removeTab(index);
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){

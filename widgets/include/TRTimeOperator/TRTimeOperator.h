@@ -51,6 +51,7 @@ signals:
 */
 private slots:
     void HandleSignal(int ID);
+    void removeTable(int index);
 };
 
 
