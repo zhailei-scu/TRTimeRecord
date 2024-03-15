@@ -1,5 +1,5 @@
-#include "../include/DAO.h"
-#include "../include/ConfigLoader.h"
+#include "../../include/DAO/DAO.h"
+#include "../../include/Config/ConfigLoader.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>

@@ -1,7 +1,7 @@
 #ifndef TRTIMEOPERATOR_H
 #define TRTIMEOPERATOR_H
 
-#include <QWidget>
+#include "TRTimeOperator_Interface.h"
 #include <QMenuBar>
 #include <QToolBar>
 #include <QButtonGroup>
@@ -12,16 +12,15 @@ namespace Ui{
     class TRTimeOperator;
 };
 
-class TRTimeOperator: public QWidget{
+class TRTimeOperator: public TRTimeOperator_Interface{
     Q_OBJECT;
 
 public:
-    TRTimeOperator(QWidget* parent = nullptr);
+    TRTimeOperator(TRTimeOperator_Interface* parent = nullptr);
     virtual ~TRTimeOperator();
 
 private:
     Ui::TRTimeOperator *uiForm;
-
 
 private:
     QMenuBar *menuBar = NULL;
@@ -35,8 +34,9 @@ private:
     QString lastTableName;
 
 private:
-    void uiConstruct();
-    void uiDeconstruct();
+    virtual void uiConstruct();
+    virtual void uiDeconstruct();
+private:
     void menuBarConstruct();
     void toolBarConstruct();
     void buttonConstruct();

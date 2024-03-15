@@ -1,8 +1,8 @@
-#include "../include/TRTimeOperator.h"
+#include "../../include/TRTimeOperator/TRTimeOperator.h"
 #include "../ui_TRTimeOperator.h"
-#include "../include/DAO.h"
-#include "../include/ConfigLoader.h"
-#include "../include/Util.h"
+#include "../../include/DAO/DAO.h"
+#include "../../include/Config/ConfigLoader.h"
+#include "../../include/Util/Util.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
@@ -13,10 +13,9 @@
 #include <QInputDialog>
 #include <QToolButton>
 
-TRTimeOperator::TRTimeOperator(QWidget* parent):QWidget(parent),uiForm(new Ui::TRTimeOperator){
+TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_Interface(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
     uiForm->setupUi(this);
-
     this->uiConstruct();
 }
 
@@ -26,6 +25,7 @@ TRTimeOperator::~TRTimeOperator(){
 
 void TRTimeOperator::uiConstruct(){
     new QHBoxLayout(this); //registe a Layout object for current window
+    this->layout()->setGeometry(this->geometry());
 
     this->menuBarConstruct();
     this->toolBarConstruct();
@@ -61,14 +61,19 @@ void TRTimeOperator::menuBarConstruct(){
     this->menuBar->addMenu("Help?");
     //this->menuBar->addSeparator();
 
-    this->layout()->setMenuBar(this->menuBar);
+    this->menuBar->setGeometry(QRect(0,
+                                     0,
+                                     this->geometry().width(),
+                                     this->geometry().height()/25));
+    //this->layout()->setMenuBar(this->menuBar);
+
+    new QHBoxLayout(this->menuBar);
 
     this->menuBar->show();
 }
 
 void TRTimeOperator::toolBarConstruct(){
     this->toolBar = new QToolBar(this);
-
 
     QToolButton *buttonSetting = new QToolButton();
     buttonSetting->setIcon(QIcon(":/img/setting.svg"));
@@ -82,12 +87,17 @@ void TRTimeOperator::toolBarConstruct(){
 
     qDebug()<<this->menuBar->geometry();
 
-    this->toolBar->setGeometry(QRect(this->menuBar->geometry().x(),
+    //this->layout()->addWidget(this->toolBar);
+
+    //this->layout()->setAlignment(Qt::AlignTop);
+    this->toolBar->setGeometry(QRect(this->menuBar->geometry().left(),
                                      this->menuBar->geometry().bottom(),
                                      this->menuBar->geometry().width(),
                                      this->menuBar->geometry().height()));
 
     qDebug()<<this->toolBar->geometry();
+
+
 
     this->toolBar->show();
 }

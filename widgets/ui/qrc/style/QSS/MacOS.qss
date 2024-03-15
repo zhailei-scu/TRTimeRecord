@@ -49,6 +49,11 @@ QPushButton:disabled, QCommandLinkButton:disabled{
 
 QToolBar {
     background-color: #4d9a72;
+    border: 1px solid;
+    border-top-color: darkgray;
+    border-left-color:#4d9a72;
+    border-right-color:#4d9a72;
+    border-bottom-color:#4d9a72;
 }
 QToolBar::item {
     color: #ececec;
@@ -315,6 +320,7 @@ QMenuBar {
 */
 QMenuBar {
     background-color: #4d9a72;
+    alignment: hcenter;
 }
 /*
 QMenuBar::item {
@@ -326,8 +332,6 @@ QMenuBar::item {
 */
 QMenuBar::item {
     color: #ececec;
-    spacing: 3px;
-    padding: 1px 4px;
     background-color: #4d9a72;
 }
 QMenuBar::item:selected {

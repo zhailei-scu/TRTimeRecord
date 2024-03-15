@@ -1,4 +1,4 @@
-#include "../include/ConfigLoader.h"
+#include "../../include/Config/ConfigLoader.h"
 
 ConfigLoader* ConfigLoader::thePtr = new ConfigLoader();  //hungry mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;

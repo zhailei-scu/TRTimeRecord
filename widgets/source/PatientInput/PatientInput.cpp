@@ -1,4 +1,4 @@
-#include "../include/PatientInput.h"
+#include "../../include/PatientInput/PatientInput.h"
 
 PatientInput::PatientInput(QWidget* parent):QWidget(parent){
 }
