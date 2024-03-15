@@ -325,7 +325,7 @@ QMenuBar {
 /*
 QMenuBar::item {
     color: #616161;
-    spacing: 3px;
+    spacing: 2px 25px 2px 25px;
     padding: 1px 4px;
     background-color: #ececec;
 }

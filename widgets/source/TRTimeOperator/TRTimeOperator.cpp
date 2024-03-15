@@ -1,5 +1,6 @@
 #include "../../include/TRTimeOperator/TRTimeOperator.h"
 #include "../ui_TRTimeOperator.h"
+#include "../../include/TRTimeOperator/QueryForNextPatient.h"
 #include "../../include/DAO/DAO.h"
 #include "../../include/Config/ConfigLoader.h"
 #include "../../include/Util/Util.h"
@@ -27,18 +28,29 @@ void TRTimeOperator::uiConstruct(){
     new QHBoxLayout(this); //registe a Layout object for current window
     this->layout()->setGeometry(this->geometry());
 
-    this->menuBarConstruct();
-    this->toolBarConstruct();
+    this->menuBar = new OperatorMenuBar(this);
+    this->menuBar->uiConstruct(QRect(0,
+                                     0,
+                                     this->geometry().width(),
+                                     this->geometry().height()/25));
+
+    this->toolBar = new OperatorToolBar(this);
+    this->toolBar->uiConstruct(QRect(0,
+                                     this->geometry().height()/25,
+                                     this->geometry().width(),
+                                     this->geometry().height()/25));
     this->buttonConstruct();
 }
 
 void TRTimeOperator::uiDeconstruct(){
     if(this->menuBar){
+        this->menuBar->uiDeConstruct();
         delete this->menuBar;
         this->menuBar = NULL;
     }
 
     if(this->toolBar){
+        this->toolBar->uiDeConstruct();
         delete this->toolBar;
         this->toolBar = NULL;
     }
@@ -47,59 +59,6 @@ void TRTimeOperator::uiDeconstruct(){
         delete this->buttonGroup;
         this->buttonGroup = NULL;
     }
-}
-
-void TRTimeOperator::menuBarConstruct(){
-    this->menuBar = new QMenuBar(this);
-
-    this->menuBar->addMenu("Setting");
-    //this->menuBar->addSeparator();
-
-    this->menuBar->addMenu("DataView");
-    //this->menuBar->addSeparator();
-
-    this->menuBar->addMenu("Help?");
-    //this->menuBar->addSeparator();
-
-    this->menuBar->setGeometry(QRect(0,
-                                     0,
-                                     this->geometry().width(),
-                                     this->geometry().height()/25));
-    //this->layout()->setMenuBar(this->menuBar);
-
-    new QHBoxLayout(this->menuBar);
-
-    this->menuBar->show();
-}
-
-void TRTimeOperator::toolBarConstruct(){
-    this->toolBar = new QToolBar(this);
-
-    QToolButton *buttonSetting = new QToolButton();
-    buttonSetting->setIcon(QIcon(":/img/setting.svg"));
-    buttonSetting->setText("Setting");
-    this->toolBar->addWidget(buttonSetting);
-
-    QToolButton *dataView = new QToolButton();
-    dataView->setIcon(QIcon(":/img/dataBase.svg"));
-    dataView->setText("DataView");
-    this->toolBar->addWidget(dataView);
-
-    qDebug()<<this->menuBar->geometry();
-
-    //this->layout()->addWidget(this->toolBar);
-
-    //this->layout()->setAlignment(Qt::AlignTop);
-    this->toolBar->setGeometry(QRect(this->menuBar->geometry().left(),
-                                     this->menuBar->geometry().bottom(),
-                                     this->menuBar->geometry().width(),
-                                     this->menuBar->geometry().height()));
-
-    qDebug()<<this->toolBar->geometry();
-
-
-
-    this->toolBar->show();
 }
 
 void TRTimeOperator::buttonConstruct(){
@@ -285,56 +244,3 @@ void TRTimeOperator::queryForNextPatient(){
         dialog = NULL;
     }
 }
-
-/*************/
-QueryNextPatientDialog::QueryNextPatientDialog(TRTimeOperator* parent):QDialog(parent){
-    this->resize(parent->width()/4,parent->height()/5);
-    this->setWindowTitle("Record inserted successful!");
-
-    this->nextPatient = new QPushButton(this);
-    this->nextPatient->setGeometry(QRect(0,
-                                         0,
-                                         this->geometry().width()/2,
-                                         this->geometry().height()));
-    this->nextPatient->setText("Next Patient");
-
-    this->deleteRecord = new QPushButton(this);
-    this->deleteRecord->setText("Delete record");
-    this->deleteRecord->setGeometry(QRect(this->geometry().width()/2,
-                                          0,
-                                          this->geometry().width()/2,
-                                          this->geometry().height()));
-
-    QObject::connect(this->nextPatient,SIGNAL(pressed()),this,SLOT(nextPatientHandle()));
-    QObject::connect(this->deleteRecord,SIGNAL(pressed()),this,SLOT(deleteRecordHandle()));
-}
-
-QueryNextPatientDialog::~QueryNextPatientDialog(){
-    if(this->nextPatient){
-        delete this->nextPatient;
-        this->nextPatient = NULL;
-    }
-
-    if(this->deleteRecord){
-        delete this->deleteRecord;
-        this->deleteRecord = NULL;
-    }
-}
-
-
-void QueryNextPatientDialog::closeEvent(QCloseEvent *){
-    this->setResult(3);
-}
-
-void QueryNextPatientDialog::nextPatientHandle(){
-    //this->setResult(QDialog::Accepted);
-    //this->close();
-    this->accept();
-}
-
-void QueryNextPatientDialog::deleteRecordHandle(){
-    //this->setResult(QDialog::Rejected);
-    //this->close();
-    this->reject();
-}
-

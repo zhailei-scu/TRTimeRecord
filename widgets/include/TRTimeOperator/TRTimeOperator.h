@@ -2,11 +2,11 @@
 #define TRTIMEOPERATOR_H
 
 #include "TRTimeOperator_Interface.h"
-#include <QMenuBar>
-#include <QToolBar>
+#include "OperatorMenuBar.h"
+#include "OperatorToolBar.h"
+#include <QWidget>
 #include <QButtonGroup>
-#include <QDialogButtonBox>
-#include <QDialog>
+
 
 namespace Ui{
     class TRTimeOperator;
@@ -23,8 +23,8 @@ private:
     Ui::TRTimeOperator *uiForm;
 
 private:
-    QMenuBar *menuBar = NULL;
-    QToolBar *toolBar = NULL;
+    OperatorMenuBar *menuBar = NULL;
+    OperatorToolBar *toolBar = NULL;
     QButtonGroup *buttonGroup = NULL;
 
 private:
@@ -37,8 +37,6 @@ private:
     virtual void uiConstruct();
     virtual void uiDeconstruct();
 private:
-    void menuBarConstruct();
-    void toolBarConstruct();
     void buttonConstruct();
     void clear();
 
@@ -55,24 +53,5 @@ private slots:
     void HandleSignal(int ID);
 };
 
-class QueryNextPatientDialog: public QDialog{
-    Q_OBJECT
-
-public:
-    QueryNextPatientDialog() = delete;
-    QueryNextPatientDialog(TRTimeOperator * parent = NULL);
-    virtual ~QueryNextPatientDialog();
-
-private:
-    QPushButton *nextPatient = NULL;
-    QPushButton *deleteRecord = NULL;
-
-private:
-    void closeEvent(QCloseEvent *) override;
-
-private slots:
-    void nextPatientHandle();
-    void deleteRecordHandle();
-};
 
 #endif
