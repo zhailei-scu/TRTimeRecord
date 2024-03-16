@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>img/StartGUI.bmp</file>
+        <file>img/washdrumoutlne.png</file>
+        <file>img/backgroundcutout.png</file>
     </qresource>
 </RCC>

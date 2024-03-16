@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>WelcomeGUI.ui.qml</file>
         <file>SplanGUI.ui.qml</file>
+        <file>Timedate.qml</file>
     </qresource>
 </RCC>
