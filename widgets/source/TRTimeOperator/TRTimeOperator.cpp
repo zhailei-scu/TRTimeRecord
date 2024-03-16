@@ -157,8 +157,8 @@ void TRTimeOperator::removeTable(int index){
 }
 
 void TRTimeOperator::dataView(){
-    QTableModel *table = new
-    this->uiForm->tabWidget->addTab();
+    //QTableModel *table = new
+    //this->uiForm->tabWidget->addTab();
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){

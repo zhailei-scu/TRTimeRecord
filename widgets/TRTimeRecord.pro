@@ -1,4 +1,4 @@
-QT       += widgets sql
+QT       += widgets sql quickwidgets
 
 CONFIG += c++17
 
@@ -31,4 +31,5 @@ FORMS += \
 RESOURCES += \
     ui/qrc/StartUi.qrc \
     ui/qrc/icon.qrc \
+    ui/qrc/qml.qrc \
     ui/qrc/style.qrc
