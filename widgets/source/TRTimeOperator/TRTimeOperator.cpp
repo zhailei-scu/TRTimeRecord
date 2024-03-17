@@ -184,7 +184,6 @@ void TRTimeOperator::dataView(){
     tableView->setModel(table);
     tableView->setGeometry(0,0,tempWidget->size().width(),tempWidget->size().height());
 
-
     qDebug()<<tempWidget->size()<<tableView->size();
 
     tableView->show();
