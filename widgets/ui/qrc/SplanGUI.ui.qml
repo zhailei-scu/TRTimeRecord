@@ -15,12 +15,26 @@ Window {
         id: background
         color: "#333333"
         anchors.fill: parent
+
+        PropertyAnimation{
+            id:backgroundChange
+            target:background
+            property:"color"
+            easing.type: Easing.InQuad
+            to:"green"
+            duration:1000
+            loops:Animation.Infinite
+            running: true
+        }
+
+
     }
 
     TestEvent {
        id: test
     }
 
+    /*
     Image {
         id: backgroundcutout
         y: -2
@@ -28,6 +42,7 @@ Window {
         anchors.horizontalCenterOffset: 2
         anchors.horizontalCenter: parent.horizontalCenter
     }
+    */
 
     Image {
         id: washdrumoutlne
@@ -120,43 +135,8 @@ Window {
         height: 30
     }
 
-    LinearGradient {
-        anchors.fill: background
-        start: Qt.point(0, parent.height/2)
-        end: Qt.point(parent.width, parent.height/2)
-        gradient: Gradient {
-                //position可以更改线性透明的位置， color 就是字体的颜色(两边应该是透明的)
-                //这里是字体后面背景
-                GradientStop { position: 0.0; color: Qt.rgba(255,255,255,0.1) }
-                GradientStop { position: 0.3; color: "blue" }
-                GradientStop { position: 0.7; color: "blue" }
-                GradientStop { position: 1.0; color: Qt.rgba(255,255,255,0.1) }
-        }
-    }
-
-    PathAnimation{
-            id: pathTextMove
-            target: linearLabel
-            //动画的持续时间
-            duration: 6000
-            //动画持续的次数
-            loops: 2000
-            orientationEntryDuration: 0;
-            orientationExitDuration:  0;
-            orientation: PathAnimation.LeftFirst
-            path:Path{
-                startX: splanGUI.width + linearLabel.width/2
-                startY: splanGUI.height/2 - linearLabel.height/2
-                PathLine{
-                    x: 0 - linearLabel.width
-                    y: splanGUI.height/2 - linearLabel.height/2
-                }
-            }
-            running: true
-    }
-
     Component.onCompleted:{
-        test.mouseClick(splanGUI, 0, 0, Qt.NoButton, Qt.NoModifier, 2000);
+        test.mouseClick(splanGUI, 0, 0, Qt.NoButton, Qt.NoModifier, 10000);
         splanGUI.close();
     }
 }
