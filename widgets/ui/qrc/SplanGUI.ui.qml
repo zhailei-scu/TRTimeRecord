@@ -4,19 +4,23 @@ import QtQuick.Controls 2.2
 import Qt5Compat.GraphicalEffects
 import QtTest 1.0
 Window {
-    id: splanGUI
-    visible:true
-    width: 480
-    height: 272
-    color: "red"
-    flags:Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
-
+    readonly property  real widthSet: 480;
+    readonly property real heightSet: 272;
+    readonly property real length: 0.5*Math.sqrt(widthSet*widthSet + heightSet*heightSet)
     property string colorSet: "red";
     property real binSizeX:0.005;
     property int ix_moveUP: 0.5/binSizeX;
     property int ix_moveDown: 0.5/binSizeX;
-    property int iy: 0;
-    property int iz: 0;
+    property real angle: Math.atan(heightSet/widthSet);
+    property point startPoint: Qt.point(0,0)
+    property point endPoint: Qt.point(widthSet,heightSet)
+
+    id: splanGUI
+    visible:true
+    width: widthSet
+    height: heightSet
+    color: "red"
+    flags:Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
     Rectangle {
         id: background
@@ -25,8 +29,8 @@ Window {
         anchors.fill: parent
         LinearGradient{
             anchors.fill: parent
-            start:Qt.point(0,0)
-            end:Qt.point(width,height)
+            start:startPoint;
+            end:endPoint;
 
             gradient: Gradient {
                 GradientStop {
@@ -96,6 +100,7 @@ Window {
 
             ix_moveUP--;
             ix_moveDown++;
+            angle = angle - 5;
         }
     }
 
@@ -114,6 +119,7 @@ Window {
 
             onTriggered: {
                 background.changeBackGround();
+                endPoint = Qt.point(widthSet/2 + length*Math.cos(Math.PI*angle/180),heightSet/2 - length*Math.sin(Math.PI*angle/180));
             }
         }
     }
