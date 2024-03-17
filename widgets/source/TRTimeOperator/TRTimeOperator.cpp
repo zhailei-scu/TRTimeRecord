@@ -14,6 +14,9 @@
 #include <QInputDialog>
 #include <QToolButton>
 #include <QTabBar>
+#include <QQuickView>
+#include <QQuickWindow>
+#include <QQuickWidget>
 
 TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_Interface(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
@@ -52,6 +55,8 @@ void TRTimeOperator::uiConstruct(){
 
     this->uiForm->tabWidget->setTabsClosable(true);
     this->uiForm->tabWidget->tabBar()->setTabButton(0,QTabBar::RightSide,nullptr);
+
+    //this->uiForm->quickWidget->setSource(QUrl(QStringLiteral(":/Operator_BackGround.qml")));
 
     this->buttonConstruct();
 }
@@ -158,7 +163,7 @@ void TRTimeOperator::removeTable(int index){
 
 void TRTimeOperator::dataView(){
     //QTableModel *table = new
-    //this->uiForm->tabWidget->addTab();
+    this->uiForm->tabWidget->addTab(new QWidget(),"DataBase Viewer");
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){

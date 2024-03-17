@@ -187,9 +187,51 @@ border-color: rgb(255, 255, 255);</string>
       <enum>Qt::Vertical</enum>
      </property>
     </widget>
+    <widget class="QQuickWidget" name="quickWidget">
+     <property name="geometry">
+      <rect>
+       <x>-6</x>
+       <y>0</y>
+       <width>811</width>
+       <height>561</height>
+      </rect>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>811</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="acceptDrops">
+      <bool>true</bool>
+     </property>
+     <property name="resizeMode">
+      <enum>QQuickWidget::SizeRootObjectToView</enum>
+     </property>
+     <property name="source">
+      <url>
+       <string>file:///D:/Development/TRTime/widgets/ui/qrc/Operator_BackGround.qml</string>
+      </url>
+     </property>
+    </widget>
+    <zorder>quickWidget</zorder>
+    <zorder>pushButton_Theraphy</zorder>
+    <zorder>pushButton_LeavingRoom</zorder>
+    <zorder>line_4</zorder>
+    <zorder>pushButton_PatentImaging</zorder>
+    <zorder>line_3</zorder>
+    <zorder>pushButton_PatentComeIn</zorder>
+    <zorder>line_2</zorder>
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../qrc/icon.qrc"/>
  </resources>

@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>SplanGUI.ui.qml</file>
         <file>Timedate.qml</file>
+        <file>Operator_BackGround.qml</file>
     </qresource>
 </RCC>
