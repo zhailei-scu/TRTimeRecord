@@ -12,7 +12,7 @@ Window {
     flags:Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
     property string colorSet: "red";
-    property real binSizeX:0.02;
+    property real binSizeX:0.005;
     property int ix_moveUP: 0.5/binSizeX;
     property int ix_moveDown: 0.5/binSizeX;
     property int iy: 0;
@@ -23,7 +23,38 @@ Window {
         //color: "#333333"
         color:colorSet;
         anchors.fill: parent
+        LinearGradient{
+            anchors.fill: parent
+            start:Qt.point(0,0)
+            end:Qt.point(width,height)
+
+            gradient: Gradient {
+                GradientStop {
+                    position: 0;
+                    color: "#e544a1";
+                }
+
+                GradientStop {
+                    position: ix_moveUP*binSizeX;
+                    color: "#333333";
+                }
+
+                GradientStop {
+                    position: ix_moveDown*binSizeX;
+                    color: "#333333";
+                }
+
+                GradientStop {
+                    position: 1.0;
+                    color: "#e544a1";
+                }
+            }
+        }
+
+        /*
         gradient: Gradient {
+            id:gradientVertical
+
             GradientStop {
                 position: 0;
                 color: "#e544a1";
@@ -44,6 +75,8 @@ Window {
                 color: "#e544a1";
             }
         }
+        */
+
         /*
         PropertyAnimation{
             id:backgroundChange
