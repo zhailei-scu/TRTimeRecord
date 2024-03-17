@@ -32,7 +32,7 @@ Rectangle{
         gradient: Gradient {
             GradientStop {
                 position: pos0;
-                color: "#41c690";
+                color: "#595d5b";
             }
 
             GradientStop {
@@ -47,7 +47,7 @@ Rectangle{
 
             GradientStop {
                 position: pos3;
-                color: "#41c690";
+                color: "#595d5b";
             }
         }
     }
