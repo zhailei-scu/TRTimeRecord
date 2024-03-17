@@ -11,11 +11,40 @@ Window {
     color: "red"
     flags:Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
+    property string colorSet: "red";
+    property real binSizeX:0.02;
+    property int ix_moveUP: 0.5/binSizeX;
+    property int ix_moveDown: 0.5/binSizeX;
+    property int iy: 0;
+    property int iz: 0;
+
     Rectangle {
         id: background
-        color: "#333333"
+        //color: "#333333"
+        color:colorSet;
         anchors.fill: parent
+        gradient: Gradient {
+            GradientStop {
+                position: 0;
+                color: "#e544a1";
+            }
 
+            GradientStop {
+                position: ix_moveUP*binSizeX;
+                color: "#333333";
+            }
+
+            GradientStop {
+                position: ix_moveDown*binSizeX;
+                color: "#333333";
+            }
+
+            GradientStop {
+                position: 1.0;
+                color: "#e544a1";
+            }
+        }
+        /*
         PropertyAnimation{
             id:backgroundChange
             target:background
@@ -26,12 +55,34 @@ Window {
             loops:Animation.Infinite
             running: true
         }
+        */
 
+        function changeBackGround(){
+            //backgroundChange.start();
+            //colorSet = "blue";
 
+            ix_moveUP--;
+            ix_moveDown++;
+        }
     }
 
     TestEvent {
        id: test
+    }
+
+    Item {
+        id: timeContainerFlush
+
+        Timer {
+            id: timer
+            interval: 100
+            running: true
+            repeat: true
+
+            onTriggered: {
+                background.changeBackGround();
+            }
+        }
     }
 
     /*
@@ -136,7 +187,7 @@ Window {
     }
 
     Component.onCompleted:{
-        test.mouseClick(splanGUI, 0, 0, Qt.NoButton, Qt.NoModifier, 10000);
+        test.mouseClick(splanGUI, 0, 0, Qt.NoButton, Qt.NoModifier, 2000);
         splanGUI.close();
     }
 }
