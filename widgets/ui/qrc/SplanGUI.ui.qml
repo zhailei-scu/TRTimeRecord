@@ -98,9 +98,9 @@ Window {
             //backgroundChange.start();
             //colorSet = "blue";
 
-            ix_moveUP--;
-            ix_moveDown++;
-            angle = angle - 5;
+            ix_moveUP -= 3;
+            ix_moveDown += 3;
+            angle -= 5;
         }
     }
 
