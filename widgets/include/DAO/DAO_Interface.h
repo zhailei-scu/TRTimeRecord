@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <map>
+#include <list>
 
 class DAO_Interface{
 public:
@@ -17,5 +18,6 @@ public:
                             const std::map<unsigned int,QString> & patientInfos,
                             const std::map<unsigned int,QString> & operatorTimes) = 0;
     virtual void deleteLastRecord(const QString & tableName) = 0;
+    virtual std::list<QString> getAllTablesName() = 0;
 };
 #endif // DAO_INTERFACE_H

@@ -2,6 +2,7 @@
 #define DAO_H
 
 #include <QSqlDatabase>
+#include <list>
 #include "DAO_Interface.h"
 /**/
 class DAO: public DAO_Interface{
@@ -30,6 +31,7 @@ public:
                             const std::map<unsigned int,QString> & patientInfos,
                             const std::map<unsigned int,QString> & operatorTimes);
     virtual void deleteLastRecord(const QString & tableName);
+    virtual std::list<QString> getAllTablesName();
 
 private:
     void clear();

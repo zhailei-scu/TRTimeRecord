@@ -51,6 +51,7 @@ void DAO::Start(){
 
 void DAO::clear(){
     if(this->theDataBase){
+        this->theDataBase->close();
         this->theDataBase->removeDatabase(systemDBPath);
         delete this->theDataBase;
         this->theDataBase = NULL;
@@ -67,6 +68,19 @@ bool DAO::tableExisted(const QString & tableName){
         if(query.value(0).isValid() && query.value(0).toString() == tableName){
             result = true;
         }
+    }
+
+    return result;
+}
+
+std::list<QString> DAO::getAllTablesName(){
+    std::list<QString> result;
+
+    QSqlQuery query;
+    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table';"));
+    qDebug()<<query.lastError();
+    while(query.next()){
+        result.push_back(query.value(0).toString());
     }
 
     return result;

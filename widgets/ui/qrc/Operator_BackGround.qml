@@ -32,7 +32,7 @@ Rectangle{
         gradient: Gradient {
             GradientStop {
                 position: pos0;
-                color: "#595d5b";
+                color: "#151a1e";
             }
 
             GradientStop {
@@ -47,7 +47,7 @@ Rectangle{
 
             GradientStop {
                 position: pos3;
-                color: "#595d5b";
+                color: "#151a1e";
             }
         }
     }
@@ -76,8 +76,6 @@ Rectangle{
                 iStep1 = 1;
             }
         }
-
-        console.log(iStep0,iStep1);
 
         angle -= 2;
     }

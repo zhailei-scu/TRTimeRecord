@@ -17,6 +17,8 @@
 #include <QQuickView>
 #include <QQuickWindow>
 #include <QQuickWidget>
+#include <QSqlTableModel>
+#include <QTableView>
 
 TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_Interface(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
@@ -162,8 +164,30 @@ void TRTimeOperator::removeTable(int index){
 }
 
 void TRTimeOperator::dataView(){
-    //QTableModel *table = new
-    this->uiForm->tabWidget->addTab(new QWidget(),"DataBase Viewer");
+    QWidget* tempWidget = new QWidget();
+    tempWidget->setGeometry(0,
+                            0,
+                            this->uiForm->tabWidget->size().width(),
+                            this->uiForm->tabWidget->size().height());
+    QTableView *tableView = new QTableView(tempWidget);
+    QSqlTableModel *table = new QSqlTableModel(tempWidget);
+
+    const std::list<QString> & tables = DAO::getInstance()->getAllTablesName();
+    for(std::list<QString>::const_iterator it = tables.begin();
+                                           it != tables.end();
+                                           it++){
+        table->setTable(*it);
+        table->setQuery(QString("select * from %1").arg(*it));
+    }
+
+    this->uiForm->tabWidget->addTab(tempWidget,"DataBase Viewer");
+    tableView->setModel(table);
+    tableView->setGeometry(0,0,tempWidget->size().width(),tempWidget->size().height());
+
+
+    qDebug()<<tempWidget->size()<<tableView->size();
+
+    tableView->show();
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){
