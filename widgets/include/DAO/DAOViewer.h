@@ -46,16 +46,18 @@ class DAOViewer:public QObject{
 public:
     explicit DAOViewer(QObject* parent = NULL);
     virtual ~DAOViewer();
-    explicit DAOViewer(const DAOViewer &);
+    Q_INVOKABLE explicit DAOViewer(const DAOViewer &);
     const DAOViewer & operator = (const DAOViewer &);
 public:
     /*Viewer tree*/
     std::map<QTabWidget*,OneDataTableViewer*> * viewTree = NULL;
 
-    std::map<QObject*,QSqlTableModel*> *map_InsertButton_SqlTableModel = NULL;
-    std::map<QObject*,QSqlTableModel*> *map_DeletetButton_SqlTableModel = NULL;
+    std::map<QObject*,QSqlTableModel*> *map_Button_SqlTableModel = NULL;
+    std::map<QObject*,QTableView*> *map_Button_TableView = NULL;
 public:
     void insertOneLeaf(QTabWidget*,OneDataTableViewer*);
+    void bindOneButtonToSqlModel(QObject*,QSqlTableModel*);
+    void bindOneButtonToTableView(QObject*,QTableView*);
     void clear();
 
 public slots:

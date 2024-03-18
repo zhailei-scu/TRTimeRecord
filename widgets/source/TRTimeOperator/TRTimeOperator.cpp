@@ -218,15 +218,33 @@ void TRTimeOperator::dataView(){
                                          tempWidget->size().width(),
                                          tempWidget->size().height()*0.9);
 
+        compents->tableView->setEditTriggers(QAbstractItemView::DoubleClicked);
+
         compents->insertButton = new SelfPushButton(tempWidget);
-        compents->insertButton->setAttribute(Qt::WA_DeleteOnClose);
+        //bind a shortcut
+        this->daoViewer->bindOneButtonToSqlModel(compents->insertButton,compents->model);
+        this->daoViewer->bindOneButtonToTableView(compents->insertButton,compents->tableView);
         compents->insertButton->setText("Insert record");
+        compents->insertButton->setStyleSheet("background:#07343e");
         compents->insertButton->setObjectName(compents->insertButton->text());
-        compents->insertButton->setGeometry(tempWidget->size().width()*0.5,
+        compents->insertButton->setGeometry(tempWidget->size().width()*0.2,
                                             tempWidget->size().height()*0.91,
                                             tempWidget->size().width()*0.2,
-                                            tempWidget->size().height()*0.03);
+                                            tempWidget->size().height()*0.04);
         QObject::connect(compents->insertButton,SIGNAL(sign_handlePressEvent(QObject*)),this->daoViewer,SLOT(appendARow(QObject*)));
+
+        compents->deleteButton = new SelfPushButton(tempWidget);
+        //bind a shortcut
+        this->daoViewer->bindOneButtonToSqlModel(compents->deleteButton,compents->model);
+        this->daoViewer->bindOneButtonToTableView(compents->deleteButton,compents->tableView);
+        compents->deleteButton->setText("Delete record");
+        compents->deleteButton->setStyleSheet("background:#07343e");
+        compents->deleteButton->setObjectName(compents->deleteButton->text());
+        compents->deleteButton->setGeometry(tempWidget->size().width()*0.6,
+                                            tempWidget->size().height()*0.91,
+                                            tempWidget->size().width()*0.2,
+                                            tempWidget->size().height()*0.04);
+        QObject::connect(compents->deleteButton,SIGNAL(sign_handlePressEvent(QObject*)),this->daoViewer,SLOT(deleteRow(QObject*)));
 
         compents->tableView->setStyleSheet(QString("background:'#498a78'"));
         compents->tableView->show();
