@@ -2,6 +2,7 @@
 #define TRTIMEOPERATOR_H
 
 #include "TRTimeOperator_Interface.h"
+#include "../DAO/DAOViewer.h"
 #include "OperatorMenuBar.h"
 #include "OperatorToolBar.h"
 #include <QWidget>
@@ -20,6 +21,8 @@ class TRTimeOperator: public TRTimeOperator_Interface{
 public:
     TRTimeOperator(TRTimeOperator_Interface* parent = nullptr);
     virtual ~TRTimeOperator();
+    TRTimeOperator(const TRTimeOperator &) = delete;
+    const TRTimeOperator & operator = (const TRTimeOperator &) = delete;
 
 private:
     Ui::TRTimeOperator *uiForm;
@@ -34,6 +37,7 @@ private:
     std::map<unsigned int,QString> patientInfoRecord;
     std::map<unsigned int,QString> buttonTimeRecord;
     QString lastTableName;
+    DAOViewer *daoViewer = NULL;
 
 private:
     virtual void uiConstruct();
@@ -55,7 +59,6 @@ private slots:
     void HandleSignal(int ID);
     void removeTable(int index);
     void dataView();
-    void appendARow(QObject * obj);
 };
 
 

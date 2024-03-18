@@ -7,14 +7,13 @@
 #include <QTableView>
 #include <QSqlTableModel>
 
-struct OneDataTableViewer{
+struct OneDataTableViewerCompents{
 public:
-    OneDataTableViewer();
-    virtual ~OneDataTableViewer();
-    OneDataTableViewer(const OneDataTableViewer &);
-    const OneDataTableViewer & operator = (const OneDataTableViewer &);
+    OneDataTableViewerCompents();
+    virtual ~OneDataTableViewerCompents();
+    OneDataTableViewerCompents(const OneDataTableViewerCompents &);
+    const OneDataTableViewerCompents & operator = (const OneDataTableViewerCompents &);
 
-    QWidget* mainWidget = NULL;
     QTableView* tableView = NULL;
     QSqlTableModel* model = NULL;
     SelfPushButton* insertButton = NULL;
@@ -24,11 +23,30 @@ private:
 
 };
 
-class DAOViewer{
+//using OneDataTableViewer = std::map<QWidget*,OneDataTableViewerCompents*>;
+
+struct OneDataTableViewer{
 public:
-    DAOViewer();
+    OneDataTableViewer();
+    virtual ~OneDataTableViewer();
+    OneDataTableViewer(const OneDataTableViewer &);
+    const OneDataTableViewer & operator =(const OneDataTableViewer &);
+
+public:
+    std::map<QWidget*,OneDataTableViewerCompents*> oneViewer;
+
+public:
+    void insertOneLeaf(QWidget*,OneDataTableViewerCompents*);
+private:
+    void clear();
+};
+
+class DAOViewer:public QObject{
+    Q_OBJECT
+public:
+    explicit DAOViewer(QObject* parent = NULL);
     virtual ~DAOViewer();
-    DAOViewer(const DAOViewer &);
+    explicit DAOViewer(const DAOViewer &);
     const DAOViewer & operator = (const DAOViewer &);
 public:
     /*Viewer tree*/
@@ -36,8 +54,13 @@ public:
 
     std::map<QObject*,QSqlTableModel*> *map_InsertButton_SqlTableModel = NULL;
     std::map<QObject*,QSqlTableModel*> *map_DeletetButton_SqlTableModel = NULL;
-private:
+public:
+    void insertOneLeaf(QTabWidget*,OneDataTableViewer*);
     void clear();
+
+public slots:
+    void deleteRow(QObject *obj);
+    void appendARow(QObject * obj);
 };
 
 #endif // DAOVIEWER_H

@@ -33,6 +33,8 @@ TRTimeOperator::~TRTimeOperator(){
 }
 
 void TRTimeOperator::uiConstruct(){
+    this->daoViewer = new DAOViewer();
+
     new QHBoxLayout(this); //registe a Layout object for current window
     this->layout()->setGeometry(this->geometry());
 
@@ -101,7 +103,6 @@ void TRTimeOperator::buttonConstruct(){
     this->buttonGroup->addButton(this->uiForm->pushButton_PatentComeIn,it->first);
     this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_PatentComeIn));
 
-
     it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("PatentImaging"));
     if(it == end){
         QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentImaging"));
@@ -150,6 +151,12 @@ void TRTimeOperator::clear(){
     this->buttonTimeRecord.clear();
 
     this->lastTableName = "";
+
+    if(this->daoViewer){
+        this->daoViewer->clear();
+        delete this->daoViewer;
+        this->daoViewer = NULL;
+    }
 }
 
 void TRTimeOperator::HandleSignal(int ID){
@@ -168,7 +175,9 @@ void TRTimeOperator::removeTable(int index){
 
 void TRTimeOperator::dataView(){
     QTabWidget* tempWidgetTable = new QTabWidget(this->uiForm->tabWidget);
-    tempWidgetTable->setAttribute(Qt::WA_DeleteOnClose);
+    OneDataTableViewer* oneDataTableViewer = new OneDataTableViewer();
+    daoViewer->insertOneLeaf(tempWidgetTable,oneDataTableViewer);
+
     tempWidgetTable->setGeometry(0,
                                  0,
                                  this->uiForm->tabWidget->size().width(),
@@ -186,7 +195,9 @@ void TRTimeOperator::dataView(){
                                                    ++it){
 
         QWidget* tempWidget = new QWidget(tempWidgetTable);
-        tempWidget->setAttribute(Qt::WA_DeleteOnClose);
+
+        OneDataTableViewerCompents * compents = new OneDataTableViewerCompents();
+        oneDataTableViewer->insertOneLeaf(tempWidget,compents);
 
         tempWidget->setGeometry(0,
                                 0,
@@ -195,32 +206,30 @@ void TRTimeOperator::dataView(){
 
         tempWidgetTable->addTab(tempWidget,*it);
 
-        QTableView *tableView = new QTableView(tempWidget);
-        tableView->setAttribute(Qt::WA_DeleteOnClose);
-        QSqlTableModel *table = new QSqlTableModel(tempWidget);
+        compents->tableView = new QTableView(tempWidget);
+        compents->model = new QSqlTableModel(tempWidget);
 
-        table->setTable(*it);
-        table->setQuery(QString("select * from %1").arg(*it));
+        compents->model->setTable(*it);
+        compents->model->setQuery(QString("select * from %1").arg(*it));
 
-        tableView->setModel(table);
-        tableView->setGeometry(0,
-                               0,
-                               tempWidget->size().width(),
-                               tempWidget->size().height()*0.9);
+        compents->tableView->setModel(compents->model);
+        compents->tableView->setGeometry(0,
+                                         0,
+                                         tempWidget->size().width(),
+                                         tempWidget->size().height()*0.9);
 
-        SelfPushButton *insertButton = new SelfPushButton(tempWidget);
-        insertButton->setAttribute(Qt::WA_DeleteOnClose);
-        insertButton->setText("Insert record");
-        insertButton->setObjectName(insertButton->text());
-        insertButton->setGeometry(tempWidget->size().width()*0.5,
-                                  tempWidget->size().height()*0.91,
-                                  tempWidget->size().width()*0.2,
-                                  tempWidget->size().height()*0.03);
-        QObject::connect(insertButton,SIGNAL(sign_handlePressEvent(QObject*)),this,SLOT(appendARow(QObject*)));
+        compents->insertButton = new SelfPushButton(tempWidget);
+        compents->insertButton->setAttribute(Qt::WA_DeleteOnClose);
+        compents->insertButton->setText("Insert record");
+        compents->insertButton->setObjectName(compents->insertButton->text());
+        compents->insertButton->setGeometry(tempWidget->size().width()*0.5,
+                                            tempWidget->size().height()*0.91,
+                                            tempWidget->size().width()*0.2,
+                                            tempWidget->size().height()*0.03);
+        QObject::connect(compents->insertButton,SIGNAL(sign_handlePressEvent(QObject*)),this->daoViewer,SLOT(appendARow(QObject*)));
 
-
-        tableView->setStyleSheet(QString("background:'#498a78'"));
-        tableView->show();
+        compents->tableView->setStyleSheet(QString("background:'#498a78'"));
+        compents->tableView->show();
     }
 
     /*
@@ -228,11 +237,6 @@ void TRTimeOperator::dataView(){
     int count = table->rowCount();
     table->insertRecord(count,)
     */
-}
-
-void TRTimeOperator::appendARow(QObject* obj){
-    QMessageBox::information(nullptr,"Info",obj->objectName());
-    //table->insertRecord(table->rowCount(),table->record());
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){
@@ -301,7 +305,6 @@ void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
             exit(-1);
         }
     }
-
 }
 
 void TRTimeOperator::queryForNextPatient(){
