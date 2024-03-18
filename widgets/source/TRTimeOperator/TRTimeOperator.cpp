@@ -4,6 +4,7 @@
 #include "../../include/DAO/DAO.h"
 #include "../../include/Config/ConfigLoader.h"
 #include "../../include/Util/Util.h"
+#include "../../include/Util/SelfPushButton.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
@@ -19,6 +20,7 @@
 #include <QQuickWidget>
 #include <QSqlTableModel>
 #include <QTableView>
+#include <QTableWidget>
 
 TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_Interface(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
@@ -58,7 +60,7 @@ void TRTimeOperator::uiConstruct(){
     this->uiForm->tabWidget->setTabsClosable(true);
     this->uiForm->tabWidget->tabBar()->setTabButton(0,QTabBar::RightSide,nullptr);
 
-    //this->uiForm->quickWidget->setSource(QUrl(QStringLiteral(":/Operator_BackGround.qml")));
+    this->uiForm->quickWidget->setSource(QUrl("qrc:/Operator_BackGround.qml"));
 
     this->buttonConstruct();
 }
@@ -160,33 +162,77 @@ void TRTimeOperator::HandleSignal(int ID){
 }
 
 void TRTimeOperator::removeTable(int index){
+    this->uiForm->tabWidget->widget(index)->close();
     this->uiForm->tabWidget->removeTab(index);
 }
 
 void TRTimeOperator::dataView(){
-    QWidget* tempWidget = new QWidget();
-    tempWidget->setGeometry(0,
-                            0,
-                            this->uiForm->tabWidget->size().width(),
-                            this->uiForm->tabWidget->size().height());
-    QTableView *tableView = new QTableView(tempWidget);
-    QSqlTableModel *table = new QSqlTableModel(tempWidget);
+    QTabWidget* tempWidgetTable = new QTabWidget(this->uiForm->tabWidget);
+    tempWidgetTable->setAttribute(Qt::WA_DeleteOnClose);
+    tempWidgetTable->setGeometry(0,
+                                 0,
+                                 this->uiForm->tabWidget->size().width(),
+                                 this->uiForm->tabWidget->size().height());
+
+    this->uiForm->tabWidget->addTab(tempWidgetTable,"DataBase Viewer");
+
+    tempWidgetTable->setTabsClosable(true);
+    tempWidgetTable->setTabPosition(QTabWidget::South);
+    tempWidgetTable->setDocumentMode(true);
 
     const std::list<QString> & tables = DAO::getInstance()->getAllTablesName();
-    for(std::list<QString>::const_iterator it = tables.begin();
-                                           it != tables.end();
-                                           it++){
+    for(std::list<QString>::const_reverse_iterator it = tables.rbegin();
+                                                   it != tables.rend();
+                                                   ++it){
+
+        QWidget* tempWidget = new QWidget(tempWidgetTable);
+        tempWidget->setAttribute(Qt::WA_DeleteOnClose);
+
+        tempWidget->setGeometry(0,
+                                0,
+                                tempWidgetTable->width(),
+                                tempWidgetTable->height());
+
+        tempWidgetTable->addTab(tempWidget,*it);
+
+        QTableView *tableView = new QTableView(tempWidget);
+        tableView->setAttribute(Qt::WA_DeleteOnClose);
+        QSqlTableModel *table = new QSqlTableModel(tempWidget);
+
         table->setTable(*it);
         table->setQuery(QString("select * from %1").arg(*it));
+
+        tableView->setModel(table);
+        tableView->setGeometry(0,
+                               0,
+                               tempWidget->size().width(),
+                               tempWidget->size().height()*0.9);
+
+        SelfPushButton *insertButton = new SelfPushButton(tempWidget);
+        insertButton->setAttribute(Qt::WA_DeleteOnClose);
+        insertButton->setText("Insert record");
+        insertButton->setObjectName(insertButton->text());
+        insertButton->setGeometry(tempWidget->size().width()*0.5,
+                                  tempWidget->size().height()*0.91,
+                                  tempWidget->size().width()*0.2,
+                                  tempWidget->size().height()*0.03);
+        QObject::connect(insertButton,SIGNAL(sign_handlePressEvent(QObject*)),this,SLOT(appendARow(QObject*)));
+
+
+        tableView->setStyleSheet(QString("background:'#498a78'"));
+        tableView->show();
     }
 
-    this->uiForm->tabWidget->addTab(tempWidget,"DataBase Viewer");
-    tableView->setModel(table);
-    tableView->setGeometry(0,0,tempWidget->size().width(),tempWidget->size().height());
+    /*
+    table->record();
+    int count = table->rowCount();
+    table->insertRecord(count,)
+    */
+}
 
-    qDebug()<<tempWidget->size()<<tableView->size();
-
-    tableView->show();
+void TRTimeOperator::appendARow(QObject* obj){
+    QMessageBox::information(nullptr,"Info",obj->objectName());
+    //table->insertRecord(table->rowCount(),table->record());
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){

@@ -2,6 +2,7 @@
 #include "../../include/Config/ConfigLoader.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
+
 #include <QSqlError>
 #include <QMessageBox>
 
@@ -192,6 +193,9 @@ void DAO::deleteLastRecord(const QString & tableName){
         }
     }
 }
+
+
+
 
 /*Garbge clear*/
 DAO::GbClear::GbClear(){

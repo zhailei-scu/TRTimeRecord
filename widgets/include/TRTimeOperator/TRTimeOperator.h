@@ -6,6 +6,8 @@
 #include "OperatorToolBar.h"
 #include <QWidget>
 #include <QButtonGroup>
+#include <QSqlTableModel>
+#include <QSqlRecord>
 
 
 namespace Ui{
@@ -53,6 +55,7 @@ private slots:
     void HandleSignal(int ID);
     void removeTable(int index);
     void dataView();
+    void appendARow(QObject * obj);
 };
 
 
