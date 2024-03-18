@@ -12,6 +12,7 @@
 #include "../include/TRTimeOperator/TRTimeOperator.h"
 #include "../include/Config/ConfigLoader.h"
 #include "../include/DAO/DAO.h"
+#include "../include/DAO/CSVWriter.h"
 
 int main(int argc,char** argv){
     /*Start QT compents*/
@@ -51,6 +52,7 @@ int main(int argc,char** argv){
 
     /*StartDataBase*/
     DAO::Start();
+    CSVWriter::Start();
 
     /*main frame*/
     TRTimeOperator *trTimeOperatorForm = new TRTimeOperator(nullptr);

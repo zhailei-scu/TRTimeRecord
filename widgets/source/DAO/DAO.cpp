@@ -7,7 +7,6 @@
 #include <QMessageBox>
 
 static QString systemDBPath = "TR.db";
-static QString systemCSVPath = "E:\\TRTimeRecord\\dataBase\\TR.csv";
 
 /*
  * In current softwares, there are two place to record the operation data:
