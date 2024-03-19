@@ -34,6 +34,7 @@ HEADERS += \
     include/Util/Util.h
 
 FORMS += \
+    ui/Form/PatientInput.ui \
     ui/Form/TRTimeOperator.ui
 
 RESOURCES += \

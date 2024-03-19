@@ -177,6 +177,7 @@ void TRTimeOperator::HandleSignal(int ID){
     this->changeButtonStatus(ID+1);
 
     if(recorded){
+        this->inputPatientInfo();
         this->queryForNextPatient();
     }
 }
@@ -420,14 +421,6 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
     }
 
     return result;
-    /*
-    int rowCount = model->rowCount();
-    model->insertRow(rowCount);
-    model->setData(model->index(0,0), QTime::currentTime().toString("hh:mm:ss"));
-    model->submitAll();
-    qDebug()<<tableName;
-    QString time = QTime::currentTime().toString("hh:mm:ss");
-    */
 }
 
 void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
@@ -496,4 +489,15 @@ void TRTimeOperator::queryForNextPatient(){
         delete dialog;
         dialog = NULL;
     }
+}
+
+void TRTimeOperator::inputPatientInfo(){
+    PatientInput * patientForm = new PatientInput();
+    patientForm->setWindowFlags(patientForm->windowFlags() | Qt::Window);
+    patientForm->setWindowModality(Qt::WindowModal);
+    patientForm->show();
+    patientForm->exec();
+
+    delete patientForm;
+    patientForm = NULL;
 }

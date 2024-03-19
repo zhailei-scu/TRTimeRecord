@@ -2,6 +2,7 @@
 #define TRTIMEOPERATOR_H
 
 #include "TRTimeOperator_Interface.h"
+#include "../PatientInput/PatientInput.h"
 #include "../DAO/DAOViewer.h"
 #include "../DAO/CSVViewer.h"
 #include "OperatorMenuBar.h"
@@ -52,6 +53,7 @@ private:
     bool timeRecord(unsigned int);
     void changeButtonStatus(unsigned int);
     void queryForNextPatient();
+    void inputPatientInfo();
 
 /*
 signals:

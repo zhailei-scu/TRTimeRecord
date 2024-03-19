@@ -1,4 +1,3 @@
-#include <iostream>
 #include <QApplication>
 #include <QFile>
 #include <QString>
@@ -7,10 +6,7 @@
 #include <windows.h>
 #include <QQuickItem>
 #include <QQmlApplicationEngine>
-
-#include "../include/PatientInput/PatientInput.h"
 #include "../include/TRTimeOperator/TRTimeOperator.h"
-#include "../include/Config/ConfigLoader.h"
 #include "../include/DAO/DAO.h"
 #include "../include/DAO/CSVWriter.h"
 
