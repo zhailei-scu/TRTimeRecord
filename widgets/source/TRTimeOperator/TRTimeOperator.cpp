@@ -2,6 +2,7 @@
 #include "../ui_TRTimeOperator.h"
 #include "../../include/TRTimeOperator/QueryForNextPatient.h"
 #include "../../include/DAO/DAO.h"
+#include "../../include/DAO/CSVWriter.h"
 #include "../../include/Config/ConfigLoader.h"
 #include "../../include/Util/Util.h"
 #include "../../include/Util/SelfPushButton.h"
@@ -275,6 +276,7 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
 
     if((unsigned int)(buttonID+1) == ConfigLoader::getInstance()->getTheOperatorPatten()->size()){
         DAO::getInstance()->appendARow(tableName,patientInfoRecord,buttonTimeRecord);
+        CSVWriter::getInstance()->appendARecord(tableName,patientInfoRecord,buttonTimeRecord);
 
         std::map<unsigned int,QString>().swap(this->patientInfoRecord);
         this->patientInfoRecord.clear();
@@ -351,6 +353,7 @@ void TRTimeOperator::queryForNextPatient(){
         }
         if(OK){
             DAO::getInstance()->deleteLastRecord(this->lastTableName);
+            CSVWriter::getInstance()->deleteLastRecord();
         }
         this->changeButtonStatus(0);
     }else{

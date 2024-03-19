@@ -17,6 +17,7 @@ private:
     static CSVWriter * thePtr;
     std::ofstream ofs;
     QString lastLabel;
+    long lastItemWritePos = 0;
 
 public:
     static CSVWriter * getInstance();
@@ -26,9 +27,7 @@ public:
                        const std::map<unsigned int,QString> & patientInfos,
                        const std::map<unsigned int,QString> & operatorTimes);
 
-    void deleteLastRecord(const QString & tableName,
-                       const std::map<unsigned int,QString> & patientInfos,
-                       const std::map<unsigned int,QString> & operatorTimes);
+    void deleteLastRecord();
 
     /*Realize the interface*/
 

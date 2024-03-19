@@ -1,9 +1,13 @@
 #include "../../include/DAO/CSVWriter.h"
+#include "../../include/Config/ConfigLoader.h"
 #include <QDebug>
 #include <QMessageBox>
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
+#include <QFile>
+#include <filesystem>
 
 static QString systemCSVPath = "TR.csv";
 
@@ -24,9 +28,10 @@ CSVWriter* CSVWriter::thePtr = nullptr;
 CSVWriter::GbClear CSVWriter::m_GbClear;
 
 CSVWriter::CSVWriter(){
+    std::ifstream ifs;
     this->clear();
 
-    ofs.open(systemCSVPath.toStdString().c_str(),std::ios::out);
+    ofs.open(systemCSVPath.toStdString().c_str(),std::ios::out | std::ios::app);
 
     if(!ofs.is_open()){
         QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(systemCSVPath));
@@ -34,6 +39,20 @@ CSVWriter::CSVWriter(){
     }
 
     this->lastLabel = findLastLabel();
+
+    qDebug()<<this->lastLabel;
+
+    ifs.open(systemCSVPath.toStdString().c_str(),std::ios::in);
+
+    if(!ifs.is_open()){
+        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(systemCSVPath));
+        exit(-1);
+    }
+    ifs.seekg(0,std::ios::end);
+    this->lastItemWritePos = ifs.tellg();
+    qDebug()<<this->lastItemWritePos;
+
+    ifs.close();
 }
 
 CSVWriter::~CSVWriter(){
@@ -56,27 +75,69 @@ void CSVWriter::appendARecord(const QString & tableName,
                               const std::map<unsigned int,QString> & patientInfos,
                               const std::map<unsigned int,QString> & operatorTimes){
 
-    if((QString("#").append(tableName)) != this->lastLabel){
-        this->ofs<<QString("#").append(this->lastLabel).toStdString()<<std::endl;
-    }
-
     const std::map<unsigned int,QString> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,QString>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
-        str.append(", ").append(it->second);
+    const std::map<unsigned int,QString> * operatorPatten = ConfigLoader::getInstance()->getTheOperatorPatten();
+    QString tableNameNew("#");
+    tableNameNew.append(tableName);
+
+    if(tableNameNew != this->lastLabel){
+        this->ofs<<tableNameNew.toStdString()<<std::endl;
+
+        for(std::map<unsigned int,QString>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
+            ofs<<std::setw(30)<<it->second.toStdString()<<",";
+        }
+
+        for(std::map<unsigned int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
+            ofs<<std::setw(30)<<it->second.toStdString().append("Time")<<",";
+        }
+
+        ofs<<std::endl;
+
+        this->lastLabel = tableNameNew;
     }
 
-    const std::map<unsigned int,QString> * operatorPatten = ConfigLoader::getInstance()->getTheOperatorPatten();
-    for(std::map<unsigned int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
-        str.append(", ").append(it->second).append("Time");
+    ofs.seekp(0,std::ios::end);
+    this->lastItemWritePos = ofs.tellp();
+    qDebug()<<this->lastItemWritePos;
+
+    for(auto it = patientInfoPatten->begin(); it != patientInfoPatten->end();it++){
+        auto it_find = patientInfos.find(it->first);
+        if(patientInfos.end() == it_find){
+            ofs<<std::setw(30)<<",";
+        }else{
+           ofs<<std::setw(30)<<it_find->second.toStdString()<<",";
+        }
     }
+
+    for(auto it = operatorPatten->begin(); it != operatorPatten->end();it++){
+        auto it_find = operatorTimes.find(it->first);
+        if(operatorTimes.end() == it_find){
+            ofs<<std::setw(30)<<",";
+        }else{
+            ofs<<std::setw(30)<<it_find->second.toStdString()<<",";
+        }
+    }
+
+    ofs<<std::endl;
 
     this->ofs.flush();
 }
 
-void CSVWriter::deleteLastRecord(const QString & tableName,
-                                 const std::map<unsigned int,QString> & patientInfos,
-                                 const std::map<unsigned int,QString> & operatorTimes){
+void CSVWriter::deleteLastRecord(){
+    /*
+    qDebug()<<this->lastItemWritePos;
 
+    this->ofs.seekp(this->lastItemWritePos-1,std::ios::beg);
+
+    this->ofs.write("\n",1);
+    */
+
+    if(0 >= this->lastItemWritePos){
+        QMessageBox::critical(nullptr,"Fatal Error!","The delete operation will delete file from postion 0, please stop it and contact Lei.Zhai !!!!");
+        exit(-1);
+    }
+    std::filesystem::resize_file(systemCSVPath.toStdString(),this->lastItemWritePos);
+    this->ofs.flush();
 }
 
 QString CSVWriter::findLastLabel(){
@@ -85,23 +146,27 @@ QString CSVWriter::findLastLabel(){
     char tempChar;
     std::string tempLine;
 
-    ifs.open(systemCSVPath.toStdString().c_str(),std::ios::in);
+    ifs.open(systemCSVPath.toStdString().c_str(),std::ios::ate);
     if(ifs.is_open()){
+        ifs.seekg(0,std::ios::end);
         std::streampos size = ifs.tellg();
         for(int i=1;i<size;i++){
+
             ifs.seekg(-i,std::ios::end);
             ifs.get(tempChar);
 
-            if(0 == tempChar) continue;
-
-            if('\n' == tempChar){
+            if('\n' == tempChar || size == (i + 1)){
                 if(tempLine.size() > 0){
+
                     std::reverse(tempLine.begin(),tempLine.end());
                     tempLine.erase(0,tempLine.find_first_not_of(" "));
+                    tempLine.erase(0,tempLine.find_first_not_of("\xBF"));
+                    tempLine.erase(0,tempLine.find_first_not_of("\xEF"));
+                    tempLine.erase(0,tempLine.find_first_not_of("\xBB"));
                     tempLine.erase(tempLine.find_last_not_of(" ")+1);
 
                     if('#' == tempLine.at(0)){
-                        result.fromStdString(tempLine);
+                        result = tempLine.c_str();
                         break;
                     }
                 }
@@ -129,6 +194,7 @@ void CSVWriter::clear(){
     }
 
     this->lastLabel = "";
+    this->lastItemWritePos = 0;
 }
 
 /*Garbge clear*/
