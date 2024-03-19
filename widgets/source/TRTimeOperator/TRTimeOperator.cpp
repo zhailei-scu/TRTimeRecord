@@ -303,6 +303,7 @@ void TRTimeOperator::csvView(){
         QMessageBox::critical(nullptr,"Error",QString("The csv file %1 cannot be opened").arg(systemCSVPath));
     }
 
+    fileReader.close();
 }
 
 void TRTimeOperator::dataBaseView(){
