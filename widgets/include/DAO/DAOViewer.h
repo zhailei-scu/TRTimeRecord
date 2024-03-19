@@ -56,6 +56,7 @@ public:
     std::map<QObject*,QTableView*> *map_Button_TableView = NULL;
 public:
     void insertOneLeaf(QTabWidget*,OneDataTableViewer*);
+    void deleteOneLeaf(QTabWidget*);
     void bindOneButtonToSqlModel(QObject*,QSqlTableModel*);
     void bindOneButtonToTableView(QObject*,QTableView*);
     void clear();

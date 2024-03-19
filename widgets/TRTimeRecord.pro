@@ -4,6 +4,7 @@ CONFIG += c++17
 
 SOURCES += \
     source/Config/ConfigLoader.cpp \
+    source/DAO/CSVViewer.cpp \
     source/DAO/CSVWriter.cpp \
     source/DAO/DAO.cpp \
     source/DAO/DAOViewer.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
 
 HEADERS += \
     include/Config/ConfigLoader.h \
+    include/DAO/CSVViewer.h \
     include/DAO/CSVWriter.h \
     include/DAO/DAO.h \
     include/DAO/DAOViewer.h \

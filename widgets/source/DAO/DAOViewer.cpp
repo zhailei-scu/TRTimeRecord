@@ -91,16 +91,19 @@ void OneDataTableViewer::clear(){
     for(std::map<QWidget*,OneDataTableViewerCompents*>::iterator it = this->oneViewer.begin();
                                                                  it != this->oneViewer.end();
                                                                  it++){
-        if(it->first){
-            it->first->close();
-            delete it->first;
-        }
-
         if(it->second){
             delete it->second;
             it->second = NULL;
         }
+
+        if(it->first){
+            it->first->close();
+            delete it->first;
+        }
     }
+
+    std::map<QWidget*,OneDataTableViewerCompents*>().swap(this->oneViewer);
+    this->oneViewer.clear();
 }
 
 /*DAOViewer*/
@@ -163,6 +166,19 @@ void DAOViewer::insertOneLeaf(QTabWidget* widget,OneDataTableViewer* oneView){
     }
 
     this->viewTree->insert(std::pair<QTabWidget*,OneDataTableViewer*>(widget,oneView));
+}
+
+void DAOViewer::deleteOneLeaf(QTabWidget* widget){
+    if(this->viewTree){
+        auto it = this->viewTree->find(widget);
+        if(this->viewTree->end() != it){
+            delete it->second;
+            it->second = NULL;
+            delete it->first;
+
+            this->viewTree->erase(widget);
+        }
+    }
 }
 
 void DAOViewer::bindOneButtonToSqlModel(QObject* button,QSqlTableModel* model){

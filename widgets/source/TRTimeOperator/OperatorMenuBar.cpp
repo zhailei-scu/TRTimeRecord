@@ -22,7 +22,12 @@ void OperatorMenuBar::uiConstruct(const QRect & geometry){
 
     menu = this->addMenu("DataView");
     this->menuMap->insert(std::pair<QString,const QMenu &>("DataView",*menu));
-    QAction *action = new QAction("DataBase",this);
+
+    QAction *action = new QAction("CSV Viewer",this);
+    QObject::connect(action,&QAction::triggered,this,&OperatorMenuBar::dataView);
+    menu->addAction(action);
+
+    action = new QAction("DataBase Viewer",this);
     QObject::connect(action,&QAction::triggered,this,&OperatorMenuBar::dataView);
     menu->addAction(action);
 

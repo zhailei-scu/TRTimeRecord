@@ -34,6 +34,7 @@ TRTimeOperator::~TRTimeOperator(){
 }
 
 void TRTimeOperator::uiConstruct(){
+    this->csvViewer = new CSVViewer();
     this->daoViewer = new DAOViewer();
 
     new QHBoxLayout(this); //registe a Layout object for current window
@@ -45,7 +46,8 @@ void TRTimeOperator::uiConstruct(){
                                      this->geometry().width(),
                                      this->geometry().height()/25));
 
-    QObject::connect(*this->menuBar->getMenu("DataView")->actions().begin(),&QAction::triggered,this,&TRTimeOperator::dataView);
+    QObject::connect(this->menuBar->getMenu("DataView")->actions().at(0),&QAction::triggered,this,&TRTimeOperator::csvView);
+    QObject::connect(this->menuBar->getMenu("DataView")->actions().at(1),&QAction::triggered,this,&TRTimeOperator::dataBaseView);
 
     this->toolBar = new OperatorToolBar(this);
     this->toolBar->uiConstruct(QRect(0,
@@ -153,6 +155,12 @@ void TRTimeOperator::clear(){
 
     this->lastTableName = "";
 
+    if(this->csvViewer){
+        this->csvViewer->clear();
+        delete this->csvViewer;
+        this->csvViewer = NULL;
+    }
+
     if(this->daoViewer){
         this->daoViewer->clear();
         delete this->daoViewer;
@@ -170,11 +178,41 @@ void TRTimeOperator::HandleSignal(int ID){
 }
 
 void TRTimeOperator::removeTable(int index){
-    this->uiForm->tabWidget->widget(index)->close();
+    QWidget* widget = this->uiForm->tabWidget->widget(index);
+
+    if(daoViewer){
+        if(daoViewer->viewTree){
+            daoViewer->deleteOneLeaf(dynamic_cast<QTabWidget*>(widget));
+        }
+    }
+
+    if(csvViewer){
+        if(csvViewer->viewTree){
+            csvViewer->deleteOneLeaf(dynamic_cast<QTabWidget*>(widget));
+        }
+    }
+
     this->uiForm->tabWidget->removeTab(index);
 }
 
-void TRTimeOperator::dataView(){
+void TRTimeOperator::csvView(){
+    QTabWidget* tempWidgetTable = new QTabWidget(this->uiForm->tabWidget);
+    OneCSVViewer* oneCSVViewer = new OneCSVViewer();
+    csvViewer->insertOneLeaf(tempWidgetTable,oneCSVViewer);
+
+    tempWidgetTable->setGeometry(0,
+                                 0,
+                                 this->uiForm->tabWidget->size().width(),
+                                 this->uiForm->tabWidget->size().height());
+
+    this->uiForm->tabWidget->addTab(tempWidgetTable,"CSV Viewer");
+
+    tempWidgetTable->setTabsClosable(true);
+    tempWidgetTable->setTabPosition(QTabWidget::South);
+    tempWidgetTable->setDocumentMode(true);
+}
+
+void TRTimeOperator::dataBaseView(){
     QTabWidget* tempWidgetTable = new QTabWidget(this->uiForm->tabWidget);
     OneDataTableViewer* oneDataTableViewer = new OneDataTableViewer();
     daoViewer->insertOneLeaf(tempWidgetTable,oneDataTableViewer);

@@ -3,6 +3,7 @@
 
 #include "TRTimeOperator_Interface.h"
 #include "../DAO/DAOViewer.h"
+#include "../DAO/CSVViewer.h"
 #include "OperatorMenuBar.h"
 #include "OperatorToolBar.h"
 #include <QWidget>
@@ -38,6 +39,7 @@ private:
     std::map<unsigned int,QString> buttonTimeRecord;
     QString lastTableName;
     DAOViewer *daoViewer = NULL;
+    CSVViewer *csvViewer = NULL;
 
 private:
     virtual void uiConstruct();
@@ -58,7 +60,8 @@ signals:
 private slots:
     void HandleSignal(int ID);
     void removeTable(int index);
-    void dataView();
+    void dataBaseView();
+    void csvView();
 };
 
 
