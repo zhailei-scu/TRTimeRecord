@@ -6,8 +6,6 @@
 #include <QSqlError>
 #include <QMessageBox>
 
-static QString systemDBPath = "TR.db";
-
 /*
  * In current softwares, there are two place to record the operation data:
  * (1) The .csv file recorded the patient therapy time, located in user specialed path

@@ -9,8 +9,6 @@
 #include <QFile>
 #include <filesystem>
 
-static QString systemCSVPath = "TR.csv";
-
 /*
  * In current softwares, there are two place to record the operation data:
  * (1) The .csv file recorded the patient therapy time, located in user specialed path
@@ -165,7 +163,7 @@ QString CSVWriter::findLastLabel(){
                     tempLine.erase(0,tempLine.find_first_not_of("\xBB"));
                     tempLine.erase(tempLine.find_last_not_of(" ")+1);
 
-                    if('#' == tempLine.at(0)){
+                    if(tempLine.size() > 0 && '#' == tempLine.at(0)){
                         result = tempLine.c_str();
                         break;
                     }

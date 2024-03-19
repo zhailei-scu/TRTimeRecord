@@ -4,6 +4,10 @@
 #include <QJsonObject>
 #include <map>
 
+static QString systemCSVPath = "TR.csv";
+static QString systemDBPath = "TR.db";
+static unsigned long totalShowCSVLine = 1000;
+
 /**/
 class ConfigLoader{
 private:

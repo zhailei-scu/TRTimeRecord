@@ -22,6 +22,10 @@
 #include <QSqlTableModel>
 #include <QTableView>
 #include <QTableWidget>
+#include <QFile>
+#include <QStringList>
+#include <QHeaderView>
+#include <QScrollBar>
 
 TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_Interface(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
@@ -196,8 +200,14 @@ void TRTimeOperator::removeTable(int index){
 }
 
 void TRTimeOperator::csvView(){
+    QString line;
+    QStringList headerValues;
+    QStringList ItemValues;
+    unsigned long rowId = 0;
     QTabWidget* tempWidgetTable = new QTabWidget(this->uiForm->tabWidget);
     OneCSVViewer* oneCSVViewer = new OneCSVViewer();
+    QFile fileReader(systemCSVPath);
+
     csvViewer->insertOneLeaf(tempWidgetTable,oneCSVViewer);
 
     tempWidgetTable->setGeometry(0,
@@ -210,6 +220,89 @@ void TRTimeOperator::csvView(){
     tempWidgetTable->setTabsClosable(true);
     tempWidgetTable->setTabPosition(QTabWidget::South);
     tempWidgetTable->setDocumentMode(true);
+
+    fileReader.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream stream(&fileReader);
+
+    if(fileReader.isOpen()){
+        QWidget * tempWidget = NULL;
+        OneCSVViewerCompents * tempOneCSVViewerCompents = NULL;
+
+        tempWidgetTable->addTab(tempWidget,line);
+
+        while(!stream.atEnd()){
+            line = stream.readLine();
+
+            if('#' == line.at(0)){
+                tempWidget = new QWidget(tempWidgetTable);
+
+                tempWidget->setGeometry(0,
+                                        0,
+                                        tempWidgetTable->width(),
+                                        tempWidgetTable->height());
+
+                tempOneCSVViewerCompents = new OneCSVViewerCompents();
+
+                oneCSVViewer->insertOneLeaf(tempWidget,tempOneCSVViewerCompents);
+
+                tempOneCSVViewerCompents->tableView = new QTableWidget(tempWidget);
+
+                tempOneCSVViewerCompents->tableView->setColumnCount(ConfigLoader::getInstance()->getThePatientInfoPatten()->size()
+                                                                    +ConfigLoader::getInstance()->getTheOperatorPatten()->size());
+
+                tempOneCSVViewerCompents->tableView->setRowCount(totalShowCSVLine);
+
+                tempOneCSVViewerCompents->tableView->setGeometry(0,
+                                                                 0,
+                                                                 tempWidget->size().width() - this->uiForm->tabWidget->tabBar()->width(),
+                                                                 tempWidget->size().height());
+
+                tempOneCSVViewerCompents->tableView->setStyleSheet(QString("background:'#498a78'"));
+
+                QStringList().swap(headerValues);
+                headerValues.clear();
+
+                for(std::map<unsigned int,QString>::const_iterator it = ConfigLoader::getInstance()->getThePatientInfoPatten()->begin();
+                                                                   it != ConfigLoader::getInstance()->getThePatientInfoPatten()->end();
+                                                                   it++){
+                    headerValues << it->second;
+                }
+
+                for(std::map<unsigned int,QString>::const_iterator it = ConfigLoader::getInstance()->getTheOperatorPatten()->begin();
+                                                                   it != ConfigLoader::getInstance()->getTheOperatorPatten()->end();
+                                                                   it++){
+                    headerValues << it->second;
+                }
+
+                tempOneCSVViewerCompents->tableView->setHorizontalHeaderLabels(headerValues);
+                //tempOneCSVViewerCompents->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+                tempOneCSVViewerCompents->tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+                tempOneCSVViewerCompents->tableView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+                tempOneCSVViewerCompents->tableView->verticalScrollBar()->setHidden(false);
+
+                tempWidgetTable->addTab(tempWidget,line);
+
+                rowId = 0;
+            }else{
+                if(rowId < totalShowCSVLine){
+                    ItemValues = line.split(',');
+
+                    for(unsigned int colID = 0; colID<ItemValues.size(); colID++){
+                        QTableWidgetItem *tempItem = new QTableWidgetItem(ItemValues[colID].split(" ").back());
+                        tempOneCSVViewerCompents->tableView->setItem(rowId,colID,tempItem);
+                    }
+
+                    rowId++;
+                }
+            }
+        }
+        tempOneCSVViewerCompents->tableView->update();
+
+        tempOneCSVViewerCompents->tableView->show();
+    }else{
+        QMessageBox::critical(nullptr,"Error",QString("The csv file %1 cannot be opened").arg(systemCSVPath));
+    }
+
 }
 
 void TRTimeOperator::dataBaseView(){
