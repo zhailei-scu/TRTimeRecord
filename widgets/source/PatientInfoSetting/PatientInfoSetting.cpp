@@ -81,11 +81,16 @@ void PatientInfoSetting::closeEvent(QCloseEvent *event){
             QMessageBox::information(nullptr,"Error",QString("Input: %1, you should input 'hficm'").arg(inputed));
         }
         if(OK){
-            QMessageBox::information(nullptr,"YES","YES");
+            bool setStatus = this->setPatientPattern();
+
             delete msg;
             msg = NULL;
 
-            QDialog::closeEvent(event);
+            if(setStatus){
+                QDialog::closeEvent(event);
+            }else{
+                event->ignore();
+            }
         }else{
             delete msg;
             msg = NULL;
@@ -151,4 +156,16 @@ void PatientInfoSetting::resetAction(){
 
 void PatientInfoSetting::execRightMenu(const QPoint & pos){
     this->rightClickMenu->exec(QCursor::pos());
+}
+
+bool PatientInfoSetting::setPatientPattern(){
+    bool result = false;
+    int count = this->uiForm->tableWidget->rowCount();
+    std::map<unsigned int,std::pair<QString,QString>> patientPattern;
+    for(int i = 0;i<count;i++){
+        patientPattern.insert(std::pair<unsigned int,std::pair<QString,QString>>>(i,this->uiForm->tableWidget->item()));
+    }
+
+    ConfigLoader::getInstance()->setThePatientPattern(patientPattern);
+    return result;
 }

@@ -22,7 +22,7 @@ private:
 
 private:
     virtual void closeEvent(QCloseEvent *event) override;
-
+    bool setPatientPattern();
 private:
     Ui::PatientInfoSetting *uiForm;
 
