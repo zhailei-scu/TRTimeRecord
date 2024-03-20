@@ -159,11 +159,23 @@ void PatientInfoSetting::execRightMenu(const QPoint & pos){
 }
 
 bool PatientInfoSetting::setPatientPattern(){
-    bool result = false;
+    bool result = true;
     int count = this->uiForm->tableWidget->rowCount();
-    std::map<unsigned int,std::pair<QString,QString>> patientPattern;
+    QString Label;
+    QString Name;
+    std::map<unsigned int,patientInfoPair> patientPattern;
     for(int i = 0;i<count;i++){
-        patientPattern.insert(std::pair<unsigned int,std::pair<QString,QString>>>(i,this->uiForm->tableWidget->item()));
+        Label = this->uiForm->tableWidget->item(i,0)->text();
+        Name = this->uiForm->tableWidget->item(i,1)->text();
+
+        if(Name.count(' ') > 0){
+            QMessageBox::critical(nullptr,"Error",QString("The Name %1 is not supported").arg(Name));
+            result = false;
+            break;
+        }
+        patientPattern.insert(
+            std::pair<unsigned int,patientInfoPair>(i,patientInfoPair(Label,Name))
+            );
     }
 
     ConfigLoader::getInstance()->setThePatientPattern(patientPattern);

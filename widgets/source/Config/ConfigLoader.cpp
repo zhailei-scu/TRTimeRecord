@@ -5,6 +5,7 @@ ConfigLoader::GbClear ConfigLoader::m_GbClear;
 
 ConfigLoader::ConfigLoader(){
     this->clear();
+
     this->ConstructOperationPatten();
     this->ConstructPatientInfoPatten();
     qDebug()<<"Comming";
@@ -26,8 +27,14 @@ const std::map<unsigned int,QString>* ConfigLoader::getTheOperatorPatten() const
     return this->theOperatorPatten;
 }
 
-const std::map<unsigned int,QString>* ConfigLoader::getThePatientInfoPatten() const{
+const std::map<unsigned int,patientInfoPair>* ConfigLoader::getThePatientInfoPatten() const{
     return this->thePatientInfoPatten;
+}
+
+void ConfigLoader::setThePatientPattern(const std::map<unsigned int,patientInfoPair> & patientPattern){
+
+
+    this->writePatientInfoPatternToFile(patientPattern);
 }
 
 void ConfigLoader::ConstructOperationPatten(){
@@ -47,16 +54,17 @@ void ConfigLoader::ConstructOperationPatten(){
 
 void ConfigLoader::ConstructPatientInfoPatten(){
     if(this->thePatientInfoPatten){
-        std::map<unsigned int,QString>().swap(*this->thePatientInfoPatten);
+        std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
         this->thePatientInfoPatten->clear();
         delete this->thePatientInfoPatten;
         this->thePatientInfoPatten = NULL;
     }
 
-    this->thePatientInfoPatten = new std::map<unsigned int,QString>();
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,QString>(0,"PatientID"));
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,QString>(1,"PatientName"));
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,QString>(2,"TherapyOrgan"));
+    this->readPatientInfoPatternFromFile();
+    this->thePatientInfoPatten = new std::map<unsigned int,patientInfoPair>();
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(0,"PatientID"));
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(1,"PatientName"));
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(2,"TherapyOrgan"));
 }
 
 void ConfigLoader::clear(){
@@ -76,7 +84,7 @@ void ConfigLoader::clear(){
     }
 
     if(this->thePatientInfoPatten){
-        std::map<unsigned int,QString>().swap(*this->thePatientInfoPatten);
+        std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
         this->thePatientInfoPatten->clear();
         delete this->thePatientInfoPatten;
         this->thePatientInfoPatten = NULL;

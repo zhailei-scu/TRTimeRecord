@@ -47,6 +47,7 @@ int main(int argc,char** argv){
     //patientInputForm->show();
 
     /*StartDataBase*/
+    ConfigLoader::Start();
     DAO::Start();
     CSVWriter::Start();
 
