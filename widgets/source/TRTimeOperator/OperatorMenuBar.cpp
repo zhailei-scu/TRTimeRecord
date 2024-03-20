@@ -16,6 +16,7 @@ void OperatorMenuBar::uiConstruct(const QRect & geometry){
     QMenu *menu = this->addMenu("Setting");
     this->menuMap->insert(std::pair<QString,const QMenu &>("Setting",*menu));
     menu->addAction("Storage");
+    menu->addAction("PatientInfo");
     menu->addAction("Pipline");
 
     //this->menuBar->addSeparator();

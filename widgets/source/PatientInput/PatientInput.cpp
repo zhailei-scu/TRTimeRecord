@@ -13,7 +13,8 @@ PatientInput::~PatientInput(){
 
 }
 
-void PatientInput::closeEvent(QCloseEvent *){
+void PatientInput::closeEvent(QCloseEvent * event){
+    QDialog::closeEvent(event);
     this->setResult(3);
 }
 

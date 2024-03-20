@@ -9,6 +9,7 @@ SOURCES += \
     source/DAO/DAO.cpp \
     source/DAO/DAOViewer.cpp \
     source/PatientInput/PatientInput.cpp \
+    source/PatientInfoSetting/PatientInfoSetting.cpp \
     source/TRTimeOperator/OperatorMenuBar.cpp \
     source/TRTimeOperator/OperatorToolBar.cpp \
     source/TRTimeOperator/QueryNextPatient.cpp \
@@ -24,6 +25,7 @@ HEADERS += \
     include/DAO/DAO.h \
     include/DAO/DAOViewer.h \
     include/DAO/DAO_Interface.h \
+    include/PatientInfoSetting/PatientInfoSetting.h \
     include/PatientInput/PatientInput.h \
     include/TRTimeOperator/OperatorMenuBar.h \
     include/TRTimeOperator/OperatorToolBar.h \
@@ -34,6 +36,7 @@ HEADERS += \
     include/Util/Util.h
 
 FORMS += \
+    ui/Form/PatientInfoSetting.ui \
     ui/Form/PatientInput.ui \
     ui/Form/TRTimeOperator.ui
 

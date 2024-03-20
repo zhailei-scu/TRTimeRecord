@@ -161,7 +161,7 @@ Window {
         id: softwareName
         y: 200
         color: "#62e34e"
-        text: "Therapy time record software"
+        text: "Therapy time recording"
         font.pixelSize: 18
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

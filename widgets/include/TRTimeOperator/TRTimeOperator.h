@@ -64,6 +64,9 @@ private slots:
     void removeTable(int index);
     void dataBaseView();
     void csvView();
+    void storageSetting();
+    void patientInfoSetting();
+    void pipleLineSetting();
 };
 
 

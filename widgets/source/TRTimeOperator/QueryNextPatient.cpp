@@ -37,7 +37,8 @@ QueryNextPatientDialog::~QueryNextPatientDialog(){
 }
 
 
-void QueryNextPatientDialog::closeEvent(QCloseEvent *){
+void QueryNextPatientDialog::closeEvent(QCloseEvent * event){
+    QDialog::closeEvent(event);
     this->setResult(3);
 }
 

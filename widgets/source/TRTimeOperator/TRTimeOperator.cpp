@@ -1,6 +1,7 @@
 #include "../../include/TRTimeOperator/TRTimeOperator.h"
 #include "../ui_TRTimeOperator.h"
 #include "../../include/TRTimeOperator/QueryForNextPatient.h"
+#include "../../include/PatientInfoSetting/PatientInfoSetting.h"
 #include "../../include/DAO/DAO.h"
 #include "../../include/DAO/CSVWriter.h"
 #include "../../include/Config/ConfigLoader.h"
@@ -52,6 +53,18 @@ void TRTimeOperator::uiConstruct(){
 
     QObject::connect(this->menuBar->getMenu("DataView")->actions().at(0),&QAction::triggered,this,&TRTimeOperator::csvView);
     QObject::connect(this->menuBar->getMenu("DataView")->actions().at(1),&QAction::triggered,this,&TRTimeOperator::dataBaseView);
+    QObject::connect(this->menuBar->getMenu("Setting")->actions().at(0),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::storageSetting);
+    QObject::connect(this->menuBar->getMenu("Setting")->actions().at(1),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::patientInfoSetting);
+    QObject::connect(this->menuBar->getMenu("Setting")->actions().at(2),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::pipleLineSetting);
 
     this->toolBar = new OperatorToolBar(this);
     this->toolBar->uiConstruct(QRect(0,
@@ -389,6 +402,22 @@ void TRTimeOperator::dataBaseView(){
     int count = table->rowCount();
     table->insertRecord(count,)
     */
+}
+
+void TRTimeOperator::storageSetting(){
+    QMessageBox::information(nullptr,"Info","123");
+}
+
+void TRTimeOperator::patientInfoSetting(){
+    PatientInfoSetting *form = new PatientInfoSetting(this);
+    form->exec();
+
+    delete form;
+    form = NULL;
+}
+
+void TRTimeOperator::pipleLineSetting(){
+    QMessageBox::information(nullptr,"Info","789");
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){
