@@ -3,37 +3,41 @@ QT       += widgets sql quickwidgets
 CONFIG += c++17
 
 SOURCES += \
-    source/Config/ConfigLoader.cpp \
-    source/DAO/CSVViewer.cpp \
-    source/DAO/CSVWriter.cpp \
-    source/DAO/DAO.cpp \
-    source/DAO/DAOViewer.cpp \
-    source/PatientInput/PatientInput.cpp \
-    source/PatientInfoSetting/PatientInfoSetting.cpp \
-    source/TRTimeOperator/OperatorMenuBar.cpp \
-    source/TRTimeOperator/OperatorToolBar.cpp \
-    source/TRTimeOperator/QueryNextPatient.cpp \
-    source/TRTimeOperator/TRTimeOperator.cpp \
-    source/TRTimeOperator/TRTimeOperator_Interface.cpp \
-    source/Util/SelfPushButton.cpp \
-    source/main.cpp
+    source/Applications/TRTimeRecord.cpp \
+    source/Common/Ui/Common_Ui_SelfPushButton.cpp \
+    source/Common/Util/Common_Util_JsonExt.cpp \
+    source/Config/Config_ConfigLoader.cpp \
+    source/Form/PatientInfoSetting/Form_PatientInfoSetting.cpp \
+    source/Form/PatientInput/Form_PatientInput.cpp \
+    source/Form/TRTimeOperator/Form_TRTimeOperator.cpp \
+    source/Form/TRTimeOperator/Form_TRTimeOperator_Interface.cpp \
+    source/Form/TRTimeOperator/Form_TRTimeOperator_MenuBar.cpp \
+    source/Form/TRTimeOperator/Form_TRTimeOperator_QueryNextPatient.cpp \
+    source/Form/TRTimeOperator/Form_TRTimeOperator_ToolBar.cpp \
+    source/Storage/CSV/Storage_CSV_Viewer.cpp \
+    source/Storage/CSV/Storage_CSV_Writer.cpp \
+    source/Storage/DAO/Storage_DAO.cpp \
+    source/Storage/DAO/Storage_DAO_Viewer.cpp
 
 HEADERS += \
-    include/Config/ConfigLoader.h \
-    include/DAO/CSVViewer.h \
-    include/DAO/CSVWriter.h \
-    include/DAO/DAO.h \
-    include/DAO/DAOViewer.h \
-    include/DAO/DAO_Interface.h \
+    include/Common/Ui/Common_Ui_SelfPushButton.h \
+    include/Common/Util/Common_Util_Base.h \
+    include/Common/Util/Common_Util_JsonExt.h \
+    include/Config/Config_ConfigLoader.h \
+    include/Form/PatientInfoSetting/Form_PatientInfoSetting.h \
+    include/Form/PatientInput/Form_PatientInput.h \
+    include/Form/TRTimeOperator/Form_TRTimeOperator.h \
+    include/Form/TRTimeOperator/Form_TRTimeOperator_Interface.h \
+    include/Form/TRTimeOperator/Form_TRTimeOperator_MenuBar.h \
+    include/Form/TRTimeOperator/Form_TRTimeOperator_QueryForNextPatient.h \
+    include/Form/TRTimeOperator/Form_TRTimeOperator_ToolBar.h \
     include/PatientInfoSetting/PatientInfoSetting.h \
     include/PatientInput/PatientInput.h \
-    include/TRTimeOperator/OperatorMenuBar.h \
-    include/TRTimeOperator/OperatorToolBar.h \
-    include/TRTimeOperator/QueryForNextPatient.h \
-    include/TRTimeOperator/TRTimeOperator.h \
-    include/TRTimeOperator/TRTimeOperator_Interface.h \
-    include/Util/SelfPushButton.h \
-    include/Util/Util.h
+    include/Storage/CSV/Storage_CSV_Viewer.h \
+    include/Storage/CSV/Storage_CSV_Writer.h \
+    include/Storage/DAO/Storage_DAO.h \
+    include/Storage/DAO/Storage_DAO_Interface.h \
+    include/Storage/DAO/Storage_DAO_Viewer.h
 
 FORMS += \
     ui/Form/PatientInfoSetting.ui \
