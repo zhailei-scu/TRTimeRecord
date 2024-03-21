@@ -63,5 +63,4 @@ private:
 };
 
 
-
 #endif // COMMON_UTIL_JSONEXT_H

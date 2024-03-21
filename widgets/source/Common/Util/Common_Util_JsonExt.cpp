@@ -1,4 +1,5 @@
 #include "../../../include/Common/Util/Common_Util_JsonExt.h"
+#include "../../../include/Common/Util/Common_Util_Base.h"
 #include <QMessageBox>
 #include <fstream>
 
@@ -219,19 +220,18 @@ void JsonExt::Extract(JsonBase* base,
                     objectEndFlag == clearInfo.at(pos-2)   ||
                     arrayStartFlag == clearInfo.at(pos-2)  ||
                     arrayStartFlag == clearInfo.at(pos-2)){
-                    QMessageBox()
-
-                    cout<<"Internal Error: The key of named object cannot be any flag"<<endl;
-                    cout<<clearInfo.at(pos-1)<<endl;
-                    cout<<"When parse the json file"<<endl;
-                    cout<<"at flatted line: "<<pos<<endl;
+                    QMessageBox::critical(nullptr,
+                                          "Error",
+                                          QString("The key of named object cannot be any flag: %1 "
+                                                  "When parse the json file at flatted line: %2").arg(clearInfo.at(pos-1).c_str())
+                                                                                                 .arg(pos));
                     exit(-1);
                 }
 
                 if(!base->namedPairs) base->namedPairs = new map<string,string>();
 
                 if(base->namedPairs->end() != base->namedPairs->find(clearInfo.at(pos-2))){
-                    std::cout<<"Error: the key was redefined: "<<clearInfo.at(pos-2)<<std::endl;
+                    QMessageBox::critical(nullptr,"Error",QString("The key was redefined: %1").arg(clearInfo.at(pos-2).c_str()));
                     exit(-1);
                 }
                 tempStrSub = clearInfo.at(pos-2);
@@ -293,9 +293,9 @@ void JsonExt::Check(const JsonBase* treeRoot){
     vector<string> CheckInfo_Before;
     this->Traverse(this->theJsonInfo,CheckInfo_Before);
 
-    std::cout<<"Parsed json file:"<<std::endl;
+    qDebug()<<"Parsed json file:";
     for(vector<string>::iterator it = CheckInfo_Before.begin();it!=CheckInfo_Before.end();it++){
-        std::cout<<*it<<std::endl;
+        qDebug()<<*it;
     }
 
     /*

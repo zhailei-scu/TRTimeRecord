@@ -5,6 +5,7 @@ CONFIG += c++17
 SOURCES += \
     source/Applications/TRTimeRecord.cpp \
     source/Common/Ui/Common_Ui_SelfPushButton.cpp \
+    source/Common/Util/Common_Util_Base.cpp \
     source/Common/Util/Common_Util_JsonExt.cpp \
     source/Config/Config_ConfigLoader.cpp \
     source/Form/PatientInfoSetting/Form_PatientInfoSetting.cpp \
