@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <fstream>
 
 const std::string objectStartFlag = "{";
 const std::string objectEndFlag = "}";
@@ -41,9 +42,9 @@ public:
     const JsonExt & operator = (const JsonExt &);
 
 public:
-    const JsonBase* getJsonInfo() const;
-    void Extract(const char* jsonFile);
-
+    JsonBase* getJsonInfo() const;
+    void Extract(std::ifstream & ifs);
+    void WriteBackToFile(const char* outFile);
 private:
     JsonBase *theJsonInfo = NULL;
 

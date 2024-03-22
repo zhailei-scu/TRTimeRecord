@@ -104,31 +104,18 @@ const JsonExt & JsonExt::operator=(const JsonExt & subject){
     return *this;
 }
 
-void JsonExt::Extract(const char* jsonFile){
-    ifstream fs;
+void JsonExt::Extract(std::ifstream & ifs){
     string line;
     vector<string> clearInfo;  //remove the comments
+    while(getline(ifs,line)){
+        this->EraseUselesschars(line);
 
-    fs.open(jsonFile);
-
-    if(fs.is_open()){
-
-        while(getline(fs,line)){
-            this->EraseUselesschars(line);
-
-            if(line.size() >0){
-                clearInfo.push_back(line);
-            }
+        if(line.size() >0){
+            clearInfo.push_back(line);
         }
-
-        this->Extract(clearInfo);
-
-        fs.close();
-
-    }else{
-        QMessageBox::critical(nullptr,"Error",QString("Error: open file : %1 failed").arg(jsonFile));
-        exit(-1);
     }
+
+    this->Extract(clearInfo);
 }
 
 void JsonExt::Extract(vector<string> & clearInfo){
@@ -361,7 +348,7 @@ void JsonExt::EraseUselesschars(std::string & line){
     }
 }
 
-const JsonBase* JsonExt::getJsonInfo() const{
+JsonBase* JsonExt::getJsonInfo() const{
     return this->theJsonInfo;
 }
 

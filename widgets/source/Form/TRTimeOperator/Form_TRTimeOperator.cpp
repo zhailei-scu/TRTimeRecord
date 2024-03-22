@@ -1,5 +1,5 @@
 #include "../../../include/Form/TRTimeOperator/Form_TRTimeOperator.h"
-#include "../ui_TRTimeOperator.h"
+#include "ui_TRTimeOperator.h"
 #include "../../../include/Form/TRTimeOperator/Form_TRTimeOperator_QueryForNextPatient.h"
 #include "../../../include/Form/PatientInfoSetting/Form_PatientInfoSetting.h"
 #include "../../../include/Storage/DAO/Storage_DAO.h"

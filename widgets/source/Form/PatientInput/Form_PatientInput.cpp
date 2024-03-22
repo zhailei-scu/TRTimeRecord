@@ -1,5 +1,5 @@
 #include "../../../include/Form/PatientInput/Form_PatientInput.h"
-#include "../ui_PatientInput.h"
+#include "ui_PatientInput.h"
 #include <QPushButton>
 
 PatientInput::PatientInput(QWidget* parent):QDialog(parent),uiForm(new Ui::PatientInput){

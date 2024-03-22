@@ -1,6 +1,6 @@
 #include "../../../include/Form/PatientInfoSetting/Form_PatientInfoSetting.h"
 #include "../../../include/Config/Config_ConfigLoader.h"
-#include "../ui_PatientInfoSetting.h"
+#include "ui_PatientInfoSetting.h"
 #include <QPushButton>
 #include <QPoint>
 #include <QMessageBox>

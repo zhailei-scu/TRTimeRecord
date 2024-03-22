@@ -1,4 +1,6 @@
 #include "../../include/Config/Config_ConfigLoader.h"
+#include "../../include/Common/Util/Common_Util_JsonExt.h"
+#include <fstream>
 
 ConfigLoader* ConfigLoader::thePtr = new ConfigLoader();  //hungry mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
@@ -36,17 +38,57 @@ const std::map<unsigned int,patientInfoPair>* ConfigLoader::getThePatientInfoPat
 }
 
 void ConfigLoader::setThePatientPattern(const std::map<unsigned int,patientInfoPair> & patientPattern){
+    if(this->theOperatorPatten){
+        std::map<unsigned int,QString>().swap(*this->theOperatorPatten);
+        this->theOperatorPatten->clear();
+        delete this->theOperatorPatten;
+        this->theOperatorPatten = NULL;
+    }
 
+    this->theOperatorPatten = new std::map<unsigned int,QString>();
+
+    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
+                                                               it != patientPattern.end();
+                                                               it++){
+        this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(*it));
+    }
 
     this->writePatientInfoPatternToFile(patientPattern);
 }
 
 bool ConfigLoader::readPatientInfoPatternFromFile(){
-
+    return false;
 }
 
 void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> &){
+    std::ifstream ifs;
+    std::ofstream ofs;
+    JsonExt* ext = new JsonExt();
+    JsonBase* base = NULL;
 
+    ifs.open(systemCfgPath.toStdString());
+    if(ifs.is_open()){
+        ext->Extract(ifs);
+    }
+    ifs.close();
+
+    base = ext->getJsonInfo();
+    if(base){
+        if(ext->getJsonInfo()->namedObjects){
+            for(std::map<std::string,JsonBase*>::iterator it = ext->getJsonInfo()->namedObjects->begin();
+                                                          it != ext->getJsonInfo()->namedObjects->end();
+                                                          it++){
+                if("PatientInfoPattern" == it->first){
+                    //remove
+                    ext->getJsonInfo()->namedObjects->erase(it);
+                }
+            }
+        }
+    }else{
+        base = new JsonBase();
+
+        //base->
+    }
 }
 
 void ConfigLoader::ConstructOperationPatten(){
