@@ -104,6 +104,18 @@ const JsonExt & JsonExt::operator=(const JsonExt & subject){
     return *this;
 }
 
+void JsonExt::WriteBackToFile(const char* outFile,const std::ios::openmode & theMode = std::ios::ate){
+    std::ofstream ofs;
+    ofs.open(outFile,theMode);
+
+    if(ofs.is_open()){
+
+    }else{
+        QMessageBox::critical(nullptr,"Error",QString("The file is not finded %1 !").arg(outFile));
+        exit(-1);
+    }
+}
+
 void JsonExt::Extract(std::ifstream & ifs){
     string line;
     vector<string> clearInfo;  //remove the comments

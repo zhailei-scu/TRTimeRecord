@@ -1,6 +1,9 @@
 #include "../../include/Config/Config_ConfigLoader.h"
 #include "../../include/Common/Util/Common_Util_JsonExt.h"
 #include <fstream>
+#include <sstream>
+
+static std::string str_PatientInfoPattern = "PatientInfoPattern";
 
 ConfigLoader* ConfigLoader::thePtr = new ConfigLoader();  //hungry mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
@@ -60,11 +63,15 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
     return false;
 }
 
-void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> &){
+void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> & input){
     std::ifstream ifs;
     std::ofstream ofs;
+    std::stringstream ss;
+    std::string str_Index;
     JsonExt* ext = new JsonExt();
     JsonBase* base = NULL;
+    JsonBase* patientPattern = NULL;
+    JsonBase* onePatientInfoLine = NULL;
 
     ifs.open(systemCfgPath.toStdString());
     if(ifs.is_open()){
@@ -78,7 +85,7 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,pat
             for(std::map<std::string,JsonBase*>::iterator it = ext->getJsonInfo()->namedObjects->begin();
                                                           it != ext->getJsonInfo()->namedObjects->end();
                                                           it++){
-                if("PatientInfoPattern" == it->first){
+                if(str_PatientInfoPattern == it->first){
                     //remove
                     ext->getJsonInfo()->namedObjects->erase(it);
                 }
@@ -86,9 +93,37 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,pat
         }
     }else{
         base = new JsonBase();
-
-        //base->
     }
+
+    if(!base->namedObjects){
+        base->namedObjects = new std::map<std::string,JsonBase*>();
+    }
+
+    patientPattern = new JsonBase();
+
+    patientPattern->namedObjects = new std::map<std::string,JsonBase*>();
+
+    for(std::map<unsigned int,patientInfoPair>::const_iterator it = input.begin();
+                                                               it != input.end();
+                                                               it++){
+        ss.str("");
+        ss.clear();
+        ss<<it->first;
+        str_Index = "";
+        ss>>str_Index;
+        onePatientInfoLine = new JsonBase();
+        onePatientInfoLine->namedPairs = new std::map<std::string,std::string>();
+        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(it->second.first.toStdString(),it->second.second.toStdString()));
+
+        patientPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,onePatientInfoLine));
+    }
+
+    base->namedObjects->insert(std::pair<std::string,JsonBase*>(str_PatientInfoPattern,patientPattern));
+
+    ext->WriteBackToFile(systemCfgPath.toStdString().c_str());
+
+    delete ext;
+    ext = NULL;
 }
 
 void ConfigLoader::ConstructOperationPatten(){

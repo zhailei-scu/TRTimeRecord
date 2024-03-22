@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <iomanip>
 
 const std::string objectStartFlag = "{";
 const std::string objectEndFlag = "}";
@@ -44,7 +45,7 @@ public:
 public:
     JsonBase* getJsonInfo() const;
     void Extract(std::ifstream & ifs);
-    void WriteBackToFile(const char* outFile);
+    void WriteBackToFile(const char* outFile,const std::ios::openmode & theMode);
 private:
     JsonBase *theJsonInfo = NULL;
 
