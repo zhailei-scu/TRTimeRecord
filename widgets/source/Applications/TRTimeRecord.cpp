@@ -47,8 +47,11 @@ int main(int argc,char** argv){
     //PatientInput *patientInputForm = new PatientInput(nullptr);
     //patientInputForm->show();
 
+    /*Start
+    The hungry model is applied for configuration load
+    so the code ConfigLoader::Start() is not necessary agin.
+    */
     /*StartDataBase*/
-    ConfigLoader::Start();
     DAO::Start();
     CSVWriter::Start();
 

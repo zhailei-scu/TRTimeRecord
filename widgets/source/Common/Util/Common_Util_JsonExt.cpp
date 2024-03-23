@@ -1,10 +1,49 @@
 #include "../../../include/Common/Util/Common_Util_JsonExt.h"
 #include "../../../include/Common/Util/Common_Util_Base.h"
 #include <QMessageBox>
+#include <iostream>
 #include <fstream>
 
-using namespace std;
+/*JsonFlags*/
+JsonFlags* JsonFlags::m_JsonFlags = NULL;
+JsonFlags::GbClear JsonFlags::m_GbClear;
 
+JsonFlags::JsonFlags(){
+    this->clear();
+}
+
+JsonFlags::~JsonFlags(){
+    this->clear();
+}
+
+const JsonFlags* JsonFlags::getInstance(){
+    if(!m_JsonFlags){
+        m_JsonFlags = new JsonFlags();
+    }
+
+    return m_JsonFlags;
+}
+
+void JsonFlags::clear(){
+    objectStartFlag = "{";
+    objectEndFlag = "}";
+    arrayStartFlag = "[";
+    arrayEndFlag = "]";
+    commaFlag = ",";
+    colonFlag = ":";
+}
+
+JsonFlags::GbClear::GbClear(){
+}
+
+JsonFlags::GbClear::~GbClear(){
+    if(m_JsonFlags){
+        delete m_JsonFlags;
+        m_JsonFlags = NULL;
+    }
+}
+
+/*JsonBase*/
 JsonBase::JsonBase(){
     this->reset();
 }
@@ -53,32 +92,34 @@ const JsonBase & JsonBase::operator=(const JsonBase & subject){
 
 void JsonBase::reset(){
     if(this->namedPairs){
-        map<string,string>().swap(*this->namedPairs);
+        std::map<std::string,std::string>().swap(*this->namedPairs);
         delete this->namedPairs;
         this->namedPairs = NULL;
     }
 
     if(this->namedObjects){
-        map<string,JsonBase*>().swap(*this->namedObjects);
+        std::map<std::string,JsonBase*>().swap(*this->namedObjects);
         delete this->namedObjects;
         this->namedObjects = NULL;
     }
 
     if(this->objectsArray){
-        map<int,JsonBase*>().swap(*this->objectsArray);
+        std::map<int,JsonBase*>().swap(*this->objectsArray);
         delete this->objectsArray;
         this->objectsArray = NULL;
     }
 }
 
-void JsonBase::print()const{
-    vector<string> info;
+void JsonBase::writeBackToIo(std::ostream & io) const{
+    std::vector<std::string> info;
     JsonExt::Traverse(this,info);
-
-    qDebug()<<"Parsed json file:";
-    for(vector<string>::iterator it = info.begin();it!=info.end();it++){
-        qDebug()<<*it;
+    for(std::vector<std::string>::iterator it = info.begin();it!=info.end();it++){
+        io<<*it<<std::endl;
     }
+}
+
+void JsonBase::print() const{
+    this->writeBackToIo(std::cout);
 }
 
 //---------------JsonExt-----------
@@ -106,19 +147,25 @@ const JsonExt & JsonExt::operator=(const JsonExt & subject){
 
 void JsonExt::WriteBackToFile(const char* outFile,const std::ios::openmode & theMode = std::ios::ate){
     std::ofstream ofs;
-    ofs.open(outFile,theMode);
+    std::vector<std::string> info;
 
-    if(ofs.is_open()){
+    if(this->theJsonInfo){
+        ofs.open(outFile,theMode);
 
-    }else{
-        QMessageBox::critical(nullptr,"Error",QString("The file is not finded %1 !").arg(outFile));
-        exit(-1);
+        if(ofs.is_open()){
+            this->theJsonInfo->writeBackToIo(ofs);
+
+            ofs.close();
+        }else{
+            QMessageBox::critical(nullptr,"Error",QString("The file is not finded %1 !").arg(outFile));
+            exit(-1);
+        }
     }
 }
 
 void JsonExt::Extract(std::ifstream & ifs){
-    string line;
-    vector<string> clearInfo;  //remove the comments
+    std::string line;
+    std::vector<std::string> clearInfo;  //remove the comments
     while(getline(ifs,line)){
         this->EraseUselesschars(line);
 
@@ -130,13 +177,13 @@ void JsonExt::Extract(std::ifstream & ifs){
     this->Extract(clearInfo);
 }
 
-void JsonExt::Extract(vector<string> & clearInfo){
+void JsonExt::Extract(std::vector<std::string> & clearInfo){
     if(!this->theJsonInfo) this->theJsonInfo = new JsonBase();
     this->Extract(this->theJsonInfo,clearInfo);
     this->Check(this->theJsonInfo);
 }
 
-void JsonExt::Extract(JsonBase* treeRoot,vector<string> & clearInfo){
+void JsonExt::Extract(JsonBase* treeRoot,std::vector<std::string> & clearInfo){
     this->SplitByFlag(clearInfo);
 
     //erease the ","
@@ -149,7 +196,7 @@ void JsonExt::Extract(JsonBase* treeRoot,vector<string> & clearInfo){
 }
 
 void JsonExt::Extract(JsonBase* base,
-                      vector<string> & clearInfo,
+                      std::vector<std::string> & clearInfo,
                       int & pos,
                       int & endPos){
 
@@ -166,24 +213,24 @@ void JsonExt::Extract(JsonBase* base,
 
         pos++;
 
-        if(objectStartFlag == clearInfo.at(pos)){
+        if(JsonFlags::getInstance()->objectStartFlag == clearInfo.at(pos)){
             if(':' != clearInfo.at(pos-1).back()){ // the array {[{
 
-                if(arrayStartFlag != clearInfo.at(pos-1) && base->objectsArray->size() <=0){
+                if(JsonFlags::getInstance()->arrayStartFlag != clearInfo.at(pos-1) && base->objectsArray->size() <=0){
                     QMessageBox::critical(nullptr,"Error",QString("You must special the array flag at flatted line: %1").arg(pos));
                     exit(-1);
                 }
 
                 int index = base->objectsArray->size();
                 JsonBase *temp = new JsonBase();
-                base->objectsArray->insert(pair<int,JsonBase*>(index,temp));
+                base->objectsArray->insert(std::pair<int,JsonBase*>(index,temp));
                 this->Extract(temp,clearInfo,pos,endPos);
 
             }else{ //named objects {"":{
-                if(objectStartFlag == clearInfo.at(pos-2) ||
-                    objectEndFlag == clearInfo.at(pos-2)   ||
-                    arrayStartFlag == clearInfo.at(pos-2)  ||
-                    arrayStartFlag == clearInfo.at(pos-2)){
+                if(JsonFlags::getInstance()->objectStartFlag == clearInfo.at(pos-2) ||
+                    JsonFlags::getInstance()->objectEndFlag == clearInfo.at(pos-2)   ||
+                    JsonFlags::getInstance()->arrayStartFlag == clearInfo.at(pos-2)  ||
+                    JsonFlags::getInstance()->arrayStartFlag == clearInfo.at(pos-2)){
                     QMessageBox::critical(nullptr,
                                           "Error",
                                           QString("The key of named object cannot be any flag: %1 "
@@ -192,7 +239,7 @@ void JsonExt::Extract(JsonBase* base,
                     exit(-1);
                 }
 
-                if(!base->namedObjects) base->namedObjects = new map<string,JsonBase*>();
+                if(!base->namedObjects) base->namedObjects = new std::map<std::string,JsonBase*>();
 
                 if(base->namedObjects->end() != base->namedObjects->find(clearInfo.at(pos-2))){
                     QMessageBox::critical(nullptr,"Error",QString("The key was redefined: %1").arg(clearInfo.at(pos-2).c_str()));
@@ -203,31 +250,31 @@ void JsonExt::Extract(JsonBase* base,
                 StringOperation::EraseHeadAndTail(tempStrSub,'\"');
                 transform(tempStrSub.begin(),tempStrSub.end(),tempStrSub.begin(),::tolower);
                 JsonBase *temp = new JsonBase();
-                base->namedObjects->insert(pair<string,JsonBase*>(tempStrSub,temp));
+                base->namedObjects->insert(std::pair<std::string,JsonBase*>(tempStrSub,temp));
                 this->Extract(temp,clearInfo,pos,endPos);
             }
 
-        }else if(arrayStartFlag == clearInfo.at(pos)){ //array
-            if(!base->objectsArray) base->objectsArray = new map<int,JsonBase*>();
-        }else if(objectEndFlag == clearInfo.at(pos)){
+        }else if(JsonFlags::getInstance()->arrayStartFlag == clearInfo.at(pos)){ //array
+            if(!base->objectsArray) base->objectsArray = new std::map<int,JsonBase*>();
+        }else if(JsonFlags::getInstance()->objectEndFlag == clearInfo.at(pos)){
             return;
         }else{
 
             if(':' == clearInfo.at(pos-1).back()){ // the pair
 
-                if(objectStartFlag == clearInfo.at(pos-2) ||
-                    objectEndFlag == clearInfo.at(pos-2)   ||
-                    arrayStartFlag == clearInfo.at(pos-2)  ||
-                    arrayStartFlag == clearInfo.at(pos-2)){
-                    QMessageBox::critical(nullptr,
-                                          "Error",
-                                          QString("The key of named object cannot be any flag: %1 "
-                                                  "When parse the json file at flatted line: %2").arg(clearInfo.at(pos-1).c_str())
-                                                                                                 .arg(pos));
+                if(JsonFlags::getInstance()->objectStartFlag == clearInfo.at(pos-2) ||
+                   JsonFlags::getInstance()->objectEndFlag == clearInfo.at(pos-2)   ||
+                   JsonFlags::getInstance()->arrayStartFlag == clearInfo.at(pos-2)  ||
+                   JsonFlags::getInstance()->arrayStartFlag == clearInfo.at(pos-2)){
+                   QMessageBox::critical(nullptr,
+                                         "Error",
+                                         QString("The key of named object cannot be any flag: %1 "
+                                                 "When parse the json file at flatted line: %2").arg(clearInfo.at(pos-1).c_str())
+                                                                                                .arg(pos));
                     exit(-1);
                 }
 
-                if(!base->namedPairs) base->namedPairs = new map<string,string>();
+                if(!base->namedPairs) base->namedPairs = new std::map<std::string,std::string>();
 
                 if(base->namedPairs->end() != base->namedPairs->find(clearInfo.at(pos-2))){
                     QMessageBox::critical(nullptr,"Error",QString("The key was redefined: %1").arg(clearInfo.at(pos-2).c_str()));
@@ -239,23 +286,23 @@ void JsonExt::Extract(JsonBase* base,
                 tempStrObj = clearInfo.at(pos);
                 StringOperation::EraseHeadAndTail(tempStrObj,'\"');
 
-                base->namedPairs->insert(pair<string,string>(tempStrSub,tempStrObj));
+                base->namedPairs->insert(std::pair<std::string,std::string>(tempStrSub,tempStrObj));
             }
 
         }
     }
 }
 
-void JsonExt::Traverse(const JsonBase* treeRoot,vector<string> & traverseInfo){
+void JsonExt::Traverse(const JsonBase* treeRoot,std::vector<std::string> & traverseInfo){
     if(!treeRoot){
         return;
     }
 
-    traverseInfo.push_back(objectStartFlag);
+    traverseInfo.push_back(JsonFlags::getInstance()->objectStartFlag);
 
     if(treeRoot->namedPairs){
 
-        map<string,string>::iterator itNamed = treeRoot->namedPairs->begin();
+        std::map<std::string,std::string>::iterator itNamed = treeRoot->namedPairs->begin();
         while(itNamed !=  treeRoot->namedPairs->end()){
             traverseInfo.push_back(itNamed->first);
             traverseInfo.push_back(":");
@@ -265,17 +312,17 @@ void JsonExt::Traverse(const JsonBase* treeRoot,vector<string> & traverseInfo){
     }
 
     if(treeRoot->objectsArray){
-        traverseInfo.push_back(arrayStartFlag);
-        map<int,JsonBase*>::iterator itArray = treeRoot->objectsArray->begin();
+        traverseInfo.push_back(JsonFlags::getInstance()->arrayStartFlag);
+        std::map<int,JsonBase*>::iterator itArray = treeRoot->objectsArray->begin();
         while(itArray !=  treeRoot->objectsArray->end()){
             Traverse(const_cast<const JsonBase*>(itArray->second),traverseInfo);
             itArray++;
         }
-        traverseInfo.push_back(arrayEndFlag);
+        traverseInfo.push_back(JsonFlags::getInstance()->arrayEndFlag);
     }
 
     if(treeRoot->namedObjects){
-        map<string,JsonBase*>::iterator itNamed = treeRoot->namedObjects->begin();
+        std::map<std::string,JsonBase*>::iterator itNamed = treeRoot->namedObjects->begin();
         while(itNamed !=  treeRoot->namedObjects->end()){
             traverseInfo.push_back(itNamed->first);
             traverseInfo.push_back(":");
@@ -285,15 +332,15 @@ void JsonExt::Traverse(const JsonBase* treeRoot,vector<string> & traverseInfo){
         }
     }
 
-    traverseInfo.push_back(objectEndFlag);
+    traverseInfo.push_back(JsonFlags::getInstance()->objectEndFlag);
 }
 
 void JsonExt::Check(const JsonBase* treeRoot){
-    vector<string> CheckInfo_Before;
+    std::vector<std::string> CheckInfo_Before;
     this->Traverse(this->theJsonInfo,CheckInfo_Before);
 
     qDebug()<<"Parsed json file:";
-    for(vector<string>::iterator it = CheckInfo_Before.begin();it!=CheckInfo_Before.end();it++){
+    for(std::vector<std::string>::iterator it = CheckInfo_Before.begin();it!=CheckInfo_Before.end();it++){
         qDebug()<<*it;
     }
 
@@ -324,24 +371,24 @@ void JsonExt::Check(const JsonBase* treeRoot){
   */
 }
 
-void JsonExt::SplitByFlag(vector<string> & clearInfo){
-    this->SplitByFlag(clearInfo,objectStartFlag.at(0));
-    this->SplitByFlag(clearInfo,objectEndFlag.at(0));
-    this->SplitByFlag(clearInfo,arrayStartFlag.at(0));
-    this->SplitByFlag(clearInfo,arrayEndFlag.at(0));
-    this->SplitByFlag(clearInfo,commaFlag.at(0));
-    this->SplitByFlag(clearInfo,colonFlag.at(0));
+void JsonExt::SplitByFlag(std::vector<std::string> & clearInfo){
+    this->SplitByFlag(clearInfo,JsonFlags::getInstance()->objectStartFlag.at(0));
+    this->SplitByFlag(clearInfo,JsonFlags::getInstance()->objectEndFlag.at(0));
+    this->SplitByFlag(clearInfo,JsonFlags::getInstance()->arrayStartFlag.at(0));
+    this->SplitByFlag(clearInfo,JsonFlags::getInstance()->arrayEndFlag.at(0));
+    this->SplitByFlag(clearInfo,JsonFlags::getInstance()->commaFlag.at(0));
+    this->SplitByFlag(clearInfo,JsonFlags::getInstance()->colonFlag.at(0));
 }
 
-void JsonExt::SplitByFlag(vector<string> & clearInfo,const char flag){
-    vector<string>::iterator it = clearInfo.begin();
-    vector<string> tempSplitResult;
-    vector<string> result;
+void JsonExt::SplitByFlag(std::vector<std::string> & clearInfo,const char flag){
+    std::vector<std::string>::iterator it = clearInfo.begin();
+    std::vector<std::string> tempSplitResult;
+    std::vector<std::string> result;
 
     while(it != clearInfo.end()){
         StringOperation::split_includeFlag(it->c_str(),flag,tempSplitResult);
 
-        for(vector<string>::iterator it=tempSplitResult.begin();it != tempSplitResult.end();it++){
+        for(std::vector<std::string>::iterator it=tempSplitResult.begin();it != tempSplitResult.end();it++){
             this->EraseUselesschars(*it);
             result.push_back(*it);
         }

@@ -3,17 +3,39 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <ostream>
 #include <fstream>
 #include <iomanip>
 
-const std::string objectStartFlag = "{";
-const std::string objectEndFlag = "}";
-const std::string arrayStartFlag = "[";
-const std::string arrayEndFlag = "]";
-const std::string commaFlag = ",";
-const std::string colonFlag = ":";
-
 class JsonExt;
+
+class JsonFlags{
+private:
+    JsonFlags();
+    virtual ~JsonFlags();
+    JsonFlags(const JsonFlags &) = delete;
+    const JsonFlags & operator =(const JsonFlags &) = delete;
+private:
+    static JsonFlags* m_JsonFlags;
+public:
+    static const JsonFlags* getInstance();
+
+    std::string objectStartFlag = "{";
+    std::string objectEndFlag = "}";
+    std::string arrayStartFlag = "[";
+    std::string arrayEndFlag = "]";
+    std::string commaFlag = ",";
+    std::string colonFlag = ":";
+private:
+    void clear();
+private:
+    class GbClear{
+    public:
+        GbClear();
+        ~GbClear();
+    };
+    static GbClear m_GbClear;
+};
 
 class JsonBase{
 public:
@@ -31,6 +53,7 @@ public:
     std::map<int,JsonBase*> *objectsArray = NULL;
 
 public:
+    void writeBackToIo(std::ostream & io) const;
     void print() const;
     void reset();
 };

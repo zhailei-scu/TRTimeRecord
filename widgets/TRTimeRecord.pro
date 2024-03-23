@@ -1,6 +1,7 @@
 QT       += widgets sql quickwidgets
 
 CONFIG += c++17
+CONFIG -= qml_debug
 
 SOURCES += \
     source/Applications/TRTimeRecord.cpp \

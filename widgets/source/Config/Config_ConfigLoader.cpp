@@ -41,14 +41,14 @@ const std::map<unsigned int,patientInfoPair>* ConfigLoader::getThePatientInfoPat
 }
 
 void ConfigLoader::setThePatientPattern(const std::map<unsigned int,patientInfoPair> & patientPattern){
-    if(this->theOperatorPatten){
-        std::map<unsigned int,QString>().swap(*this->theOperatorPatten);
-        this->theOperatorPatten->clear();
-        delete this->theOperatorPatten;
-        this->theOperatorPatten = NULL;
+    if(this->thePatientInfoPatten){
+        std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
+        this->thePatientInfoPatten->clear();
+        delete this->thePatientInfoPatten;
+        this->thePatientInfoPatten = NULL;
     }
 
-    this->theOperatorPatten = new std::map<unsigned int,QString>();
+    this->thePatientInfoPatten = new std::map<unsigned int,patientInfoPair>();
 
     for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
                                                                it != patientPattern.end();
@@ -56,11 +56,31 @@ void ConfigLoader::setThePatientPattern(const std::map<unsigned int,patientInfoP
         this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(*it));
     }
 
-    this->writePatientInfoPatternToFile(patientPattern);
+    this->writePatientInfoPatternToFile(*this->thePatientInfoPatten);
 }
 
 bool ConfigLoader::readPatientInfoPatternFromFile(){
-    return false;
+    bool result = false;
+    std::ifstream ifs;
+    JsonExt* ext = new JsonExt();
+
+    ifs.open(systemCfgPath.toStdString().c_str());
+
+    if(ifs.is_open()){
+        result = true;
+        ext->Extract(ifs);
+
+        if(ext->getJsonInfo()){
+            if(ext->getJsonInfo())
+        }
+
+        ifs.close();
+    }
+
+    delete ext;
+    ext = NULL;
+
+    return result;
 }
 
 void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> & input){
