@@ -120,7 +120,7 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,pat
 
     base->namedObjects->insert(std::pair<std::string,JsonBase*>(str_PatientInfoPattern,patientPattern));
 
-    ext->WriteBackToFile(systemCfgPath.toStdString().c_str());
+    ext->WriteBackToFile(systemCfgPath.toStdString().c_str(),std::ios::ate);
 
     delete ext;
     ext = NULL;
