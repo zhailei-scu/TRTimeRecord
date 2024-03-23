@@ -248,7 +248,7 @@ void JsonExt::Extract(JsonBase* base,
 
                 tempStrSub = clearInfo.at(pos-2);
                 StringOperation::EraseHeadAndTail(tempStrSub,'\"');
-                transform(tempStrSub.begin(),tempStrSub.end(),tempStrSub.begin(),::tolower);
+                //transform(tempStrSub.begin(),tempStrSub.end(),tempStrSub.begin(),::tolower);
                 JsonBase *temp = new JsonBase();
                 base->namedObjects->insert(std::pair<std::string,JsonBase*>(tempStrSub,temp));
                 this->Extract(temp,clearInfo,pos,endPos);
@@ -282,7 +282,7 @@ void JsonExt::Extract(JsonBase* base,
                 }
                 tempStrSub = clearInfo.at(pos-2);
                 StringOperation::EraseHeadAndTail(tempStrSub,'\"');
-                transform(tempStrSub.begin(),tempStrSub.end(),tempStrSub.begin(),::tolower);
+                //transform(tempStrSub.begin(),tempStrSub.end(),tempStrSub.begin(),::tolower);
                 tempStrObj = clearInfo.at(pos);
                 StringOperation::EraseHeadAndTail(tempStrObj,'\"');
 

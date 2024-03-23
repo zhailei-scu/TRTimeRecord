@@ -2,10 +2,11 @@
 #include "../../include/Common/Util/Common_Util_JsonExt.h"
 #include <fstream>
 #include <sstream>
+#include <QMessageBox>
 
 static std::string str_PatientInfoPattern = "PatientInfoPattern";
 
-ConfigLoader* ConfigLoader::thePtr = new ConfigLoader();  //hungry mode
+ConfigLoader* ConfigLoader::thePtr = NULL;  //lazy mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
 
 ConfigLoader::ConfigLoader(){
@@ -60,18 +61,76 @@ void ConfigLoader::setThePatientPattern(const std::map<unsigned int,patientInfoP
 }
 
 bool ConfigLoader::readPatientInfoPatternFromFile(){
+    std::stringstream ss;
+    int id = 0;
     bool result = false;
     std::ifstream ifs;
     JsonExt* ext = new JsonExt();
 
+    this->thePatientInfoPatten = new std::map<unsigned int,patientInfoPair>();
+
     ifs.open(systemCfgPath.toStdString().c_str());
 
     if(ifs.is_open()){
-        result = true;
         ext->Extract(ifs);
 
-        if(ext->getJsonInfo()){
-            if(ext->getJsonInfo())
+        if(ext->getJsonInfo() && ext->getJsonInfo()->namedObjects){
+            std::map<std::string,JsonBase*>::const_iterator it_top = ext->getJsonInfo()->namedObjects->find(str_PatientInfoPattern);
+            if(it_top != ext->getJsonInfo()->namedObjects->end()){
+                if(it_top->second && it_top->second->namedObjects){
+                    for(std::map<std::string,JsonBase*>::iterator it = it_top->second->namedObjects->begin();
+                                                                  it != it_top->second->namedObjects->end();
+                                                                  it++){
+                        if(it->second->namedPairs){
+                            ss.str("");
+                            ss.clear();
+                            ss<<it->first;
+                            ss>>id;
+
+                            if(!it->second->namedPairs || 0 == it->second->namedPairs->size()){
+                                QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The json file for patient input id: %1 is empty").arg(id));
+                                exit(-1);
+                            }
+
+                            if(1 < it->second->namedPairs->size()){
+                                QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The json file for patient input id: %1 included %2 information")
+                                                          .arg(id).arg(it->second->namedPairs->size()));
+                                exit(-1);
+                            }
+
+                            if(this->thePatientInfoPatten->find(id) == this->thePatientInfoPatten->end()){
+                                std::string labelName = it->second->namedPairs->begin()->first;
+                                std::string name = it->second->namedPairs->begin()->second;
+                                name.erase(0,name.find_first_not_of(" "));
+                                name.erase(name.find_last_not_of(" ")+1);
+                                qDebug()<<(signed int)name.find_first_of(" ");
+                                if((signed int)(name.find_first_of(" "))>0){
+                                    QMessageBox::critical(nullptr,
+                                                          "Error",
+                                                          QString("The json file for patient input id: %1 included %2 blank")
+                                                              .arg(id).arg(name.c_str()));
+                                    exit(-1);
+                                }
+
+                                this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>
+                                                                   (id,patientInfoPair(QString(labelName.c_str()),QString(name.c_str()))));
+                                result = true;
+                            }else{
+                                QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The json file for patient input id: %1 repeated").arg(id));
+                                exit(-1);
+                            }
+                        }
+
+                    }
+
+                }
+            }
         }
 
         ifs.close();
@@ -79,6 +138,14 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
 
     delete ext;
     ext = NULL;
+
+    if(!result){
+        if(this->thePatientInfoPatten){
+            std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
+            delete this->thePatientInfoPatten;
+            this->thePatientInfoPatten = NULL;
+        }
+    }
 
     return result;
 }
