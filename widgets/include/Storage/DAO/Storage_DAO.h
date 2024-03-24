@@ -32,6 +32,10 @@ public:
                             const std::map<unsigned int,QString> & operatorTimes);
     virtual void deleteLastRecord(const QString & tableName);
     virtual std::list<QString> getAllTablesName();
+    virtual std::list<QString> getLikelyTablesName(const QString & tableName);
+    virtual void updateTableName(QString & str,
+                                 const std::map<unsigned int,QString> & patientInfoRecord,
+                                 const std::map<unsigned int,QString> & buttonTimeRecord);
 
 private:
     void clear();

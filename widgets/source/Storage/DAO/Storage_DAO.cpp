@@ -2,7 +2,7 @@
 #include "../../../include/Config/Config_ConfigLoader.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
-
+#include <sstream>
 #include <QSqlError>
 #include <QMessageBox>
 
@@ -18,6 +18,8 @@
  * sq.setDatabaseName(dataBaseStr);
  * but always error
 */
+
+static char appendFlag = 'F';
 
 DAO* DAO::thePtr = nullptr;
 DAO::GbClear DAO::m_GbClear;
@@ -76,6 +78,19 @@ std::list<QString> DAO::getAllTablesName(){
 
     QSqlQuery query;
     query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table';"));
+    qDebug()<<query.lastError();
+    while(query.next()){
+        result.push_back(query.value(0).toString());
+    }
+
+    return result;
+}
+
+std::list<QString> DAO::getLikelyTablesName(const QString & tableName){
+    std::list<QString> result;
+
+    QSqlQuery query;
+    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table' and tbl_name like '%1\%';").arg(tableName));
     qDebug()<<query.lastError();
     while(query.next()){
         result.push_back(query.value(0).toString());
@@ -191,7 +206,75 @@ void DAO::deleteLastRecord(const QString & tableName){
     }
 }
 
+void DAO::updateTableName(QString & tableName,
+                          const std::map<unsigned int,QString> & patientInfoRecord,
+                          const std::map<unsigned int,QString> & buttonTimeRecord){
+    std::stringstream ss;
+    int value = 0;
+    std::string str_value;
+    QSqlQuery query;
+    std::list<QString> list;
+    bool flag = false;
+    std::list<QString> tableNameList = getLikelyTablesName(tableName);
 
+    tableName = tableNameList.back();
+
+    list.push_back("id");
+    for(std::map<unsigned int,QString>::const_iterator it = patientInfoRecord.begin();
+                                                       it != patientInfoRecord.end();
+                                                       it++){
+        list.push_back(it->second);
+    }
+
+    for(std::map<unsigned int,QString>::const_iterator it = buttonTimeRecord.begin();
+                                                       it != buttonTimeRecord.end();
+                                                       it++){
+        list.push_back(it->second);
+    }
+
+    if(this->tableExisted(tableName)){
+        query.exec(QString("PRAGMA table_info(%1)").arg(tableName));
+        qDebug()<<query.lastError();
+        while(query.next()){
+            if(query.value(0).isValid()){
+                if(0 == list.size()){
+                    flag = true;
+                    break;
+                }
+
+                if(query.value(1).toString() != list.front()){
+                    flag = true;
+                    break;
+                }
+                list.pop_front();
+            }
+        }
+    }
+
+    if(flag){
+        qDebug()<<tableName;
+        signed int pos = tableName.toStdString().find_first_of(appendFlag);
+
+        qDebug()<<pos;
+
+        if(pos>=0){
+            ss.str("");
+            ss.clear();
+            ss<<tableName.toStdString().substr(pos+1,tableName.size()-1);
+            ss>>value;
+            ss.str("");
+            ss.clear();
+            ss<<value + 1;
+            ss>>str_value;
+            tableName = tableName.toStdString().substr(0,pos+1).c_str();
+            tableName.append(str_value);
+        }else{
+            tableName.append("_").append(appendFlag).append("1");
+        }
+    }
+
+    qDebug()<<tableName;
+}
 
 
 /*Garbge clear*/

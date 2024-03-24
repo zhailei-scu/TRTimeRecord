@@ -441,7 +441,7 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
     if((unsigned int)(buttonID+1) == ConfigLoader::getInstance()->getTheOperatorPatten()->size()){
         tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
 
-        DAO::getInstance()->getAllTablesName()->updateTableName(tableName);
+        DAO::getInstance()->updateTableName(tableName,this->patientInfoRecord,this->buttonTimeRecord);
 
         this->lastTableName = tableName;
 
