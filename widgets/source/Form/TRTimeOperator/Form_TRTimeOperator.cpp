@@ -32,7 +32,7 @@ TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_
     this->clear();
     uiForm->setupUi(this);
     this->uiConstruct();
-    this->inputPatientInfo();
+    this->inputPatientInfo(PatientInputMode(Modify));
 }
 
 TRTimeOperator::~TRTimeOperator(){
@@ -188,6 +188,7 @@ void TRTimeOperator::clear(){
 
 void TRTimeOperator::HandleSignal(int ID){
     bool recorded = this->timeRecord(ID);
+
     this->changeButtonStatus(ID+1);
 
     if(recorded){
@@ -315,6 +316,7 @@ void TRTimeOperator::csvView(){
         tempOneCSVViewerCompents->tableView->show();
     }else{
         QMessageBox::critical(nullptr,"Error",QString("The csv file %1 cannot be opened").arg(systemCSVPath));
+        exit(-1);
     }
 
     fileReader.close();
@@ -425,6 +427,10 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
     QString time = QTime::currentTime().toString("hh:mm:ss");
     QString tableName = "Date_";
 
+    if(0 == buttonID){
+        this->inputPatientInfo(PatientInputMode(ViewAndModify));
+    }
+
     tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
 
     this->lastTableName = tableName;
@@ -498,7 +504,7 @@ void TRTimeOperator::queryForNextPatient(){
     */
     int code = dialog->exec();
     if(QDialog::Accepted == code){
-        this->inputPatientInfo();
+        this->inputPatientInfo(PatientInputMode(Modify));
         this->changeButtonStatus(0);
     }else if(QDialog::Rejected == code){
         bool OK = true;
@@ -510,10 +516,10 @@ void TRTimeOperator::queryForNextPatient(){
             DAO::getInstance()->deleteLastRecord(this->lastTableName);
             CSVWriter::getInstance()->deleteLastRecord();
         }
-        this->inputPatientInfo();
+        this->inputPatientInfo(PatientInputMode(Modify));
         this->changeButtonStatus(0);
     }else{
-        this->inputPatientInfo();
+        this->inputPatientInfo(PatientInputMode(Modify));
         this->changeButtonStatus(0);
     }
 
@@ -523,19 +529,14 @@ void TRTimeOperator::queryForNextPatient(){
     }
 }
 
-void TRTimeOperator::inputPatientInfo(){
-    PatientInput * patientForm = new PatientInput(this);
+void TRTimeOperator::inputPatientInfo(PatientInputMode model){
+    PatientInput * patientForm = new PatientInput(this,&this->patientInfoRecord,model);
     patientForm->exec();
     const std::map<unsigned int,QString>* info = patientForm->getInfos();
 
     for(std::map<unsigned int,QString>::const_iterator it = info->begin();
                                                        it != info->end();
                                                        it++){
-        if(this->patientInfoRecord.find(it->first) != this->patientInfoRecord.end()){
-            QMessageBox::critical(nullptr,"Error",QString("The patient info id %1 repeated").arg(it->first));
-            exit(-1);
-        }
-
         this->patientInfoRecord.insert(*it);
     }
 

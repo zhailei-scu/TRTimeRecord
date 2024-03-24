@@ -53,7 +53,7 @@ private:
     bool timeRecord(unsigned int);
     void changeButtonStatus(unsigned int);
     void queryForNextPatient();
-    void inputPatientInfo();
+    void inputPatientInfo(PatientInputMode model);
 
 /*
 signals:

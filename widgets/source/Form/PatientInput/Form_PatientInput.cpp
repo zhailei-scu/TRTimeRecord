@@ -6,9 +6,12 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
-PatientInput::PatientInput(QWidget* parent):QDialog(parent){
+PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,QString> *info,PatientInputMode model):QDialog(parent){
     float basicHeight = 0.0;
     float basicWidth = 0.0;
+
+    this->currentMode = model;
+
     const std::map<unsigned int,patientInfoPair>* pattern = NULL;
     QWidget *backGround = new QWidget(this);
     QScrollArea* scrollArea = new QScrollArea(this);
@@ -25,6 +28,12 @@ PatientInput::PatientInput(QWidget* parent):QDialog(parent){
 
     this->setWindowFlags(this->windowFlags() | Qt::Window);
     this->setWindowModality(Qt::WindowModal);
+
+    if(PatientInputMode(Modify) == model){
+        this->setWindowTitle("Please input patient information.");
+    }else{
+        this->setWindowTitle("Confim the patient information");
+    }
 
     pattern = ConfigLoader::getInstance()->getThePatientInfoPatten();
 
@@ -59,19 +68,37 @@ PatientInput::PatientInput(QWidget* parent):QDialog(parent){
                               basicWidth,
                               basicHeight);
 
+        if(NULL != info && info->find(it->first) != info->end()){
+            lineEdit->setText(info->find(it->first)->second);
+        }
+
+        if(PatientInputMode(ViewAndModify) == model){
+            lineEdit->setEnabled(false);
+        }
+
         this->patternCompents->insert(std::pair<unsigned int,patientInfoQtCompentsPair>(it->first,patientInfoQtCompentsPair(label,lineEdit)));
     }
 
     /*Button*/
     this->buttonOK = new QPushButton(backGround);
-    this->buttonOK->setText("OK");
+    if(PatientInputMode(Modify) == model){
+        this->buttonOK->setText("OK");
+    }else{
+        this->buttonOK->setText("NO Problem");
+    }
     this->buttonOK->setGeometry(0.5*backGround->geometry().width() - basicWidth*1.1,
                                 (pattern->size()*2 + 1)*basicHeight,
                                 basicWidth,
                                 basicHeight);
 
     this->buttonCancle = new QPushButton(backGround);
-    this->buttonCancle->setText("Cancel");
+
+    if(PatientInputMode(Modify) == model){
+        this->buttonCancle->setText("Cancel");
+    }else{
+        this->buttonCancle->setText("Modify");
+    }
+
     this->buttonCancle->setGeometry(0.5*backGround->geometry().width() + basicWidth*0.3,
                                    (pattern->size()*2 + 1)*basicHeight,
                                    basicWidth,
@@ -96,10 +123,6 @@ void PatientInput::closeEvent(QCloseEvent * event){
         for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
              it != this->patternCompents->end();
              it++){
-            if(this->infos->find(it->first) != this->infos->end()){
-                QMessageBox::critical(nullptr,"Error",QString("Internal error: the patient info id %1 is repeated").arg(it->first));
-                exit(-1);
-            }
             this->infos->insert(std::pair<unsigned int,QString>(it->first,""));
         }
     }
@@ -157,10 +180,6 @@ void PatientInput::acceptHandle(){
         for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
                                                                        it != this->patternCompents->end();
                                                                        it++){
-            if(this->infos->find(it->first) != this->infos->end()){
-                QMessageBox::critical(nullptr,"Error",QString("Internal error: the patient info id %1 is repeated").arg(it->first));
-                exit(-1);
-            }
             this->infos->insert(std::pair<unsigned int,QString>(it->first,it->second.second->text()));
         }
     }
@@ -170,20 +189,28 @@ void PatientInput::acceptHandle(){
 
 void PatientInput::rejectHandle(){
     this->clearInfos();
-    if(this->patternCompents){
-        this->infos = new std::map<unsigned int,QString>();
-        for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
-             it != this->patternCompents->end();
-             it++){
-            if(this->infos->find(it->first) != this->infos->end()){
-                QMessageBox::critical(nullptr,"Error",QString("Internal error: the patient info id %1 is repeated").arg(it->first));
-                exit(-1);
-            }
-            this->infos->insert(std::pair<unsigned int,QString>(it->first,""));
-        }
-    }
 
-    this->reject();
+    if(PatientInputMode(Modify) == this->currentMode){
+        if(this->patternCompents){
+            this->infos = new std::map<unsigned int,QString>();
+            for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
+                it != this->patternCompents->end();
+                it++){
+                this->infos->insert(std::pair<unsigned int,QString>(it->first,""));
+            }
+        }
+
+        this->reject();
+    }else{
+        for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
+                                                                       it != this->patternCompents->end();
+                                                                       it++){
+            it->second.second->setEnabled(true);
+            this->buttonOK->setText("OK");
+            this->buttonCancle->setText("Cancel");
+        }
+
+    }
 }
 
 const std::map<unsigned int,QString>* PatientInput::getInfos() const{
