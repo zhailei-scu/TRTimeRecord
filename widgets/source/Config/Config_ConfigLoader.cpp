@@ -107,7 +107,6 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                 std::string name = it->second->namedPairs->begin()->second;
                                 name.erase(0,name.find_first_not_of(" "));
                                 name.erase(name.find_last_not_of(" ")+1);
-                                qDebug()<<(signed int)name.find_first_of(" ");
                                 if((signed int)(name.find_first_of(" "))>0){
                                     QMessageBox::critical(nullptr,
                                                           "Error",

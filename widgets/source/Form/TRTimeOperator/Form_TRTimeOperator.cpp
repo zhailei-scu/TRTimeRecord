@@ -521,10 +521,7 @@ void TRTimeOperator::queryForNextPatient(){
 }
 
 void TRTimeOperator::inputPatientInfo(){
-    PatientInput * patientForm = new PatientInput();
-    patientForm->setWindowFlags(patientForm->windowFlags() | Qt::Window);
-    patientForm->setWindowModality(Qt::WindowModal);
-    patientForm->show();
+    PatientInput * patientForm = new PatientInput(this);
     patientForm->exec();
 
     delete patientForm;
