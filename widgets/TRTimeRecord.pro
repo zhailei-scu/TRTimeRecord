@@ -9,6 +9,7 @@ SOURCES += \
     source/Common/Util/Common_Util_Base.cpp \
     source/Common/Util/Common_Util_JsonExt.cpp \
     source/Config/Config_ConfigLoader.cpp \
+    source/Form/OperationPipleLineSetting/OperationPipleLineSetting.cpp \
     source/Form/PatientInfoSetting/Form_PatientInfoSetting.cpp \
     source/Form/PatientInput/Form_PatientInput.cpp \
     source/Form/TRTimeOperator/Form_TRTimeOperator.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     include/Common/Util/Common_Util_Base.h \
     include/Common/Util/Common_Util_JsonExt.h \
     include/Config/Config_ConfigLoader.h \
+    include/Form/OperationPipleLineSetting/OperationPipleLineSetting.h \
     include/Form/PatientInfoSetting/Form_PatientInfoSetting.h \
     include/Form/PatientInput/Form_PatientInput.h \
     include/Form/TRTimeOperator/Form_TRTimeOperator.h \
@@ -42,6 +44,7 @@ HEADERS += \
     include/Storage/DAO/Storage_DAO_Viewer.h
 
 FORMS += \
+    ui/Form/OperationPipleLineSetting.ui \
     ui/Form/PatientInfoSetting.ui \
     ui/Form/TRTimeOperator.ui
 
