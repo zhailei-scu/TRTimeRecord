@@ -32,6 +32,7 @@ private:
 public slots:
     void acceptHandle();
     void rejectHandle();
+    const std::map<unsigned int,QString>* getInfos() const;
 };
 
 #endif

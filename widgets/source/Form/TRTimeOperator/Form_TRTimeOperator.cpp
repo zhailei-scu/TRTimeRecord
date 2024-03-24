@@ -32,6 +32,7 @@ TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_
     this->clear();
     uiForm->setupUi(this);
     this->uiConstruct();
+    this->inputPatientInfo();
 }
 
 TRTimeOperator::~TRTimeOperator(){
@@ -190,7 +191,6 @@ void TRTimeOperator::HandleSignal(int ID){
     this->changeButtonStatus(ID+1);
 
     if(recorded){
-        this->inputPatientInfo();
         this->queryForNextPatient();
     }
 }
@@ -498,6 +498,7 @@ void TRTimeOperator::queryForNextPatient(){
     */
     int code = dialog->exec();
     if(QDialog::Accepted == code){
+        this->inputPatientInfo();
         this->changeButtonStatus(0);
     }else if(QDialog::Rejected == code){
         bool OK = true;
@@ -509,8 +510,10 @@ void TRTimeOperator::queryForNextPatient(){
             DAO::getInstance()->deleteLastRecord(this->lastTableName);
             CSVWriter::getInstance()->deleteLastRecord();
         }
+        this->inputPatientInfo();
         this->changeButtonStatus(0);
     }else{
+        this->inputPatientInfo();
         this->changeButtonStatus(0);
     }
 
@@ -522,10 +525,18 @@ void TRTimeOperator::queryForNextPatient(){
 
 void TRTimeOperator::inputPatientInfo(){
     PatientInput * patientForm = new PatientInput(this);
-    int result = patientForm->exec();
+    patientForm->exec();
+    const std::map<unsigned int,QString>* info = patientForm->getInfos();
 
-    if(QDialog::Accepted == result){
-        this->t
+    for(std::map<unsigned int,QString>::const_iterator it = info->begin();
+                                                       it != info->end();
+                                                       it++){
+        if(this->patientInfoRecord.find(it->first) != this->patientInfoRecord.end()){
+            QMessageBox::critical(nullptr,"Error",QString("The patient info id %1 repeated").arg(it->first));
+            exit(-1);
+        }
+
+        this->patientInfoRecord.insert(*it);
     }
 
     delete patientForm;

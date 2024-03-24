@@ -90,6 +90,20 @@ PatientInput::~PatientInput(){
 }
 
 void PatientInput::closeEvent(QCloseEvent * event){
+    this->clearInfos();
+    if(this->patternCompents){
+        this->infos = new std::map<unsigned int,QString>();
+        for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
+             it != this->patternCompents->end();
+             it++){
+            if(this->infos->find(it->first) != this->infos->end()){
+                QMessageBox::critical(nullptr,"Error",QString("Internal error: the patient info id %1 is repeated").arg(it->first));
+                exit(-1);
+            }
+            this->infos->insert(std::pair<unsigned int,QString>(it->first,""));
+        }
+    }
+
     QDialog::closeEvent(event);
     this->setResult(3);
 }
@@ -170,4 +184,8 @@ void PatientInput::rejectHandle(){
     }
 
     this->reject();
+}
+
+const std::map<unsigned int,QString>* PatientInput::getInfos() const{
+    return this->infos;
 }

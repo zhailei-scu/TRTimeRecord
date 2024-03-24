@@ -43,7 +43,6 @@ HEADERS += \
 
 FORMS += \
     ui/Form/PatientInfoSetting.ui \
-    ui/Form/PatientInput.ui \
     ui/Form/TRTimeOperator.ui
 
 RESOURCES += \
