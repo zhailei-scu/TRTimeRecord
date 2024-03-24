@@ -207,8 +207,8 @@ void DAO::deleteLastRecord(const QString & tableName){
 }
 
 void DAO::updateTableName(QString & tableName,
-                          const std::map<unsigned int,QString> & patientInfoRecord,
-                          const std::map<unsigned int,QString> & buttonTimeRecord){
+                          const std::map<unsigned int,patientInfoPair> & patientPattern,
+                          const std::map<unsigned int,QString> & OperationPattern){
     std::stringstream ss;
     int value = 0;
     std::string str_value;
@@ -219,17 +219,19 @@ void DAO::updateTableName(QString & tableName,
 
     tableName = tableNameList.back();
 
+    qDebug()<<tableName;
+
     list.push_back("id");
-    for(std::map<unsigned int,QString>::const_iterator it = patientInfoRecord.begin();
-                                                       it != patientInfoRecord.end();
-                                                       it++){
-        list.push_back(it->second);
+    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
+                                                               it != patientPattern.end();
+                                                               it++){
+        list.push_back(it->second.second);
     }
 
-    for(std::map<unsigned int,QString>::const_iterator it = buttonTimeRecord.begin();
-                                                       it != buttonTimeRecord.end();
+    for(std::map<unsigned int,QString>::const_iterator it = OperationPattern.begin();
+                                                       it != OperationPattern.end();
                                                        it++){
-        list.push_back(it->second);
+        list.push_back(it->second + "Time");
     }
 
     if(this->tableExisted(tableName)){
@@ -243,6 +245,8 @@ void DAO::updateTableName(QString & tableName,
                 }
 
                 if(query.value(1).toString() != list.front()){
+                    qDebug()<<query.value(1).toString();
+                    qDebug()<<list.front();
                     flag = true;
                     break;
                 }
@@ -252,10 +256,7 @@ void DAO::updateTableName(QString & tableName,
     }
 
     if(flag){
-        qDebug()<<tableName;
         signed int pos = tableName.toStdString().find_first_of(appendFlag);
-
-        qDebug()<<pos;
 
         if(pos>=0){
             ss.str("");
@@ -272,8 +273,6 @@ void DAO::updateTableName(QString & tableName,
             tableName.append("_").append(appendFlag).append("1");
         }
     }
-
-    qDebug()<<tableName;
 }
 
 

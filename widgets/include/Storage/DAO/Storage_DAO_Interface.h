@@ -4,6 +4,7 @@
 #include <QString>
 #include <map>
 #include <list>
+#include "../../Config/Config_ConfigLoader.h"
 
 class DAO_Interface{
 public:
@@ -20,8 +21,8 @@ public:
     virtual void deleteLastRecord(const QString & tableName) = 0;
     virtual std::list<QString> getAllTablesName() = 0;
     virtual std::list<QString> getLikelyTablesName(const QString & tableName) = 0;
-    virtual void updateTableName(QString & tableName,
-                                 const std::map<unsigned int,QString> & patientInfoRecord,
-                                 const std::map<unsigned int,QString> & buttonTimeRecord) = 0;
+    virtual void updateTableName(QString & str,
+                                 const std::map<unsigned int,patientInfoPair> & patientPattern,
+                                 const std::map<unsigned int,QString> & OperationPattern) = 0;
 };
 #endif // STORAGE_DAO_INTERFACE_H

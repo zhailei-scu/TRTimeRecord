@@ -34,8 +34,8 @@ public:
     virtual std::list<QString> getAllTablesName();
     virtual std::list<QString> getLikelyTablesName(const QString & tableName);
     virtual void updateTableName(QString & str,
-                                 const std::map<unsigned int,QString> & patientInfoRecord,
-                                 const std::map<unsigned int,QString> & buttonTimeRecord);
+                                 const std::map<unsigned int,patientInfoPair> & patientPattern,
+                                 const std::map<unsigned int,QString> & OperationPattern);
 
 private:
     void clear();
