@@ -522,7 +522,11 @@ void TRTimeOperator::queryForNextPatient(){
 
 void TRTimeOperator::inputPatientInfo(){
     PatientInput * patientForm = new PatientInput(this);
-    patientForm->exec();
+    int result = patientForm->exec();
+
+    if(QDialog::Accepted == result){
+        this->t
+    }
 
     delete patientForm;
     patientForm = NULL;

@@ -38,19 +38,9 @@ PatientInput::PatientInput(QWidget* parent):QDialog(parent){
 
     basicHeight = this->geometry().height()/10.0;
     basicWidth = this->geometry().width()/4.0;
-
-    /*
-    scrollbar->setGeometry(this->width()-19,0,19,this->height());
-    scrollbar->setOrientation(Qt::Vertical);
-    this->scrolbarVerticalMax = basicHeight*2*(pattern->size()+1);
-    scrollbar->setMaximumHeight(this->scrolbarVerticalMax);
-    QObject::connect(scrollbar,SIGNAL(valueChanged(int)),this,SLOT(scrollVertical(int)));
-    */
-
-    //scrollArea->setGeometry(0,0,this->geometry().width(),basicHeight*2*(pattern->size()+1));
-
-    //backGround->setGeometry(0,0,this->geometry().width(),this->geometry().height());
-    backGround->setGeometry(0,0,this->geometry().width(),basicHeight*2*(pattern->size()+1));
+    backGround->setMinimumHeight(this->height());
+    backGround->setMinimumWidth(this->width());
+    backGround->setGeometry(0,0,this->geometry().width(),basicHeight*2*(pattern->size()+1.5));
 
     for(std::map<unsigned int,patientInfoPair>::const_iterator it = pattern->begin();
                                                                it != pattern->end();
@@ -58,32 +48,45 @@ PatientInput::PatientInput(QWidget* parent):QDialog(parent){
         QLabel *label = new QLabel(backGround);
         label->setText(it->second.first);
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        label->setGeometry(0.5*backGround->geometry().width() - basicWidth*1.1,
-                           (it->first + 1)*2*basicHeight,
+        label->setGeometry(0.45*backGround->geometry().width() - basicWidth*1.1,
+                           (it->first*2 + 1)*basicHeight,
                            basicWidth,
                            basicHeight);
 
         QLineEdit *lineEdit = new QLineEdit(backGround);
-        lineEdit->setGeometry(0.5*backGround->geometry().width(),
-                              (it->first + 1)*2*basicHeight,
+        lineEdit->setGeometry(0.45*backGround->geometry().width(),
+                              (it->first*2 + 1)*basicHeight,
                               basicWidth,
                               basicHeight);
 
         this->patternCompents->insert(std::pair<unsigned int,patientInfoQtCompentsPair>(it->first,patientInfoQtCompentsPair(label,lineEdit)));
     }
 
-    //backGround->hide();
+    /*Button*/
+    this->buttonOK = new QPushButton(backGround);
+    this->buttonOK->setText("OK");
+    this->buttonOK->setGeometry(0.5*backGround->geometry().width() - basicWidth*1.1,
+                                (pattern->size()*2 + 1)*basicHeight,
+                                basicWidth,
+                                basicHeight);
+
+    this->buttonCancle = new QPushButton(backGround);
+    this->buttonCancle->setText("Cancel");
+    this->buttonCancle->setGeometry(0.5*backGround->geometry().width() + basicWidth*0.3,
+                                   (pattern->size()*2 + 1)*basicHeight,
+                                   basicWidth,
+                                   basicHeight);
+
+    QObject::connect(this->buttonOK,SIGNAL(pressed()),this,SLOT(acceptHandle()));
+    QObject::connect(this->buttonCancle,SIGNAL(pressed()),this,SLOT(rejectHandle()));
+
+    /*scrollArea*/
     scrollArea->setWidget(backGround);
-    //this->hide();
-    //scrollArea->show();
-    /*
-    QObject::connect(this->uiForm->buttonBox->button(QDialogButtonBox::Ok),SIGNAL(pressed()),this,SLOT(acceptHandle()));
-    QObject::connect(this->uiForm->buttonBox->button(QDialogButtonBox::Cancel),SIGNAL(pressed()),this,SLOT(rejectHandle()));
-    */
+
 }
 
 PatientInput::~PatientInput(){
-
+    this->clear();
 }
 
 void PatientInput::closeEvent(QCloseEvent * event){
@@ -121,23 +124,50 @@ void PatientInput::clearInfos(){
 void PatientInput::clear(){
     this->clearPatternCompents();
     this->clearInfos();
+
+    if(this->buttonOK){
+        buttonOK->close();
+        delete buttonOK;
+    }
+
+    if(this->buttonCancle){
+        buttonCancle->close();
+        delete buttonCancle;
+    }
 }
 
 void PatientInput::acceptHandle(){
+    this->clearInfos();
+    if(this->patternCompents){
+        this->infos = new std::map<unsigned int,QString>();
+        for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
+                                                                       it != this->patternCompents->end();
+                                                                       it++){
+            if(this->infos->find(it->first) != this->infos->end()){
+                QMessageBox::critical(nullptr,"Error",QString("Internal error: the patient info id %1 is repeated").arg(it->first));
+                exit(-1);
+            }
+            this->infos->insert(std::pair<unsigned int,QString>(it->first,it->second.second->text()));
+        }
+    }
+
     this->accept();
 }
 
 void PatientInput::rejectHandle(){
+    this->clearInfos();
+    if(this->patternCompents){
+        this->infos = new std::map<unsigned int,QString>();
+        for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
+             it != this->patternCompents->end();
+             it++){
+            if(this->infos->find(it->first) != this->infos->end()){
+                QMessageBox::critical(nullptr,"Error",QString("Internal error: the patient info id %1 is repeated").arg(it->first));
+                exit(-1);
+            }
+            this->infos->insert(std::pair<unsigned int,QString>(it->first,""));
+        }
+    }
+
     this->reject();
-}
-
-void PatientInput::scrollVertical(int value){
-    double p = value/this->scrolbarVerticalMax;
-    this->scroll(0,-this->height()*p,QRect(0,0,this->width()-20,this->height()));
-    this->repaint();
-    //this->move(0,-this->height()*p);
-}
-
-void PatientInput::scrollHorizontal(int value){
-
 }

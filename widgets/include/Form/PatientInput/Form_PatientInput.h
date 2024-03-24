@@ -20,10 +20,8 @@ public:
 private:
     std::map<unsigned int,patientInfoQtCompentsPair>* patternCompents = NULL;
     std::map<unsigned int,QString>* infos = NULL;
-
-private:
-    double scrolbarVerticalMax = 0.0;
-    double scrolbarHorizontalMax = 0.0;
+    QPushButton *buttonOK = NULL;
+    QPushButton *buttonCancle = NULL;
 
 private:
     void closeEvent(QCloseEvent *) override;
@@ -34,8 +32,6 @@ private:
 public slots:
     void acceptHandle();
     void rejectHandle();
-    void scrollVertical(int value);
-    void scrollHorizontal(int value);
 };
 
 #endif
