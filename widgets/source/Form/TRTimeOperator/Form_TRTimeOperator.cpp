@@ -431,10 +431,6 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
         this->inputPatientInfo(PatientInputMode(ViewAndModify));
     }
 
-    tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
-
-    this->lastTableName = tableName;
-
     if(this->buttonTimeRecord.find(buttonID) == this->buttonTimeRecord.end()){
         this->buttonTimeRecord.insert(std::pair<unsigned int,QString>(buttonID,time));
     }else{
@@ -443,6 +439,12 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
     }
 
     if((unsigned int)(buttonID+1) == ConfigLoader::getInstance()->getTheOperatorPatten()->size()){
+        tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
+
+        DAO::getInstance()->getAllTablesName()->updateTableName(tableName);
+
+        this->lastTableName = tableName;
+
         DAO::getInstance()->appendARow(tableName,patientInfoRecord,buttonTimeRecord);
         CSVWriter::getInstance()->appendARecord(tableName,patientInfoRecord,buttonTimeRecord);
 
