@@ -32,6 +32,7 @@ TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_
     this->clear();
     uiForm->setupUi(this);
     this->uiConstruct();
+    this->show();
     this->inputPatientInfo(PatientInputMode(Modify));
 }
 
