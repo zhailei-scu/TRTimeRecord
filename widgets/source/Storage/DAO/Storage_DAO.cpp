@@ -219,8 +219,6 @@ void DAO::updateTableName(QString & tableName,
 
     tableName = tableNameList.back();
 
-    qDebug()<<tableName;
-
     list.push_back("id");
     for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
                                                                it != patientPattern.end();
@@ -245,8 +243,6 @@ void DAO::updateTableName(QString & tableName,
                 }
 
                 if(query.value(1).toString() != list.front()){
-                    qDebug()<<query.value(1).toString();
-                    qDebug()<<list.front();
                     flag = true;
                     break;
                 }
