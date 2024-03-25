@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PatientInfoSetting</class>
- <widget class="QWidget" name="PatientInfoSetting">
+ <class>OperationPipelineSetting</class>
+ <widget class="QWidget" name="OperationPipelineSetting">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>611</width>
+    <height>358</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,30 +18,42 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>401</width>
-     <height>301</height>
+     <width>611</width>
+     <height>361</height>
     </rect>
    </property>
    <property name="acceptDrops">
     <bool>false</bool>
    </property>
+   <property name="autoScroll">
+    <bool>true</bool>
+   </property>
    <property name="textElideMode">
     <enum>Qt::ElideMiddle</enum>
    </property>
+   <property name="showGrid">
+    <bool>true</bool>
+   </property>
+   <property name="gridStyle">
+    <enum>Qt::SolidLine</enum>
+   </property>
    <property name="sortingEnabled">
+    <bool>true</bool>
+   </property>
+   <property name="cornerButtonEnabled">
     <bool>true</bool>
    </property>
    <attribute name="horizontalHeaderCascadingSectionResizes">
     <bool>false</bool>
    </attribute>
    <attribute name="horizontalHeaderMinimumSectionSize">
-    <number>40</number>
+    <number>80</number>
    </attribute>
    <attribute name="horizontalHeaderDefaultSectionSize">
-    <number>150</number>
+    <number>200</number>
    </attribute>
    <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
    <attribute name="verticalHeaderVisible">
     <bool>true</bool>
@@ -56,19 +68,25 @@
     <bool>true</bool>
    </attribute>
    <attribute name="verticalHeaderShowSortIndicator" stdset="0">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
    <attribute name="verticalHeaderStretchLastSection">
     <bool>false</bool>
    </attribute>
+   <row/>
    <column>
     <property name="text">
-     <string>LabelName</string>
+     <string>Pipline button shown name</string>
     </property>
    </column>
    <column>
     <property name="text">
-     <string>ItemName(No blank)</string>
+     <string>Operation Name(No blank)</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Button repeat times</string>
     </property>
    </column>
   </widget>

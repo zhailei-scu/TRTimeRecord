@@ -124,7 +124,7 @@ void DAO::createEmptyTable(const QString & tableName){
         str.append(", ").append(it->second.second).append(" varchar(50)");
     }
 
-    const std::map<unsigned int,QString> * operatorPatten = ConfigLoader::getInstance()->getTheOperatorPatten();
+    const std::map<unsigned int,operationPair> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
     for(std::map<unsigned int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
         str.append(", ").append(it->second).append("Time varchar(20)");
     }
@@ -215,6 +215,7 @@ void DAO::updateTableName(QString & tableName,
     QSqlQuery query;
     std::list<QString> list;
     bool flag = false;
+    signed int pos = 0;
     std::list<QString> tableNameList = getLikelyTablesName(tableName);
 
     tableName = tableNameList.back();
@@ -252,7 +253,7 @@ void DAO::updateTableName(QString & tableName,
     }
 
     if(flag){
-        signed int pos = tableName.toStdString().find_first_of(appendFlag);
+        pos = tableName.toStdString().find_first_of(appendFlag);
 
         if(pos>=0){
             ss.str("");
