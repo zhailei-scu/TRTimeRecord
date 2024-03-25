@@ -111,7 +111,49 @@ void TRTimeOperator::uiDeconstruct(){
     }
 }
 
+void TRTimeOperator::buttonClear(){
+    if(this->buttonsMap){
+        for(std::map<unsigned int,QAbstractButton*>::iterator it = this->buttonsMap->begin();
+             it != this->buttonsMap->end();
+             it++){
+            it->second->close();
+            delete it->second;
+            it->second = NULL;
+        }
+
+        std::map<unsigned int,QAbstractButton*>().swap(*this->buttonsMap);
+        this->buttonsMap->clear();
+        delete this->buttonsMap;
+        this->buttonsMap = NULL;
+    }
+
+    if(this->buttonGroup){
+        QObject::disconnect(this->buttonGroup,SIGNAL(idClicked(int)),this,SLOT(HandleSignal(int)));
+        delete this->buttonGroup;
+        this->buttonGroup = NULL;
+    }
+
+    if(this->linesMap){
+        for(std::map<unsigned int,QFrame*>::iterator it = this->linesMap->begin();
+                                                     it != this->linesMap->end();
+                                                     it++){
+            it->second->close();
+            delete it->second;
+            it->second = NULL;
+        }
+
+        std::map<unsigned int,QFrame*>().swap(*this->linesMap);
+        this->linesMap->clear();
+        delete this->linesMap;
+        this->linesMap = NULL;
+    }
+
+    std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
+    this->buttonTimeRecord.clear();
+}
+
 void TRTimeOperator::buttonConstruct(){
+    this->buttonClear();
     /*Registe button to buttonGroup for clicked id get and regist button to map*/
     /*To do: we need to config button based on configure file*/
     QPushButton* button = NULL;
@@ -127,6 +169,7 @@ void TRTimeOperator::buttonConstruct(){
     double lineHeight = buttonHeight;
     this->buttonGroup = new QButtonGroup(this->uiForm->quickWidget);
     this->buttonsMap = new std::map<unsigned int,QAbstractButton*>();
+    this->linesMap = new std::map<unsigned int,QFrame*>();
     double dynamicHeight = buttonTop + buttonHeight*2*ConfigLoader::getInstance()->getTheOperationPatten()->size();
 
     this->uiForm->quickWidget->setMinimumHeight(dynamicHeight);
@@ -143,11 +186,14 @@ void TRTimeOperator::buttonConstruct(){
         this->buttonGroup->addButton(button,it->first);
         this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,button));
 
+        button->show();
+
         buttonTop += buttonHeight*2;
 
-        line = new QFrame(this->uiForm->quickWidget);
-        line->setGeometry(lineLeft,lineTop,lineWidth,lineHeight);
-        line->setStyleSheet(QString("color: %1;"
+        if(it->first != (ConfigLoader::getInstance()->getTheOperationPatten()->size() - 1)){
+            line = new QFrame(this->uiForm->quickWidget);
+            line->setGeometry(lineLeft,lineTop,lineWidth,lineHeight);
+            line->setStyleSheet(QString("color: %1;"
                                     "selection-color: %1;"
                                     "border-bottom-color: %1;"
                                     "border-right-color: %1;"
@@ -155,50 +201,13 @@ void TRTimeOperator::buttonConstruct(){
                                     "gridline-color: %1;"
                                     "border-color: %1;").arg(lineColor));
 
-        lineTop += lineHeight*2;
+            linesMap->insert(std::pair<unsigned int,QFrame*>(it->first,line));
+
+            line->show();
+
+            lineTop += lineHeight*2;
+        }
     }
-
-    /*close last line*/
-    line->close();
-    delete line;
-    line = NULL;
-
-    /*
-    const auto begin = ConfigLoader::getInstance()->getTheOperationPatten()->begin();
-    const auto end = ConfigLoader::getInstance()->getTheOperationPatten()->end();
-
-    auto it = std::find_if(begin,end,map_value_finder_Operator("PatientComeIn"));
-    if(it == end){
-        QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentComeIn"));
-        exit(-1);
-    }
-    this->buttonGroup->addButton(this->uiForm->pushButton_PatentComeIn,it->first);
-    this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_PatentComeIn));
-
-    it = std::find_if(begin,end,map_value_finder_Operator("PatentImaging"));
-    if(it == end){
-        QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentImaging"));
-        exit(-1);
-    }
-    this->buttonGroup->addButton(this->uiForm->pushButton_PatentImaging,it->first);
-    this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_PatentImaging));
-
-    it = std::find_if(begin,end,map_value_finder_Operator("Theraphy"));
-    if(it == end){
-        QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("Theraphy"));
-        exit(-1);
-    }
-    this->buttonGroup->addButton(this->uiForm->pushButton_Theraphy,it->first);
-    this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_Theraphy));
-
-    it = std::find_if(begin,end,map_value_finder_Operator("LeavingRoom"));
-    if(it == end){
-        QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("LeavingRoom"));
-        exit(-1);
-    }
-    this->buttonGroup->addButton(this->uiForm->pushButton_LeavingRoom,it->first);
-    this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_LeavingRoom));
-    */
 
     this->buttonGroup->setExclusive(true);
 
@@ -215,6 +224,21 @@ void TRTimeOperator::clear(){
         this->buttonsMap->clear();
         delete this->buttonsMap;
         this->buttonsMap = NULL;
+    }
+
+    if(this->linesMap){
+        for(std::map<unsigned int,QFrame*>::iterator it = this->linesMap->begin();
+             it != this->linesMap->end();
+             it++){
+            it->second->close();
+            delete it->second;
+            it->second = NULL;
+        }
+
+        std::map<unsigned int,QFrame*>().swap(*this->linesMap);
+        this->linesMap->clear();
+        delete this->linesMap;
+        this->linesMap = NULL;
     }
 
     std::map<unsigned int,QString>().swap(this->patientInfoRecord);
@@ -239,6 +263,7 @@ void TRTimeOperator::clear(){
 }
 
 void TRTimeOperator::HandleSignal(int ID){
+    this->menuBar->getMenu("Setting")->actions().at(2)->setEnabled(false);
     bool recorded = this->timeRecord(ID);
 
     this->changeButtonStatus(ID+1);
@@ -474,6 +499,8 @@ void TRTimeOperator::pipleLineSetting(){
     OperationPipelineSetting *form = new OperationPipelineSetting(this);
     form->exec();
 
+    this->buttonConstruct();
+
     delete form;
     form = NULL;
 }
@@ -513,6 +540,8 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
         this->buttonTimeRecord.clear();
 
         result = true;
+
+        this->menuBar->getMenu("Setting")->actions().at(2)->setEnabled(true);
     }
 
     return result;

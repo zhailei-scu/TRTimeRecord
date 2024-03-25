@@ -36,6 +36,7 @@ private:
 
 private:
     std::map<unsigned int,QAbstractButton*> *buttonsMap = NULL;
+    std::map<unsigned int,QFrame*> *linesMap = NULL;
     std::map<unsigned int,QString> patientInfoRecord;
     std::map<unsigned int,QString> buttonTimeRecord;
     QString lastTableName;
@@ -47,6 +48,7 @@ private:
     virtual void uiDeconstruct();
 private:
     void buttonConstruct();
+    void buttonClear();
     void clear();
 
 private:

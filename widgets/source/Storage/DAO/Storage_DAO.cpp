@@ -218,7 +218,9 @@ void DAO::updateTableName(QString & tableName,
     signed int pos = 0;
     std::list<QString> tableNameList = getLikelyTablesName(tableName);
 
-    tableName = tableNameList.back();
+    if(tableNameList.size() > 0){
+        tableName = tableNameList.back();
+    }
 
     list.push_back("id");
     for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
@@ -249,6 +251,10 @@ void DAO::updateTableName(QString & tableName,
                 }
                 list.pop_front();
             }
+        }
+
+        if(list.size() > 0){
+            flag = true;
         }
     }
 
