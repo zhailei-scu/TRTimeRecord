@@ -28,6 +28,8 @@
 #include <QStringList>
 #include <QHeaderView>
 #include <QScrollBar>
+#include <QPushButton>
+#include <QFrame>
 
 TRTimeOperator::TRTimeOperator(TRTimeOperator_Interface* parent):TRTimeOperator_Interface(parent),uiForm(new Ui::TRTimeOperator){
     this->clear();
@@ -112,9 +114,56 @@ void TRTimeOperator::uiDeconstruct(){
 void TRTimeOperator::buttonConstruct(){
     /*Registe button to buttonGroup for clicked id get and regist button to map*/
     /*To do: we need to config button based on configure file*/
-    this->buttonGroup = new QButtonGroup(this);
+    QPushButton* button = NULL;
+    QFrame* line = NULL;
+    QString lineColor = "rgb(0, 254, 255)";
+    double buttonWidth = this->width()*0.2;
+    double buttonHeight = this->height()*0.1;
+    double buttonTop = buttonHeight*0.7;
+    double buttonLeft = this->width()/2 - buttonWidth*0.5;
+    double lineTop = buttonTop + buttonHeight;
+    double lineWidth = buttonWidth*0.1;
+    double lineLeft = this->width()/2 - lineWidth*0.5;
+    double lineHeight = buttonHeight;
+    this->buttonGroup = new QButtonGroup(this->uiForm->quickWidget);
     this->buttonsMap = new std::map<unsigned int,QAbstractButton*>();
+    double dynamicHeight = buttonTop + buttonHeight*2*ConfigLoader::getInstance()->getTheOperationPatten()->size();
 
+    this->uiForm->quickWidget->setMinimumHeight(dynamicHeight);
+    this->uiForm->quickWidget->setMinimumWidth(this->uiForm->tabWidget->width());
+
+    for(std::map<unsigned int,OneOperationPattern>::const_iterator it = ConfigLoader::getInstance()->getTheOperationPatten()->begin();
+                                                                   it != ConfigLoader::getInstance()->getTheOperationPatten()->end();
+                                                                   it++){
+        button = new QPushButton(this->uiForm->quickWidget);
+
+        button->setText(it->second.buttonLabel);
+        button->setGeometry(buttonLeft,buttonTop,buttonWidth,buttonHeight);
+
+        this->buttonGroup->addButton(button,it->first);
+        this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,button));
+
+        buttonTop += buttonHeight*2;
+
+        line = new QFrame(this->uiForm->quickWidget);
+        line->setGeometry(lineLeft,lineTop,lineWidth,lineHeight);
+        line->setStyleSheet(QString("color: %1;"
+                                    "selection-color: %1;"
+                                    "border-bottom-color: %1;"
+                                    "border-right-color: %1;"
+                                    "border-top-color: %1;"
+                                    "gridline-color: %1;"
+                                    "border-color: %1;").arg(lineColor));
+
+        lineTop += lineHeight*2;
+    }
+
+    /*close last line*/
+    line->close();
+    delete line;
+    line = NULL;
+
+    /*
     const auto begin = ConfigLoader::getInstance()->getTheOperationPatten()->begin();
     const auto end = ConfigLoader::getInstance()->getTheOperationPatten()->end();
 
@@ -149,6 +198,7 @@ void TRTimeOperator::buttonConstruct(){
     }
     this->buttonGroup->addButton(this->uiForm->pushButton_LeavingRoom,it->first);
     this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_LeavingRoom));
+    */
 
     this->buttonGroup->setExclusive(true);
 

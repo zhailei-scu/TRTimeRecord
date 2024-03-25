@@ -45,7 +45,7 @@
     <enum>Qt::ElideNone</enum>
    </property>
    <property name="usesScrollButtons">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="documentMode">
     <bool>true</bool>
@@ -63,160 +63,32 @@
     <attribute name="title">
      <string>Operation</string>
     </attribute>
-    <widget class="QPushButton" name="pushButton_Theraphy">
+    <widget class="QScrollArea" name="scrollArea">
      <property name="geometry">
       <rect>
-       <x>320</x>
-       <y>300</y>
-       <width>161</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Theraphy</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_LeavingRoom">
-     <property name="geometry">
-      <rect>
-       <x>320</x>
-       <y>420</y>
-       <width>161</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Leaving Room</string>
-     </property>
-    </widget>
-    <widget class="Line" name="line_4">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>120</y>
-       <width>21</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);
-selection-color: rgb(255, 255, 255);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-top-color: rgb(255, 255, 255);
-gridline-color: rgb(255, 255, 255);
-border-color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_PatentImaging">
-     <property name="geometry">
-      <rect>
-       <x>320</x>
-       <y>180</y>
-       <width>161</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Imaging/Position</string>
-     </property>
-    </widget>
-    <widget class="Line" name="line_3">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>360</y>
-       <width>21</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_PatentComeIn">
-     <property name="geometry">
-      <rect>
-       <x>320</x>
-       <y>60</y>
-       <width>161</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="text">
-      <string>Patient Come in</string>
-     </property>
-     <property name="icon">
-      <iconset theme="address-book-new"/>
-     </property>
-    </widget>
-    <widget class="Line" name="line_2">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>240</y>
-       <width>21</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-    <widget class="QQuickWidget" name="quickWidget">
-     <property name="geometry">
-      <rect>
-       <x>-6</x>
+       <x>0</x>
        <y>0</y>
-       <width>811</width>
-       <height>561</height>
+       <width>801</width>
+       <height>541</height>
       </rect>
      </property>
-     <property name="maximumSize">
-      <size>
-       <width>811</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="acceptDrops">
+     <property name="widgetResizable">
       <bool>true</bool>
      </property>
-     <property name="resizeMode">
-      <enum>QQuickWidget::SizeRootObjectToView</enum>
-     </property>
+     <widget class="QQuickWidget" name="quickWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>799</width>
+        <height>539</height>
+       </rect>
+      </property>
+      <property name="resizeMode">
+       <enum>QQuickWidget::SizeRootObjectToView</enum>
+      </property>
+     </widget>
     </widget>
-    <zorder>quickWidget</zorder>
-    <zorder>pushButton_Theraphy</zorder>
-    <zorder>pushButton_LeavingRoom</zorder>
-    <zorder>line_4</zorder>
-    <zorder>pushButton_PatentImaging</zorder>
-    <zorder>line_3</zorder>
-    <zorder>pushButton_PatentComeIn</zorder>
-    <zorder>line_2</zorder>
    </widget>
   </widget>
  </widget>
