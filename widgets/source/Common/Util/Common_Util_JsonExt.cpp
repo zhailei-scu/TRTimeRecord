@@ -293,46 +293,49 @@ void JsonExt::Extract(JsonBase* base,
     }
 }
 
-void JsonExt::Traverse(const JsonBase* treeRoot,std::vector<std::string> & traverseInfo){
+void JsonExt::Traverse(const JsonBase* treeRoot,std::vector<std::string> & traverseInfo,int blankNum){
     if(!treeRoot){
         return;
     }
 
-    traverseInfo.push_back(JsonFlags::getInstance()->objectStartFlag);
+    std::string blank="";
+
+    for(int i = 0;i<blankNum;i++){
+        blank.append(" ");
+    }
+
+    traverseInfo.push_back(blank + JsonFlags::getInstance()->objectStartFlag);
 
     if(treeRoot->namedPairs){
 
         std::map<std::string,std::string>::iterator itNamed = treeRoot->namedPairs->begin();
         while(itNamed !=  treeRoot->namedPairs->end()){
-            traverseInfo.push_back(itNamed->first);
-            traverseInfo.push_back(":");
-            traverseInfo.push_back(itNamed->second);
+            traverseInfo.push_back(blank + itNamed->first + ":" + itNamed->second);
             itNamed++;
         }
     }
 
     if(treeRoot->objectsArray){
-        traverseInfo.push_back(JsonFlags::getInstance()->arrayStartFlag);
+        traverseInfo.push_back(blank + JsonFlags::getInstance()->arrayStartFlag);
         std::map<int,JsonBase*>::iterator itArray = treeRoot->objectsArray->begin();
         while(itArray !=  treeRoot->objectsArray->end()){
-            Traverse(const_cast<const JsonBase*>(itArray->second),traverseInfo);
+            Traverse(const_cast<const JsonBase*>(itArray->second),traverseInfo,(blankNum+1)*2);
             itArray++;
         }
-        traverseInfo.push_back(JsonFlags::getInstance()->arrayEndFlag);
+        traverseInfo.push_back(blank + JsonFlags::getInstance()->arrayEndFlag);
     }
 
     if(treeRoot->namedObjects){
         std::map<std::string,JsonBase*>::iterator itNamed = treeRoot->namedObjects->begin();
         while(itNamed !=  treeRoot->namedObjects->end()){
-            traverseInfo.push_back(itNamed->first);
-            traverseInfo.push_back(":");
-            Traverse(const_cast<const JsonBase*>(itNamed->second),traverseInfo);
+            traverseInfo.push_back(blank + itNamed->first + ":");
+            Traverse(const_cast<const JsonBase*>(itNamed->second),traverseInfo,(blankNum+1)*2);
 
             itNamed++;
         }
     }
 
-    traverseInfo.push_back(JsonFlags::getInstance()->objectEndFlag);
+    traverseInfo.push_back(blank + JsonFlags::getInstance()->objectEndFlag);
 }
 
 void JsonExt::Check(const JsonBase* treeRoot){
@@ -409,6 +412,10 @@ void JsonExt::EraseUselesschars(std::string & line){
 
 JsonBase* JsonExt::getJsonInfo() const{
     return this->theJsonInfo;
+}
+
+void JsonExt::setJsonInfo(JsonBase* info){
+    this->theJsonInfo = info;
 }
 
 void JsonExt::clear(){

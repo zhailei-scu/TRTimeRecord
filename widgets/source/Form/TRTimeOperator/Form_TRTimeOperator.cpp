@@ -2,6 +2,7 @@
 #include "ui_TRTimeOperator.h"
 #include "../../../include/Form/TRTimeOperator/Form_TRTimeOperator_QueryForNextPatient.h"
 #include "../../../include/Form/PatientInfoSetting/Form_PatientInfoSetting.h"
+#include "../../../include/Form/OperationPipelineSetting/Form_OperationPipelineSetting.h"
 #include "../../../include/Storage/DAO/Storage_DAO.h"
 #include "../../../include/Storage/CSV/Storage_CSV_Writer.h"
 #include "../../../include/Config/Config_ConfigLoader.h"
@@ -408,7 +409,7 @@ void TRTimeOperator::dataBaseView(){
 }
 
 void TRTimeOperator::storageSetting(){
-    QMessageBox::information(nullptr,"Info","123");
+    QMessageBox::information(nullptr,"Info","789");
 }
 
 void TRTimeOperator::patientInfoSetting(){
@@ -420,7 +421,11 @@ void TRTimeOperator::patientInfoSetting(){
 }
 
 void TRTimeOperator::pipleLineSetting(){
-    QMessageBox::information(nullptr,"Info","789");
+    OperationPipelineSetting *form = new OperationPipelineSetting(this);
+    form->exec();
+
+    delete form;
+    form = NULL;
 }
 
 bool TRTimeOperator::timeRecord(unsigned int buttonID){

@@ -82,7 +82,6 @@ void ConfigLoader::setTheOperationPattern(const std::map<unsigned int,OneOperati
     this->writeOperationPatternToFile(*this->theOperationPatten);
 }
 
-
 bool ConfigLoader::readPatientInfoPatternFromFile(){
     std::stringstream ss;
     int id = 0;
@@ -174,7 +173,6 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
 
 void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> & input){
     std::ifstream ifs;
-    std::ofstream ofs;
     std::stringstream ss;
     std::string str_Index;
     JsonExt* ext = new JsonExt();
@@ -202,6 +200,7 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,pat
         }
     }else{
         base = new JsonBase();
+        ext->setJsonInfo(base);
     }
 
     if(!base->namedObjects){
@@ -304,6 +303,16 @@ bool ConfigLoader::readOperationPatternFromFile(){
 
                                 OperationName = onePair->namedPairs->begin()->first;
 
+                                OperationName.erase(0,OperationName.find_first_not_of(" "));
+                                OperationName.erase(OperationName.find_last_not_of(" ")+1);
+                                if((signed int)(OperationName.find_first_of(" "))>0){
+                                    QMessageBox::critical(nullptr,
+                                                          "Error",
+                                                          QString("The json file for operation pipeline input id: %1 included %2 blank")
+                                                              .arg(id).arg(OperationName.c_str()));
+                                    exit(-1);
+                                }
+
                                 ss.str("");
                                 ss.clear();
                                 ss<<onePair->namedPairs->begin()->second;
@@ -353,7 +362,6 @@ bool ConfigLoader::readOperationPatternFromFile(){
 
 void ConfigLoader::writeOperationPatternToFile(const std::map<unsigned int,OneOperationPattern> & input){
     std::ifstream ifs;
-    std::ofstream ofs;
     std::stringstream ss;
     std::string str_Index;
     std::string str_Repeat;
@@ -382,6 +390,7 @@ void ConfigLoader::writeOperationPatternToFile(const std::map<unsigned int,OneOp
         }
     }else{
         base = new JsonBase();
+        ext->setJsonInfo(base);
     }
 
     if(!base->namedObjects){
@@ -485,8 +494,8 @@ void ConfigLoader::setDefaultOperationPatten(){
 
     this->theOperationPatten = new std::map<unsigned int,OneOperationPattern>();
     this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(0,OneOperationPattern("Patient come in","PatientComeIn",1)));
-    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(1,OneOperationPattern("Imaging/Position","Imaging_Position",2)));
-    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(2,OneOperationPattern("Therapy","Therapy",-1)));
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(1,OneOperationPattern("Imaging/Position","PatentImaging",2)));
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(2,OneOperationPattern("Therapy","Theraphy",-1)));
     this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(3,OneOperationPattern("Leaving Room","LeavingRoom",1)));
 }
 

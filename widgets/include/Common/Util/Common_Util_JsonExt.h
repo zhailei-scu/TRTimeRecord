@@ -67,6 +67,7 @@ public:
 
 public:
     JsonBase* getJsonInfo() const;
+    void setJsonInfo(JsonBase*);
     void Extract(std::ifstream & ifs);
     void WriteBackToFile(const char* outFile,const std::ios::openmode & theMode);
 private:
@@ -84,7 +85,9 @@ private:
 
 private:
     friend JsonBase;
-    static void Traverse(const JsonBase* treeRoot,std::vector<std::string> & traverseInfo);
+    static void Traverse(const JsonBase* treeRoot,
+                         std::vector<std::string> & traverseInfo,
+                         int blankNum=0);
 };
 
 

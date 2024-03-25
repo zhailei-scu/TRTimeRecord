@@ -7,6 +7,7 @@
 #include <QCloseEvent>
 #include <QLineEdit>
 #include <QInputDialog>
+#include <sstream>
 
 OperationPipelineSetting::OperationPipelineSetting(QWidget* parent):QDialog(parent),uiForm(new Ui::OperationPipelineSetting){
 
@@ -136,20 +137,26 @@ void OperationPipelineSetting::deleteAction(){
 }
 
 void OperationPipelineSetting::resetAction(){
+    std::stringstream ss;
     while(this->uiForm->tableWidget->rowCount()>0){
         this->uiForm->tableWidget->removeRow(0);
     }
     this->uiForm->tableWidget->setRowCount(0);
 
-    const std::map<unsigned int,patientInfoPair> *patientInfo = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    const std::map<unsigned int,OneOperationPattern> *operation = ConfigLoader::getInstance()->getTheOperationPatten();
 
-    if(patientInfo){
-        for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfo->begin();
-             it != patientInfo->end();
-             it++){
+    if(operation){
+        for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operation->begin();
+                                                                       it != operation->end();
+                                                                       it++){
+            ss.str("");
+            ss.clear();
+            ss<<it->second.repeatTime;
+
             this->uiForm->tableWidget->insertRow(it->first);
-            this->uiForm->tableWidget->setItem(it->first,0,new QTableWidgetItem(it->second.first));
-            this->uiForm->tableWidget->setItem(it->first,1,new QTableWidgetItem(it->second.second));
+            this->uiForm->tableWidget->setItem(it->first,0,new QTableWidgetItem(it->second.buttonLabel));
+            this->uiForm->tableWidget->setItem(it->first,1,new QTableWidgetItem(it->second.buttonName));
+            this->uiForm->tableWidget->setItem(it->first,2,new QTableWidgetItem(ss.str().c_str()));
         }
     }
 }
@@ -163,21 +170,34 @@ bool OperationPipelineSetting::setOperationPipelineSetting(){
     int count = this->uiForm->tableWidget->rowCount();
     QString Label;
     QString Name;
-    std::map<unsigned int,patientInfoPair> patientPattern;
+    int repeatTime;
+    std::map<unsigned int,OneOperationPattern> opereation;
     for(int i = 0;i<count;i++){
         Label = this->uiForm->tableWidget->item(i,0)->text();
         Name = this->uiForm->tableWidget->item(i,1)->text();
+        repeatTime = this->uiForm->tableWidget->item(i,2)->text().toInt();
 
         if(Name.count(' ') > 0){
             QMessageBox::critical(nullptr,"Error",QString("The Name %1 is not supported").arg(Name));
             result = false;
             break;
         }
-        patientPattern.insert(
-            std::pair<unsigned int,patientInfoPair>(i,patientInfoPair(Label,Name))
+
+        if(0 == repeatTime || (repeatTime < 0 && -1 != repeatTime)){
+            QMessageBox::critical(nullptr,
+                                  "Error",
+                                  QString("The json file for operation pipeline input id: %1 included wrong repeat time %2:"
+                                          "The repeatTime can only be -1(represent nolimitation) or positive integer value")
+                                      .arg(i).arg(repeatTime));
+            result = false;
+            break;
+        }
+
+        opereation.insert(
+            std::pair<unsigned int,OneOperationPattern>(i,OneOperationPattern(Label,Name,repeatTime))
             );
     }
 
-    ConfigLoader::getInstance()->setThePatientPattern(patientPattern);
+    ConfigLoader::getInstance()->setTheOperationPattern(opereation);
     return result;
 }
