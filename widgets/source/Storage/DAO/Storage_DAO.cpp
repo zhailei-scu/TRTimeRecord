@@ -124,9 +124,9 @@ void DAO::createEmptyTable(const QString & tableName){
         str.append(", ").append(it->second.second).append(" varchar(50)");
     }
 
-    const std::map<unsigned int,operationPair> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
-    for(std::map<unsigned int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
-        str.append(", ").append(it->second).append("Time varchar(20)");
+    const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
+    for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
+        str.append(", ").append(it->second.buttonName).append("Time varchar(20)");
     }
     str.append(");");
 
@@ -154,9 +154,9 @@ void DAO::appendARow(const QString & tableName,
         str.append(", ").append(it->second.second);
     }
 
-    const std::map<unsigned int,QString> * operatorPatten = ConfigLoader::getInstance()->getTheOperatorPatten();
-    for(std::map<unsigned int,QString>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
-        str.append(", ").append(it->second).append("Time");
+    const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
+    for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
+        str.append(", ").append(it->second.buttonName).append("Time");
     }
 
     str.append(") VALUES (").append(count);
@@ -173,7 +173,7 @@ void DAO::appendARow(const QString & tableName,
     for(auto it = operatorPatten->begin(); it != operatorPatten->end();it++){
         auto it_find = operatorTimes.find(it->first);
         if(it_find == operatorTimes.end()){
-            QMessageBox::information(nullptr, "Warning", QString("Operator %1 time is not found").arg(it->second));
+            QMessageBox::information(nullptr, "Warning", QString("Operator %1 time is not found").arg(it->second.buttonName));
             str.append(", '").append("").append("'");
         }else{
             str.append(", '").append(it_find->second).append("'");
@@ -208,7 +208,7 @@ void DAO::deleteLastRecord(const QString & tableName){
 
 void DAO::updateTableName(QString & tableName,
                           const std::map<unsigned int,patientInfoPair> & patientPattern,
-                          const std::map<unsigned int,QString> & OperationPattern){
+                          const std::map<unsigned int,OneOperationPattern> & OperationPattern){
     std::stringstream ss;
     int value = 0;
     std::string str_value;
@@ -227,10 +227,10 @@ void DAO::updateTableName(QString & tableName,
         list.push_back(it->second.second);
     }
 
-    for(std::map<unsigned int,QString>::const_iterator it = OperationPattern.begin();
-                                                       it != OperationPattern.end();
-                                                       it++){
-        list.push_back(it->second + "Time");
+    for(std::map<unsigned int,OneOperationPattern>::const_iterator it = OperationPattern.begin();
+                                                                   it != OperationPattern.end();
+                                                                   it++){
+        list.push_back(it->second.buttonName + "Time");
     }
 
     if(this->tableExisted(tableName)){

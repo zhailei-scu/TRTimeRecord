@@ -360,7 +360,7 @@ void ConfigLoader::writeOperationPatternToFile(const std::map<unsigned int,OneOp
     JsonExt* ext = new JsonExt();
     JsonBase* base = NULL;
     JsonBase* operationPattern = NULL;
-    JsonBase* oneOperationLine = NULL;
+    JsonBase* oneOperation = NULL;
 
     ifs.open(systemCfgPath.toStdString());
     if(ifs.is_open()){
@@ -403,15 +403,19 @@ void ConfigLoader::writeOperationPatternToFile(const std::map<unsigned int,OneOp
 
         ss.str("");
         ss.clear();
-        ss<<it->second.second;
+        ss<<it->second.repeatTime;
         str_Repeat = "";
         ss>>str_Repeat;
 
-        oneOperationLine = new JsonBase();
-        oneOperationLine->namedPairs = new std::map<std::string,std::string>();
-        oneOperationLine->namedPairs->insert(std::pair<std::string,std::string>(it->second.first.toStdString(),str_Repeat));
+        oneOperation = new JsonBase();
+        oneOperation->namedObjects = new std::map<std::string,JsonBase*>();
+        JsonBase *onePair = new JsonBase();
+        onePair->namedPairs = new std::map<std::string,std::string>();
+        onePair->namedPairs->insert(std::pair<std::string,std::string>(it->second.buttonName.toStdString(),str_Repeat));
 
-        oneOperationLine->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,oneOperationLine));
+        oneOperation->namedObjects->insert(std::pair<std::string,JsonBase*>(it->second.buttonLabel.toStdString(),onePair));
+
+        operationPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,oneOperation));
     }
 
     base->namedObjects->insert(std::pair<std::string,JsonBase*>(str_OperationPattern,operationPattern));
@@ -473,17 +477,17 @@ void ConfigLoader::setDefaultPatientInfoPatten(){
 
 void ConfigLoader::setDefaultOperationPatten(){
     if(this->theOperationPatten){
-        std::map<unsigned int,operationPair>().swap(*this->theOperationPatten);
+        std::map<unsigned int,OneOperationPattern>().swap(*this->theOperationPatten);
         this->theOperationPatten->clear();
         delete this->theOperationPatten;
         this->theOperationPatten = NULL;
     }
 
-    this->theOperationPatten = new std::map<unsigned int,operationPair>();
-    this->theOperationPatten->insert(std::pair<unsigned int,operationPair>(0,operationPair("Patient come in",1)));
-    this->theOperationPatten->insert(std::pair<unsigned int,operationPair>(1,operationPair("Imaging/Position",2)));
-    this->theOperationPatten->insert(std::pair<unsigned int,operationPair>(2,operationPair("Therapy",-1)));
-    this->theOperationPatten->insert(std::pair<unsigned int,operationPair>(2,operationPair("Leaving Room",1)));
+    this->theOperationPatten = new std::map<unsigned int,OneOperationPattern>();
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(0,OneOperationPattern("Patient come in","PatientComeIn",1)));
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(1,OneOperationPattern("Imaging/Position","Imaging_Position",2)));
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(2,OneOperationPattern("Therapy","Therapy",-1)));
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(3,OneOperationPattern("Leaving Room","LeavingRoom",1)));
 }
 
 void ConfigLoader::clear(){
@@ -503,7 +507,7 @@ void ConfigLoader::clear(){
     }
 
     if(this->theOperationPatten){
-        std::map<unsigned int,operationPair>().swap(*this->theOperationPatten);
+        std::map<unsigned int,OneOperationPattern>().swap(*this->theOperationPatten);
         this->theOperationPatten->clear();
         delete this->theOperationPatten;
         this->theOperationPatten = NULL;

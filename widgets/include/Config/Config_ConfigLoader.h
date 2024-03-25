@@ -3,6 +3,7 @@
 
 #include <QJsonObject>
 #include <map>
+#include <string>
 #include <QString>
 
 static QString systemCSVPath = "TR.csv";
@@ -14,11 +15,31 @@ struct OneOperationPattern{
 public:
     OneOperationPattern(const QString & label,
                         const QString & name,
-                        signed int & time):buttonLabel(label),buttonName(name),repeatTime(time){}
+                        signed int time):buttonLabel(label),buttonName(name),repeatTime(time){}
+
+    OneOperationPattern(const std::string & label,
+                        const std::string & name,
+                        signed int time):buttonLabel(label.c_str()),buttonName(name.c_str()),repeatTime(time){}
+
+    OneOperationPattern(const char* label,
+                        const char* name,
+                        signed int time):buttonLabel(label),buttonName(name),repeatTime(time){}
 public:
     QString buttonLabel = "";
     QString buttonName = "";
     signed int repeatTime = 0;
+};
+
+class map_value_finder_Operator
+{
+public:
+    map_value_finder_Operator( const QString &cmp_value):m_value(cmp_value){}
+    bool  operator ()(const std::pair<unsigned int,OneOperationPattern> &pair)
+    {
+        return pair.second.buttonName == m_value;
+    }
+private:
+    const QString &m_value;
 };
 
 using patientInfoPair = std::pair<QString,QString>; //(label, Name)

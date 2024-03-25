@@ -23,6 +23,6 @@ public:
     virtual std::list<QString> getLikelyTablesName(const QString & tableName) = 0;
     virtual void updateTableName(QString & str,
                                  const std::map<unsigned int,patientInfoPair> & patientPattern,
-                                 const std::map<unsigned int,QString> & OperationPattern) = 0;
+                                 const std::map<unsigned int,OneOperationPattern> & OperationPattern) = 0;
 };
 #endif // STORAGE_DAO_INTERFACE_H

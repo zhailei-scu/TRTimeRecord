@@ -114,10 +114,10 @@ void TRTimeOperator::buttonConstruct(){
     this->buttonGroup = new QButtonGroup(this);
     this->buttonsMap = new std::map<unsigned int,QAbstractButton*>();
 
-    const auto begin = ConfigLoader::getInstance()->getTheOperatorPatten()->begin();
-    const auto end = ConfigLoader::getInstance()->getTheOperatorPatten()->end();
+    const auto begin = ConfigLoader::getInstance()->getTheOperationPatten()->begin();
+    const auto end = ConfigLoader::getInstance()->getTheOperationPatten()->end();
 
-    auto it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("PatientComeIn"));
+    auto it = std::find_if(begin,end,map_value_finder_Operator("PatientComeIn"));
     if(it == end){
         QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentComeIn"));
         exit(-1);
@@ -125,7 +125,7 @@ void TRTimeOperator::buttonConstruct(){
     this->buttonGroup->addButton(this->uiForm->pushButton_PatentComeIn,it->first);
     this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_PatentComeIn));
 
-    it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("PatentImaging"));
+    it = std::find_if(begin,end,map_value_finder_Operator("PatentImaging"));
     if(it == end){
         QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("PatentImaging"));
         exit(-1);
@@ -133,7 +133,7 @@ void TRTimeOperator::buttonConstruct(){
     this->buttonGroup->addButton(this->uiForm->pushButton_PatentImaging,it->first);
     this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_PatentImaging));
 
-    it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("Theraphy"));
+    it = std::find_if(begin,end,map_value_finder_Operator("Theraphy"));
     if(it == end){
         QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("Theraphy"));
         exit(-1);
@@ -141,7 +141,7 @@ void TRTimeOperator::buttonConstruct(){
     this->buttonGroup->addButton(this->uiForm->pushButton_Theraphy,it->first);
     this->buttonsMap->insert(std::pair<unsigned int,QAbstractButton*>(it->first,this->uiForm->pushButton_Theraphy));
 
-    it = std::find_if(begin,end,map_value_finder<unsigned int,QString>("LeavingRoom"));
+    it = std::find_if(begin,end,map_value_finder_Operator("LeavingRoom"));
     if(it == end){
         QMessageBox::critical(nullptr, "Error", QString("Button patten %1 is not found").arg("LeavingRoom"));
         exit(-1);
@@ -264,7 +264,7 @@ void TRTimeOperator::csvView(){
                 tempOneCSVViewerCompents->tableView = new QTableWidget(tempWidget);
 
                 tempOneCSVViewerCompents->tableView->setColumnCount(ConfigLoader::getInstance()->getThePatientInfoPatten()->size()
-                                                                    +ConfigLoader::getInstance()->getTheOperatorPatten()->size());
+                                                                    +ConfigLoader::getInstance()->getTheOperationPatten()->size());
 
                 tempOneCSVViewerCompents->tableView->setRowCount(totalShowCSVLine);
 
@@ -284,10 +284,10 @@ void TRTimeOperator::csvView(){
                     headerValues << it->second.second;
                 }
 
-                for(std::map<unsigned int,QString>::const_iterator it = ConfigLoader::getInstance()->getTheOperatorPatten()->begin();
-                                                                   it != ConfigLoader::getInstance()->getTheOperatorPatten()->end();
+                for(std::map<unsigned int,OneOperationPattern>::const_iterator it = ConfigLoader::getInstance()->getTheOperationPatten()->begin();
+                                                                   it != ConfigLoader::getInstance()->getTheOperationPatten()->end();
                                                                    it++){
-                    headerValues << it->second;
+                    headerValues << it->second.buttonName;
                 }
 
                 tempOneCSVViewerCompents->tableView->setHorizontalHeaderLabels(headerValues);
@@ -439,12 +439,12 @@ bool TRTimeOperator::timeRecord(unsigned int buttonID){
         exit(-1);
     }
 
-    if((unsigned int)(buttonID+1) == ConfigLoader::getInstance()->getTheOperatorPatten()->size()){
+    if((unsigned int)(buttonID+1) == ConfigLoader::getInstance()->getTheOperationPatten()->size()){
         tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
 
         DAO::getInstance()->updateTableName(tableName,
                                             *ConfigLoader::getInstance()->getThePatientInfoPatten(),
-                                            *ConfigLoader::getInstance()->getTheOperatorPatten());
+                                            *ConfigLoader::getInstance()->getTheOperationPatten());
 
         this->lastTableName = tableName;
 
