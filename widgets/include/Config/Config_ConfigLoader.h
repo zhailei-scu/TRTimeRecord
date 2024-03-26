@@ -15,19 +15,23 @@ struct OneOperationPattern{
 public:
     OneOperationPattern(const QString & label,
                         const QString & name,
-                        signed int time):buttonLabel(label),buttonName(name),repeatTime(time){}
+                        signed int time,
+                        std::map<unsigned int,QString> & infos):buttonLabel(label),buttonName(name),repeatTime(time),hintInfos(infos){}
 
     OneOperationPattern(const std::string & label,
                         const std::string & name,
-                        signed int time):buttonLabel(label.c_str()),buttonName(name.c_str()),repeatTime(time){}
+                        signed int time,
+                        std::map<unsigned int,QString> & infos):buttonLabel(label.c_str()),buttonName(name.c_str()),repeatTime(time),hintInfos(infos){}
 
     OneOperationPattern(const char* label,
                         const char* name,
-                        signed int time):buttonLabel(label),buttonName(name),repeatTime(time){}
+                        signed int time,
+                        std::map<unsigned int,QString> & infos):buttonLabel(label),buttonName(name),repeatTime(time),hintInfos(infos){}
 public:
     QString buttonLabel = "";
     QString buttonName = "";
     signed int repeatTime = 0;
+    std::map<unsigned int,QString> hintInfos;
 };
 
 class map_value_finder_Operator

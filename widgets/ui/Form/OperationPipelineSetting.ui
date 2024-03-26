@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
+    <width>813</width>
     <height>358</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>611</width>
+     <width>821</width>
      <height>361</height>
     </rect>
    </property>
@@ -87,6 +87,11 @@
    <column>
     <property name="text">
      <string>Button repeat times</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Hit Messages</string>
     </property>
    </column>
   </widget>

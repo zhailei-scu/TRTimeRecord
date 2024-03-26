@@ -7,6 +7,11 @@
 static std::string str_PatientInfoPattern = "PatientInfoPattern";
 static std::string str_OperationPattern = "OperationPattern";
 
+static std::string str_OperationLabel = "OperationLabel";
+static std::string str_OperationName = "OperationName";
+static std::string str_RepeatTimes = "RepeatTimes";
+static std::string str_HintInfos = "HintInfos";
+
 ConfigLoader* ConfigLoader::thePtr = NULL;  //lazy mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
 
@@ -240,9 +245,12 @@ bool ConfigLoader::readOperationPatternFromFile(){
     std::string OperationName;
     int id = 0;
     signed int repeatTimes = 0;
+    unsigned int index_HintInfo = 0;
     bool result = false;
+    std::map<std::string,std::string>::iterator it_pair;
+    std::map<std::string,JsonBase*>::iterator it_HintInfo;
     std::ifstream ifs;
-    JsonBase * onePair = NULL;
+    std::map<unsigned int,QString> tempInfos;
     JsonExt* ext = new JsonExt();
 
     this->theOperationPatten = new std::map<unsigned int,OneOperationPattern>();
@@ -257,86 +265,124 @@ bool ConfigLoader::readOperationPatternFromFile(){
             if(it_top != ext->getJsonInfo()->namedObjects->end()){
                 if(it_top->second && it_top->second->namedObjects){
                     for(std::map<std::string,JsonBase*>::iterator it = it_top->second->namedObjects->begin();
-                         it != it_top->second->namedObjects->end();
-                         it++){
-                        if(it->second->namedObjects){
-                            ss.str("");
-                            ss.clear();
-                            ss<<it->first;
-                            ss>>id;
+                                                                  it != it_top->second->namedObjects->end();
+                                                                  it++){
 
-                            if(0 == it->second->namedObjects->size()){
+                        ss.str("");
+                        ss.clear();
+                        ss<<it->first;
+                        ss>>id;
+
+                        if(this->theOperationPatten->find(id) == this->theOperationPatten->end()){
+                            if(!it->second){
                                 QMessageBox::critical(nullptr,
                                                       "Error",
                                                       QString("The json file for operation pipeline input id: %1 is empty").arg(id));
                                 exit(-1);
                             }
 
-                            if(1 < it->second->namedObjects->size()){
+                            if(!it->second->namedPairs){
                                 QMessageBox::critical(nullptr,
                                                       "Error",
-                                                      QString("The json file for operation pipeline input id: %1 included %2 information")
-                                                          .arg(id).arg(it->second->namedObjects->size()));
+                                                      QString("The pipeline button label %1 not include enough operation setting").arg(id));
                                 exit(-1);
                             }
 
-                            if(this->theOperationPatten->find(id) == this->theOperationPatten->end()){
-                                buttonLabel = it->second->namedObjects->begin()->first;
+                            it_pair = it->second->namedPairs->find(str_OperationLabel);
+                            if(it->second->namedPairs->end() == it_pair){
+                                QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The pipeline button label %1 not include any operation label setting").arg(id));
+                                exit(-1);
+                            }
+                            buttonLabel = it_pair->second;
 
-                                onePair = it->second->namedObjects->begin()->second;
-
-                                if(!onePair || !onePair->namedPairs || 0 == onePair->namedPairs->size()){
-                                    QMessageBox::critical(nullptr,
-                                                          "Error",
-                                                          QString("The pipeline button label %1 not include any operationName and repeat timess")
-                                                              .arg(buttonLabel.c_str()));
-                                    exit(-1);
-                                }
-
-                                if(1 < onePair->namedPairs->size()){
-                                    QMessageBox::critical(nullptr,
-                                                          "Error",
-                                                          QString("The pipeline button label %1 include too much pairs of operationName and repeat timess")
-                                                              .arg(buttonLabel.c_str()));
-                                    exit(-1);
-                                }
-
-                                OperationName = onePair->namedPairs->begin()->first;
-
-                                OperationName.erase(0,OperationName.find_first_not_of(" "));
-                                OperationName.erase(OperationName.find_last_not_of(" ")+1);
-                                if((signed int)(OperationName.find_first_of(" "))>0){
-                                    QMessageBox::critical(nullptr,
-                                                          "Error",
-                                                          QString("The json file for operation pipeline input id: %1 included %2 blank")
+                            it_pair = it->second->namedPairs->find(str_OperationName);
+                            if(it->second->namedPairs->end() == it_pair){
+                                QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The pipeline button label %1 not include any operation name setting").arg(id));
+                                exit(-1);
+                            }
+                            OperationName = it_pair->second;
+                            OperationName.erase(0,OperationName.find_first_not_of(" "));
+                            OperationName.erase(OperationName.find_last_not_of(" ")+1);
+                            if((signed int)(OperationName.find_first_of(" "))>0){
+                                QMessageBox::critical(nullptr,
+                                                       "Error",
+                                                       QString("The json file for operation pipeline input id: %1 included %2 blank")
                                                               .arg(id).arg(OperationName.c_str()));
-                                    exit(-1);
-                                }
+                                exit(-1);
+                            }
 
-                                ss.str("");
-                                ss.clear();
-                                ss<<onePair->namedPairs->begin()->second;
-                                ss>>repeatTimes;
-                                if(0 == repeatTimes || (repeatTimes < 0 && -1 != repeatTimes)){
-                                    QMessageBox::critical(nullptr,
-                                                          "Error",
-                                                          QString("The json file for operation pipeline input id: %1 included wrong repeat time %2:"
+                            it_pair = it->second->namedPairs->find(str_RepeatTimes);
+
+                            if(it->second->namedPairs->end() == it_pair){
+                                QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The pipeline button label %1 not include any operation repeat times setting").arg(id));
+                                exit(-1);
+                            }
+
+                            ss.str("");
+                            ss.clear();
+                            ss<<it_pair->second;
+                            ss>>repeatTimes;
+                            if(0 == repeatTimes || (repeatTimes < 0 && -1 != repeatTimes)){
+                                QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The json file for operation pipeline input id: %1 included wrong repeat time %2:"
                                                                   "The repeatTime can only be -1(represent nolimitation) or positive integer value")
                                                               .arg(id).arg(repeatTimes));
-                                    exit(-1);
-                                }
-
-                                this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>
-                                                                 (id,OneOperationPattern(QString(buttonLabel.c_str()),QString(OperationName.c_str()),repeatTimes)));
-                                result = true;
-                            }else{
-                                QMessageBox::critical(nullptr,
-                                                      "Error",
-                                                      QString("The json file for operation pipeline input id: %1 repeated").arg(id));
                                 exit(-1);
                             }
-                        }
 
+                            if(!it->second->namedObjects){
+                                QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The pipeline button label %1 not include enough information setting").arg(id));
+                                exit(-1);
+                            }
+
+                            it_HintInfo = it->second->namedObjects->find(str_HintInfos);
+
+                            std::map<unsigned int,QString>().swap(tempInfos);
+                            tempInfos.clear();
+                            if(it->second->namedObjects->end() != it_HintInfo){
+                                if(it_HintInfo->second && it_HintInfo->second->namedPairs){
+                                    for(std::map<std::string,std::string>::iterator it_HintInfo_term = it_HintInfo->second->namedPairs->begin();
+                                                                                                       it_HintInfo_term != it_HintInfo->second->namedPairs->end();
+                                                                                                       it_HintInfo_term++){
+                                        ss.str("");
+                                        ss.clear();
+                                        ss<<it_HintInfo_term->first;
+                                        ss>>index_HintInfo;
+
+                                        if(tempInfos.count(index_HintInfo)){
+                                            QMessageBox::critical(nullptr,
+                                                                  "Error",
+                                                                   QString("The json file for operation pipeline input id: %1 included dumplicated info index %2:")
+                                                                           .arg(id).arg(index_HintInfo));
+                                            exit(-1);
+                                        }
+
+                                        tempInfos.insert(std::pair<unsigned int,QString>(index_HintInfo,it_HintInfo_term->second.c_str()));
+                                    }
+                                }
+                            }
+
+                            this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>
+                                                                 (id,OneOperationPattern(QString(buttonLabel.c_str()),
+                                                                                         QString(OperationName.c_str()),
+                                                                                         repeatTimes,
+                                                                                         tempInfos)));
+                            result = true;
+                        }else{
+                            QMessageBox::critical(nullptr,
+                                                      "Error",
+                                                      QString("The json file for operation pipeline input id: %1 repeated").arg(id));
+                            exit(-1);
+                        }
                     }
 
                 }
@@ -420,7 +466,8 @@ void ConfigLoader::writeOperationPatternToFile(const std::map<unsigned int,OneOp
         oneOperation->namedObjects = new std::map<std::string,JsonBase*>();
         JsonBase *onePair = new JsonBase();
         onePair->namedPairs = new std::map<std::string,std::string>();
-        onePair->namedPairs->insert(std::pair<std::string,std::string>(it->second.buttonName.toStdString(),str_Repeat));
+        onePair->namedPairs->insert(std::pair<std::string,std::string>(str_OperationName,it->second.buttonName.toStdString()));
+        onePair->namedPairs->insert(std::pair<std::string,std::string>(str_RepeatTimes,str_Repeat));
 
         oneOperation->namedObjects->insert(std::pair<std::string,JsonBase*>(it->second.buttonLabel.toStdString(),onePair));
 
@@ -485,6 +532,7 @@ void ConfigLoader::setDefaultPatientInfoPatten(){
 }
 
 void ConfigLoader::setDefaultOperationPatten(){
+    std::map<unsigned int,QString> hintInfos;
     if(this->theOperationPatten){
         std::map<unsigned int,OneOperationPattern>().swap(*this->theOperationPatten);
         this->theOperationPatten->clear();
@@ -493,10 +541,24 @@ void ConfigLoader::setDefaultOperationPatten(){
     }
 
     this->theOperationPatten = new std::map<unsigned int,OneOperationPattern>();
-    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(0,OneOperationPattern("Patient come in","PatientComeIn",1)));
-    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(1,OneOperationPattern("Imaging/Position","PatentImaging",2)));
-    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(2,OneOperationPattern("Therapy","Theraphy",-1)));
-    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(3,OneOperationPattern("Leaving Room","LeavingRoom",1)));
+
+    std::map<unsigned int,QString>().swap(hintInfos);
+    hintInfos.clear();
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(0,OneOperationPattern("Patient come in","PatientComeIn",1,hintInfos)));
+
+    std::map<unsigned int,QString>().swap(hintInfos);
+    hintInfos.clear();
+    hintInfos.insert(std::pair<unsigned int,QString>(0,"Click again For Imaging/Position end!"));
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(1,OneOperationPattern("Imaging/Position","PatentImaging",2,hintInfos)));
+
+    std::map<unsigned int,QString>().swap(hintInfos);
+    hintInfos.clear();
+    hintInfos.insert(std::pair<unsigned int,QString>(0,"Click again For next beam!"));
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(2,OneOperationPattern("Therapy","Theraphy",-1,hintInfos)));
+
+    std::map<unsigned int,QString>().swap(hintInfos);
+    hintInfos.clear();
+    this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(3,OneOperationPattern("Leaving Room","LeavingRoom",1,hintInfos)));
 }
 
 void ConfigLoader::clear(){

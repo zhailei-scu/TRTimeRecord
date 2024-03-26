@@ -8,6 +8,8 @@
 #include <QLineEdit>
 #include <QInputDialog>
 #include <sstream>
+#include <QComboBox>
+#include <QTextEdit>
 
 OperationPipelineSetting::OperationPipelineSetting(QWidget* parent):QDialog(parent),uiForm(new Ui::OperationPipelineSetting){
 
@@ -157,6 +159,19 @@ void OperationPipelineSetting::resetAction(){
             this->uiForm->tableWidget->setItem(it->first,0,new QTableWidgetItem(it->second.buttonLabel));
             this->uiForm->tableWidget->setItem(it->first,1,new QTableWidgetItem(it->second.buttonName));
             this->uiForm->tableWidget->setItem(it->first,2,new QTableWidgetItem(ss.str().c_str()));
+
+            QPushButton *button = new QPushButton(this->uiForm->tableWidget);
+            QTextEdit* editor = new QTextEdit();
+
+            if(0 == it->second.hitInfos.size()){
+                button->setText("Edit");
+            }else if(1 == it->second.hitInfos.size()){
+                button->setText(it->second.hitInfos.front());
+            }else{
+                button->setText("...");
+            }
+
+            this->uiForm->tableWidget->setCellWidget(it->first,3,button);
         }
     }
 }
