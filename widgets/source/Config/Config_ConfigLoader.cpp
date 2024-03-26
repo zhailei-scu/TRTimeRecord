@@ -415,6 +415,7 @@ void ConfigLoader::writeOperationPatternToFile(const std::map<unsigned int,OneOp
     JsonBase* base = NULL;
     JsonBase* operationPattern = NULL;
     JsonBase* oneOperation = NULL;
+    JsonBase* oneHints = NULL;
 
     ifs.open(systemCfgPath.toStdString());
     if(ifs.is_open()){
@@ -463,13 +464,26 @@ void ConfigLoader::writeOperationPatternToFile(const std::map<unsigned int,OneOp
         ss>>str_Repeat;
 
         oneOperation = new JsonBase();
-        oneOperation->namedObjects = new std::map<std::string,JsonBase*>();
-        JsonBase *onePair = new JsonBase();
-        onePair->namedPairs = new std::map<std::string,std::string>();
-        onePair->namedPairs->insert(std::pair<std::string,std::string>(str_OperationName,it->second.buttonName.toStdString()));
-        onePair->namedPairs->insert(std::pair<std::string,std::string>(str_RepeatTimes,str_Repeat));
+        oneOperation->namedPairs = new std::map<std::string,std::string>();
+        oneOperation->namedPairs->insert(std::pair<std::string,std::string>(str_OperationLabel,it->second.buttonLabel.toStdString()));
+        oneOperation->namedPairs->insert(std::pair<std::string,std::string>(str_OperationName,it->second.buttonName.toStdString()));
+        oneOperation->namedPairs->insert(std::pair<std::string,std::string>(str_RepeatTimes,str_Repeat));
 
-        oneOperation->namedObjects->insert(std::pair<std::string,JsonBase*>(it->second.buttonLabel.toStdString(),onePair));
+        oneOperation->namedObjects = new std::map<std::string,JsonBase*>();
+        oneHints = new JsonBase();
+        oneHints->namedPairs = new std::map<std::string,std::string>();
+
+        for(std::map<unsigned int,QString>::const_iterator it_info = it->second.hintInfos.begin();
+                                                           it_info != it->second.hintInfos.end();
+                                                           it_info++){
+
+            ss.str("");
+            ss.clear();
+            ss<<it_info->first;
+            oneHints->namedPairs->insert(std::pair<std::string,std::string>(ss.str(),it_info->second.toStdString()));
+        }
+
+        oneOperation->namedObjects->insert(std::pair<std::string,JsonBase*>(str_HintInfos,oneHints));
 
         operationPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,oneOperation));
     }

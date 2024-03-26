@@ -10,6 +10,7 @@
 #include <sstream>
 #include <QComboBox>
 #include <QTextEdit>
+#include <QTextBlock>
 
 OperationPipelineSetting::OperationPipelineSetting(QWidget* parent):QDialog(parent),uiForm(new Ui::OperationPipelineSetting){
 
@@ -160,18 +161,16 @@ void OperationPipelineSetting::resetAction(){
             this->uiForm->tableWidget->setItem(it->first,1,new QTableWidgetItem(it->second.buttonName));
             this->uiForm->tableWidget->setItem(it->first,2,new QTableWidgetItem(ss.str().c_str()));
 
-            QPushButton *button = new QPushButton(this->uiForm->tableWidget);
+            //QPushButton *button = new QPushButton(this->uiForm->tableWidget);
             QTextEdit* editor = new QTextEdit();
 
-            if(0 == it->second.hitInfos.size()){
-                button->setText("Edit");
-            }else if(1 == it->second.hitInfos.size()){
-                button->setText(it->second.hitInfos.front());
-            }else{
-                button->setText("...");
+            for(std::map<unsigned int,QString>::const_iterator it_info = it->second.hintInfos.begin();
+                                                               it_info != it->second.hintInfos.end();
+                                                               it_info++){
+                editor->append(it_info->second);
             }
 
-            this->uiForm->tableWidget->setCellWidget(it->first,3,button);
+            this->uiForm->tableWidget->setCellWidget(it->first,3,editor);
         }
     }
 }
@@ -187,10 +186,21 @@ bool OperationPipelineSetting::setOperationPipelineSetting(){
     QString Name;
     int repeatTime;
     std::map<unsigned int,OneOperationPattern> opereation;
+    std::map<unsigned int,QString> oneInfos;
     for(int i = 0;i<count;i++){
         Label = this->uiForm->tableWidget->item(i,0)->text();
         Name = this->uiForm->tableWidget->item(i,1)->text();
         repeatTime = this->uiForm->tableWidget->item(i,2)->text().toInt();
+
+        std::map<unsigned int,QString>().swap(oneInfos);
+        oneInfos.clear();
+
+        QTextEdit* editor = dynamic_cast<QTextEdit*>(this->uiForm->tableWidget->cellWidget(i,3));
+
+
+        for(int iline = 0;iline<editor->document()->lineCount();iline++){
+            oneInfos.insert(std::pair<unsigned int,QString>(iline,editor->document()->findBlockByLineNumber(iline).text()));
+        }
 
         if(Name.count(' ') > 0){
             QMessageBox::critical(nullptr,"Error",QString("The Name %1 is not supported").arg(Name));
@@ -208,9 +218,9 @@ bool OperationPipelineSetting::setOperationPipelineSetting(){
             break;
         }
 
-        opereation.insert(
-            std::pair<unsigned int,OneOperationPattern>(i,OneOperationPattern(Label,Name,repeatTime))
-            );
+        opereation.insert(std::pair<unsigned int,OneOperationPattern>(i,OneOperationPattern(Label,Name,repeatTime,oneInfos)));
+
+        qDebug()<<oneInfos;
     }
 
     ConfigLoader::getInstance()->setTheOperationPattern(opereation);
