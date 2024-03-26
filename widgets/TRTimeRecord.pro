@@ -9,6 +9,7 @@ SOURCES += \
     source/Common/Util/Common_Util_Base.cpp \
     source/Common/Util/Common_Util_JsonExt.cpp \
     source/Config/Config_ConfigLoader.cpp \
+    source/Form/OperationLoop/Form_OperationLoop.cpp \
     source/Form/OperationPipelineSetting/Form_OperationPipelineSetting.cpp \
     source/Form/PatientInfoSetting/Form_PatientInfoSetting.cpp \
     source/Form/PatientInput/Form_PatientInput.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     include/Common/Util/Common_Util_Base.h \
     include/Common/Util/Common_Util_JsonExt.h \
     include/Config/Config_ConfigLoader.h \
+    include/Form/OperationLoop/Form_OperationLoop.h \
     include/Form/OperationPipelineSetting/Form_OperationPipelineSetting.h \
     include/Form/PatientInfoSetting/Form_PatientInfoSetting.h \
     include/Form/PatientInput/Form_PatientInput.h \
@@ -44,6 +46,7 @@ HEADERS += \
     include/Storage/DAO/Storage_DAO_Viewer.h
 
 FORMS += \
+    ui/Form/OperationLoop.ui \
     ui/Form/OperationPipelineSetting.ui \
     ui/Form/PatientInfoSetting.ui \
     ui/Form/TRTimeOperator.ui

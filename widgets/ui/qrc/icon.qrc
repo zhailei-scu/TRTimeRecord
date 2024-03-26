@@ -7,5 +7,7 @@
         <file>img/Pause.svg</file>
         <file>img/Continue.svg</file>
         <file>img/cicle.svg</file>
+        <file>img/abort.svg</file>
+        <file>img/next.svg</file>
     </qresource>
 </RCC>

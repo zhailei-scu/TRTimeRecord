@@ -8,6 +8,7 @@
 #include "../../../include/Config/Config_ConfigLoader.h"
 #include "../../../include/Common/Util/Common_Util_Base.h"
 #include "../../../include/Common/Ui/Common_Ui_SelfPushButton.h"
+#include "../../../include/Form/OperationLoop/Form_OperationLoop.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
@@ -292,6 +293,13 @@ void TRTimeOperator::clear(){
 
 void TRTimeOperator::HandleSignal(int ID){
     this->menuBar->getMenu("Setting")->actions().at(2)->setEnabled(false);
+
+    OperationLoop * operationForm = new OperationLoop(this,ID);
+    operationForm->exec();
+
+    delete operationForm;
+    operationForm = NULL;
+
     bool recorded = this->timeRecord(ID);
 
     this->changeButtonStatus(ID+1);

@@ -13,6 +13,8 @@ static unsigned long totalShowCSVLine = 1000;
 
 struct OneOperationPattern{
 public:
+    OneOperationPattern(){}
+
     OneOperationPattern(const QString & label,
                         const QString & name,
                         signed int time,
@@ -32,6 +34,15 @@ public:
     QString buttonName = "";
     signed int repeatTime = 0;
     std::map<unsigned int,QString> hintInfos;
+
+public:
+    void clear(){
+        buttonLabel = "";
+        buttonName = "";
+        repeatTime = 0;
+        std::map<unsigned int,QString>().swap(hintInfos);
+        hintInfos.clear();
+    }
 };
 
 class map_value_finder_Operator
