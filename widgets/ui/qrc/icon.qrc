@@ -4,5 +4,8 @@
         <file>img/dataBase.svg</file>
         <file>img/help.svg</file>
         <file>img/setting.svg</file>
+        <file>img/Pause.svg</file>
+        <file>img/Continue.svg</file>
+        <file>img/cicle.svg</file>
     </qresource>
 </RCC>

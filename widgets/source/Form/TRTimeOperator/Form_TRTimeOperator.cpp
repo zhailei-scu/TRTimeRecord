@@ -109,9 +109,21 @@ void TRTimeOperator::uiDeconstruct(){
         delete this->buttonGroup;
         this->buttonGroup = NULL;
     }
+
+    if(this->pauseButton){
+        this->pauseButton->close();
+        delete this->pauseButton;
+        this->pauseButton = NULL;
+    }
 }
 
 void TRTimeOperator::buttonClear(){
+    if(this->pauseButton){
+        this->pauseButton->close();
+        delete this->pauseButton;
+        this->pauseButton = NULL;
+    }
+
     if(this->buttonsMap){
         for(std::map<unsigned int,QAbstractButton*>::iterator it = this->buttonsMap->begin();
              it != this->buttonsMap->end();
@@ -167,6 +179,8 @@ void TRTimeOperator::buttonConstruct(){
     double lineWidth = buttonWidth*0.1;
     double lineLeft = this->width()/2 - lineWidth*0.5;
     double lineHeight = buttonHeight;
+    double buttonRadio = buttonWidth*0.6;
+    QSize pushButtonSize(buttonRadio,buttonRadio);
     this->buttonGroup = new QButtonGroup(this->uiForm->quickWidget);
     this->buttonsMap = new std::map<unsigned int,QAbstractButton*>();
     this->linesMap = new std::map<unsigned int,QFrame*>();
@@ -214,6 +228,20 @@ void TRTimeOperator::buttonConstruct(){
     this->changeButtonStatus(0);
 
     QObject::connect(this->buttonGroup,SIGNAL(idClicked(int)),this,SLOT(HandleSignal(int)));
+
+    /*Pause button*/
+    this->pauseButton = new QPushButton(this);
+    this->pauseButton->setToolTip("Pause");
+    this->pauseButton->setIcon(QIcon(":/img/Pause.svg"));
+    this->pauseButton->setIconSize(pushButtonSize*1.05);
+    this->pauseButton->setMask(QPixmap(":/img/cicle.svg").scaled(pushButtonSize).mask());
+    this->pauseButton->setGeometry(this->width()*0.5 + buttonWidth*0.5 + 0.5*(this->width()*0.5 - buttonWidth*0.5) - pushButtonSize.width()*0.5,
+                                   0.5*(this->height() - this->menuBar->height() - this->toolBar->height()) - pushButtonSize.height()*0.5,
+                                   pushButtonSize.width(),
+                                   pushButtonSize.height());
+    this->pauseButton->show();
+
+    QObject::connect(this->pauseButton,SIGNAL(pressed()),this,SLOT(HandlePauseSignal()));
 }
 
 void TRTimeOperator::clear(){
@@ -270,6 +298,22 @@ void TRTimeOperator::HandleSignal(int ID){
 
     if(recorded){
         this->queryForNextPatient();
+    }
+}
+
+void TRTimeOperator::HandlePauseSignal(){
+    if("Pause" == this->pauseButton->toolTip()){
+        this->pauseButton->setIcon(QIcon(":/img/Continue.svg"));
+        this->uiForm->tabWidget->setEnabled(false);
+        this->menuBar->setEnabled(false);
+        this->toolBar->setEnabled(false);
+        this->pauseButton->setToolTip("Continue");
+    }else{
+        this->pauseButton->setIcon(QIcon(":/img/Pause.svg"));
+        this->uiForm->tabWidget->setEnabled(true);
+        this->menuBar->setEnabled(true);
+        this->toolBar->setEnabled(true);
+        this->pauseButton->setToolTip("Pause");
     }
 }
 

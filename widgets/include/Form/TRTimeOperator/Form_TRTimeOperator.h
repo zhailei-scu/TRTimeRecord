@@ -33,6 +33,7 @@ private:
     OperatorMenuBar *menuBar = NULL;
     OperatorToolBar *toolBar = NULL;
     QButtonGroup *buttonGroup = NULL;
+    QPushButton* pauseButton = NULL;
 
 private:
     std::map<unsigned int,QAbstractButton*> *buttonsMap = NULL;
@@ -63,6 +64,7 @@ signals:
 */
 private slots:
     void HandleSignal(int ID);
+    void HandlePauseSignal();
     void removeTable(int index);
     void dataBaseView();
     void csvView();
