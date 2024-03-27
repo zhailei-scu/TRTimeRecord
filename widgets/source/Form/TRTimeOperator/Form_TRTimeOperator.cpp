@@ -230,7 +230,7 @@ void TRTimeOperator::buttonConstruct(){
     QObject::connect(this->buttonGroup,SIGNAL(idClicked(int)),this,SLOT(HandleSignal(int)));
 
     /*Pause button*/
-    this->pauseButton = new QPushButton(this);
+    this->pauseButton = new QPushButton(this->uiForm->tabWidget->widget(0));
     this->pauseButton->setToolTip("Pause");
     this->pauseButton->setIcon(QIcon(":/img/Pause.svg"));
     this->pauseButton->setIconSize(pushButtonSize*1.05);
@@ -297,23 +297,30 @@ void TRTimeOperator::HandleSignal(int ID){
     delete operationForm;
     operationForm = NULL;
 
-    this->changeButtonStatus(ID+1);
-
     if((unsigned int)(ID +1) == this->buttonsMap->size()){
+        std::map<unsigned int,QString>().swap(Record::getInstance()->patientInfoRecord);
+        Record::getInstance()->patientInfoRecord.clear();
+
+        std::map<unsigned int,QString>().swap(Record::getInstance()->buttonTimeRecord);
+        Record::getInstance()->buttonTimeRecord.clear();
+
         this->queryForNextPatient();
+        this->menuBar->getMenu("Setting")->actions().at(2)->setEnabled(true);
     }
+
+    this->changeButtonStatus(ID+1);
 }
 
 void TRTimeOperator::HandlePauseSignal(){
     if("Pause" == this->pauseButton->toolTip()){
         this->pauseButton->setIcon(QIcon(":/img/Continue.svg"));
-        this->uiForm->tabWidget->setEnabled(false);
+        this->uiForm->quickWidget->setEnabled(false);
         this->menuBar->setEnabled(false);
         this->toolBar->setEnabled(false);
         this->pauseButton->setToolTip("Continue");
     }else{
         this->pauseButton->setIcon(QIcon(":/img/Pause.svg"));
-        this->uiForm->tabWidget->setEnabled(true);
+        this->uiForm->quickWidget->setEnabled(true);
         this->menuBar->setEnabled(true);
         this->toolBar->setEnabled(true);
         this->pauseButton->setToolTip("Pause");
@@ -367,8 +374,6 @@ void TRTimeOperator::csvView(){
         QWidget * tempWidget = NULL;
         OneCSVViewerCompents * tempOneCSVViewerCompents = NULL;
 
-        tempWidgetTable->addTab(tempWidget,line);
-
         while(!stream.atEnd()){
             line = stream.readLine();
 
@@ -419,7 +424,7 @@ void TRTimeOperator::csvView(){
                 tempOneCSVViewerCompents->tableView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
                 tempOneCSVViewerCompents->tableView->verticalScrollBar()->setHidden(false);
 
-                tempWidgetTable->addTab(tempWidget,line);
+                tempWidgetTable->insertTab(0,tempWidget,line);
 
                 rowId = 0;
             }else{
@@ -551,8 +556,6 @@ void TRTimeOperator::pipleLineSetting(){
     delete form;
     form = NULL;
 }
-
-
 
 void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
     if(0 >= this->buttonsMap->size()){

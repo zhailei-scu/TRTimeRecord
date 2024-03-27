@@ -1,4 +1,7 @@
 #include "../../../include/Form/OperationLoop/Form_OperationLoop.h"
+#include "../../../include/Global/Communication/Global_Communication_Record.h"
+#include "../../../include/Storage/DAO/Storage_DAO.h"
+#include "../../../include/Storage/CSV/Storage_CSV_Writer.h"
 #include "ui_OperationLoop.h"
 #include <QMessageBox>
 #include <sstream>
@@ -46,63 +49,54 @@ OperationLoop::OperationLoop(QWidget* parent,unsigned int buttonID):QDialog(pare
 
     if(this->onePattern.repeatTime > 0 && (signed int)this->doneLoopIndex >= this->onePattern.repeatTime){
         this->uiForm->nextIndexButton->setEnabled(false);
+        this->uiForm->pauseButton->setEnabled(false);
     }
+
+    this->uiForm->pauseButton->setToolTip("Pause");
 
     QObject::connect(this->uiForm->nextIndexButton,SIGNAL(pressed()),this,SLOT(nextIndexHandle()));
     QObject::connect(this->uiForm->abortButton,SIGNAL(pressed()),this,SLOT(abortHandle()));
+    QObject::connect(this->uiForm->pauseButton,SIGNAL(pressed()),this,SLOT(pauseHandle()));
 }
 
 OperationLoop::~OperationLoop(){
     this->buttonID = 0;
     this->doneLoopIndex = 0;
     this->onePattern.clear();
+    this->textBeforePause = "";
 }
 
-bool OperationLoop::timeRecord(unsigned int buttonID){
-    bool result = false;
+void OperationLoop::timeRecord(){
     QString time = QTime::currentTime().toString("hh:mm:ss");
     QString tableName = "Date_";
 
-    if(this->buttonTimeRecord.find(buttonID) == this->buttonTimeRecord.end()){
-        this->buttonTimeRecord.insert(std::pair<unsigned int,QString>(buttonID,time));
-    }else{
-        QMessageBox::critical(nullptr, "Error", QString("Button Index %1 is repeated").arg(buttonID));
-        exit(-1);
-    }
-
-    if((unsigned int)(buttonID+1) == ConfigLoader::getInstance()->getTheOperationPatten()->size()){
+    if(0 == this->buttonID && 0 == this->doneLoopIndex){
         tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
-
-        DAO::getInstance()->updateTableName(tableName,
-                                            *ConfigLoader::getInstance()->getThePatientInfoPatten(),
-                                            *ConfigLoader::getInstance()->getTheOperationPatten());
-
-        this->lastTableName = tableName;
-
-        DAO::getInstance()->appendARow(tableName,patientInfoRecord,buttonTimeRecord);
-        CSVWriter::getInstance()->appendARecord(tableName,patientInfoRecord,buttonTimeRecord);
-
-        std::map<unsigned int,QString>().swap(this->patientInfoRecord);
-        this->patientInfoRecord.clear();
-
-        std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
-        this->buttonTimeRecord.clear();
-
-        result = true;
-
-        this->menuBar->getMenu("Setting")->actions().at(2)->setEnabled(true);
+        Record::getInstance()->lastTableName = tableName;
     }
 
-    return result;
+    std::map<unsigned int,QString>().swap(Record::getInstance()->buttonTimeRecord);
+    Record::getInstance()->buttonTimeRecord.clear();
+    Record::getInstance()->buttonTimeRecord.insert(std::pair<unsigned int,QString>(this->buttonID,time));
+
+    DAO::getInstance()->updateTableName(tableName,
+                                        *ConfigLoader::getInstance()->getThePatientInfoPatten(),
+                                        *ConfigLoader::getInstance()->getTheOperationPatten());
+
+    DAO::getInstance()->appendARow(tableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
+    CSVWriter::getInstance()->appendARecord(tableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
 }
 
 void OperationLoop::nextIndexHandle(){
+    this->timeRecord();
+
     std::stringstream ss;
 
     this->doneLoopIndex++;
 
     if(this->onePattern.repeatTime > 0 && (signed int)this->doneLoopIndex >= this->onePattern.repeatTime){
         this->uiForm->nextIndexButton->setEnabled(false);
+        this->uiForm->pauseButton->setEnabled(false);
         this->uiForm->label_Active->setText("Stop");
         this->uiForm->label_Active->setStyleSheet("background-color:red;color:white;");
     }
@@ -128,4 +122,23 @@ void OperationLoop::nextIndexHandle(){
 
 void OperationLoop::abortHandle(){
     this->close();
+}
+
+void OperationLoop::pauseHandle(){
+    if("Pause" == this->uiForm->pauseButton->toolTip()){
+        this->uiForm->pauseButton->setIcon(QIcon(":/img/Continue.svg"));
+        this->uiForm->pauseButton->setText("Continue");
+        this->uiForm->nextIndexButton->setEnabled(false);
+        this->uiForm->abortButton->setEnabled(false);
+        this->textBeforePause = this->uiForm->labelCustom->text();
+        this->uiForm->labelCustom->setText("Paused! Press \"Continue\" button to continue");
+        this->uiForm->pauseButton->setToolTip("Continue");
+    }else{
+        this->uiForm->pauseButton->setIcon(QIcon(":/img/Pause.svg"));
+        this->uiForm->pauseButton->setText("Pause");
+        this->uiForm->nextIndexButton->setEnabled(true);
+        this->uiForm->abortButton->setEnabled(true);
+        this->uiForm->labelCustom->setText(this->textBeforePause);
+        this->uiForm->pauseButton->setToolTip("Pause");
+    }
 }

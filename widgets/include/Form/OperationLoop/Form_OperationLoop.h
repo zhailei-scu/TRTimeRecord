@@ -22,16 +22,17 @@ private:
     unsigned int buttonID = 0;
     unsigned int doneLoopIndex = 0;
     OneOperationPattern onePattern;
-
+    QString textBeforePause;
 private:
     Ui::OperationLoop *uiForm;
 
 private:
-    bool timeRecord(unsigned int);
+    void timeRecord();
 
 private slots:
     void nextIndexHandle();
     void abortHandle();
+    void pauseHandle();
 };
 
 
