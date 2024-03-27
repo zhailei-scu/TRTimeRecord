@@ -3,6 +3,12 @@
 #include <QString>
 #include <map>
 
+enum RunStatu{
+    Normal = 0,
+    Pause = 1,
+    Continue = 2
+};
+
 class Record{
 private:
     Record();

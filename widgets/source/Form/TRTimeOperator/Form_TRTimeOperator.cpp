@@ -379,6 +379,7 @@ void TRTimeOperator::csvView(){
 
             if('#' == line.at(0)){
                 tempWidget = new QWidget(tempWidgetTable);
+                tempWidgetTable->insertTab(0,tempWidget,line);
 
                 tempWidget->setGeometry(0,
                                         0,
@@ -391,8 +392,22 @@ void TRTimeOperator::csvView(){
 
                 tempOneCSVViewerCompents->tableView = new QTableWidget(tempWidget);
 
-                tempOneCSVViewerCompents->tableView->setColumnCount(ConfigLoader::getInstance()->getThePatientInfoPatten()->size()
-                                                                    +ConfigLoader::getInstance()->getTheOperationPatten()->size());
+                if(!stream.atEnd()){
+                    line = stream.readLine();
+                }else{
+                    break;
+                }
+
+                ItemValues = line.split(',');
+
+                QStringList().swap(headerValues);
+                headerValues.clear();
+
+                for(unsigned int colID = 0; colID<ItemValues.size(); colID++){
+                    headerValues<<ItemValues[colID].split(" ").back();
+                }
+
+                tempOneCSVViewerCompents->tableView->setColumnCount(ItemValues.size());
 
                 tempOneCSVViewerCompents->tableView->setRowCount(totalShowCSVLine);
 
@@ -403,28 +418,11 @@ void TRTimeOperator::csvView(){
 
                 tempOneCSVViewerCompents->tableView->setStyleSheet(QString("background:'#498a78'"));
 
-                QStringList().swap(headerValues);
-                headerValues.clear();
-
-                for(std::map<unsigned int,patientInfoPair>::const_iterator it = ConfigLoader::getInstance()->getThePatientInfoPatten()->begin();
-                                                                   it != ConfigLoader::getInstance()->getThePatientInfoPatten()->end();
-                                                                   it++){
-                    headerValues << it->second.second;
-                }
-
-                for(std::map<unsigned int,OneOperationPattern>::const_iterator it = ConfigLoader::getInstance()->getTheOperationPatten()->begin();
-                                                                   it != ConfigLoader::getInstance()->getTheOperationPatten()->end();
-                                                                   it++){
-                    headerValues << it->second.buttonName;
-                }
-
                 tempOneCSVViewerCompents->tableView->setHorizontalHeaderLabels(headerValues);
                 //tempOneCSVViewerCompents->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
                 tempOneCSVViewerCompents->tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
                 tempOneCSVViewerCompents->tableView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
                 tempOneCSVViewerCompents->tableView->verticalScrollBar()->setHidden(false);
-
-                tempWidgetTable->insertTab(0,tempWidget,line);
 
                 rowId = 0;
             }else{

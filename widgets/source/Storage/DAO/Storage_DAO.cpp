@@ -126,7 +126,9 @@ void DAO::createEmptyTable(const QString & tableName){
 
     const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
     for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
-        str.append(", ").append(it->second.buttonName).append("Time varchar(20)");
+        str.append(", ").append(it->second.buttonName).append("Time varchar(50)");
+        str.append(", ").append(it->second.buttonName).append("_Pause").append("Time varchar(50)");
+        str.append(", ").append(it->second.buttonName).append("_Continue").append("Time varchar(50)");
     }
     str.append(");");
 
@@ -157,6 +159,8 @@ void DAO::appendARow(const QString & tableName,
     const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
     for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
         str.append(", ").append(it->second.buttonName).append("Time");
+        str.append(", ").append(it->second.buttonName).append("_Pause").append("Time");
+        str.append(", ").append(it->second.buttonName).append("_Continue").append("Time");
     }
 
     str.append(") VALUES (").append(count);
@@ -170,12 +174,14 @@ void DAO::appendARow(const QString & tableName,
         }
     }
 
-    for(auto it = operatorPatten->begin(); it != operatorPatten->end();it++){
-        auto it_find = operatorTimes.find(it->first);
-        if(it_find == operatorTimes.end()){
-            str.append(", '").append("").append("'");
-        }else{
-            str.append(", '").append(it_find->second).append("'");
+    for(auto it = operatorPatten->begin();it != operatorPatten->end();it++){
+        for(unsigned int i = it->first*3;i<(it->first+1)*3;i++){
+            auto it_find = operatorTimes.find(i);
+            if(it_find == operatorTimes.end()){
+                str.append(", '").append("").append("'");
+            }else{
+                str.append(", '").append(it_find->second).append("'");
+            }
         }
     }
 
@@ -232,6 +238,8 @@ void DAO::updateTableName(QString & tableName,
                                                                    it != OperationPattern.end();
                                                                    it++){
         list.push_back(it->second.buttonName + "Time");
+        list.push_back(it->second.buttonName + "_Pause" + "Time");
+        list.push_back(it->second.buttonName + "_Continue" + "Time");
     }
 
     if(this->tableExisted(tableName)){

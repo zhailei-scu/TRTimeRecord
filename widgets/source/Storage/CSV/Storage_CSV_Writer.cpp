@@ -87,6 +87,8 @@ void CSVWriter::appendARecord(const QString & tableName,
 
         for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
             ofs<<std::setw(30)<<it->second.buttonName.toStdString().append("Time")<<",";
+            ofs<<std::setw(30)<<it->second.buttonName.toStdString().append("_Pause").append("Time")<<",";
+            ofs<<std::setw(30)<<it->second.buttonName.toStdString().append("_Continue").append("Time")<<",";
         }
 
         ofs<<std::endl;
@@ -108,11 +110,13 @@ void CSVWriter::appendARecord(const QString & tableName,
     }
 
     for(auto it = operatorPatten->begin(); it != operatorPatten->end();it++){
-        auto it_find = operatorTimes.find(it->first);
-        if(operatorTimes.end() == it_find){
-            ofs<<std::setw(30)<<",";
-        }else{
-            ofs<<std::setw(30)<<it_find->second.toStdString()<<",";
+        for(unsigned int i = it->first*3;i<(it->first+1)*3;i++){
+        auto it_find = operatorTimes.find(i);
+            if(operatorTimes.end() == it_find){
+                ofs<<std::setw(30)<<",";
+            }else{
+                ofs<<std::setw(30)<<it_find->second.toStdString()<<",";
+            }
         }
     }
 

@@ -9,6 +9,7 @@
 
 OperationLoop::OperationLoop(QWidget* parent,unsigned int buttonID):QDialog(parent),uiForm(new Ui::OperationLoop){
     std::stringstream ss;
+    QString tableName = "Date_";
 
     uiForm->setupUi(this);
 
@@ -27,6 +28,11 @@ OperationLoop::OperationLoop(QWidget* parent,unsigned int buttonID):QDialog(pare
     }
 
     this->onePattern = it->second;
+
+    if(0 == this->buttonID){
+        tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
+        Record::getInstance()->lastTableName = tableName;
+    }
 
     this->doneLoopIndex = 0;
     ss.str("");
@@ -66,29 +72,23 @@ OperationLoop::~OperationLoop(){
     this->textBeforePause = "";
 }
 
-void OperationLoop::timeRecord(){
+void OperationLoop::timeRecord(RunStatu statu){
     QString time = QTime::currentTime().toString("hh:mm:ss");
-    QString tableName = "Date_";
-
-    if(0 == this->buttonID && 0 == this->doneLoopIndex){
-        tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
-        Record::getInstance()->lastTableName = tableName;
-    }
 
     std::map<unsigned int,QString>().swap(Record::getInstance()->buttonTimeRecord);
     Record::getInstance()->buttonTimeRecord.clear();
-    Record::getInstance()->buttonTimeRecord.insert(std::pair<unsigned int,QString>(this->buttonID,time));
+    Record::getInstance()->buttonTimeRecord.insert(std::pair<unsigned int,QString>(this->buttonID*3 + statu,time));
 
-    DAO::getInstance()->updateTableName(tableName,
+    DAO::getInstance()->updateTableName(Record::getInstance()->lastTableName,
                                         *ConfigLoader::getInstance()->getThePatientInfoPatten(),
                                         *ConfigLoader::getInstance()->getTheOperationPatten());
 
-    DAO::getInstance()->appendARow(tableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
-    CSVWriter::getInstance()->appendARecord(tableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
+    DAO::getInstance()->appendARow(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
+    CSVWriter::getInstance()->appendARecord(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
 }
 
 void OperationLoop::nextIndexHandle(){
-    this->timeRecord();
+    this->timeRecord(RunStatu(Normal));
 
     std::stringstream ss;
 
@@ -126,6 +126,7 @@ void OperationLoop::abortHandle(){
 
 void OperationLoop::pauseHandle(){
     if("Pause" == this->uiForm->pauseButton->toolTip()){
+        this->timeRecord(RunStatu(Pause));
         this->uiForm->pauseButton->setIcon(QIcon(":/img/Continue.svg"));
         this->uiForm->pauseButton->setText("Continue");
         this->uiForm->nextIndexButton->setEnabled(false);
@@ -134,6 +135,7 @@ void OperationLoop::pauseHandle(){
         this->uiForm->labelCustom->setText("Paused! Press \"Continue\" button to continue");
         this->uiForm->pauseButton->setToolTip("Continue");
     }else{
+        this->timeRecord(RunStatu(Continue));
         this->uiForm->pauseButton->setIcon(QIcon(":/img/Pause.svg"));
         this->uiForm->pauseButton->setText("Pause");
         this->uiForm->nextIndexButton->setEnabled(true);

@@ -2,8 +2,8 @@
 #define FORM_OPERATIONLOOP_H
 
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
+#include "../../../include/Global/Communication/Global_Communication_Record.h"
 #include <QDialog>
-#include <map>
 #include <QString>
 
 namespace Ui{
@@ -27,7 +27,7 @@ private:
     Ui::OperationLoop *uiForm;
 
 private:
-    void timeRecord();
+    void timeRecord(RunStatu statu);
 
 private slots:
     void nextIndexHandle();

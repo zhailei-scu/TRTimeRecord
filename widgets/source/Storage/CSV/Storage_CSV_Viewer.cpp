@@ -81,7 +81,7 @@ void OneCSVViewer::clear(){
     }
 }
 
-/*DAOViewer*/
+/*CSVViewer*/
 CSVViewer::CSVViewer(QObject* parent):QObject(parent){
     this->clear();
 }
