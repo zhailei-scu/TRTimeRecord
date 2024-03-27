@@ -20,11 +20,14 @@ public:
 
 private:
     unsigned int buttonID = 0;
-    unsigned int currentLoopIndex = 1;
+    unsigned int doneLoopIndex = 0;
     OneOperationPattern onePattern;
 
 private:
     Ui::OperationLoop *uiForm;
+
+private:
+    bool timeRecord(unsigned int);
 
 private slots:
     void nextIndexHandle();

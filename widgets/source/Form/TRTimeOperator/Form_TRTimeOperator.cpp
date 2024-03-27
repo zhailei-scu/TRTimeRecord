@@ -300,11 +300,9 @@ void TRTimeOperator::HandleSignal(int ID){
     delete operationForm;
     operationForm = NULL;
 
-    bool recorded = this->timeRecord(ID);
-
     this->changeButtonStatus(ID+1);
 
-    if(recorded){
+    if((unsigned int)(ID +1) == this->buttonsMap->size()){
         this->queryForNextPatient();
     }
 }
@@ -557,47 +555,7 @@ void TRTimeOperator::pipleLineSetting(){
     form = NULL;
 }
 
-bool TRTimeOperator::timeRecord(unsigned int buttonID){
-    bool result = false;
-    QString time = QTime::currentTime().toString("hh:mm:ss");
-    QString tableName = "Date_";
 
-    if(0 == buttonID){
-        this->inputPatientInfo(PatientInputMode(ViewAndModify));
-    }
-
-    if(this->buttonTimeRecord.find(buttonID) == this->buttonTimeRecord.end()){
-        this->buttonTimeRecord.insert(std::pair<unsigned int,QString>(buttonID,time));
-    }else{
-        QMessageBox::critical(nullptr, "Error", QString("Button Index %1 is repeated").arg(buttonID));
-        exit(-1);
-    }
-
-    if((unsigned int)(buttonID+1) == ConfigLoader::getInstance()->getTheOperationPatten()->size()){
-        tableName.append(QDate::currentDate().toString("yyyy_MM_dd"));
-
-        DAO::getInstance()->updateTableName(tableName,
-                                            *ConfigLoader::getInstance()->getThePatientInfoPatten(),
-                                            *ConfigLoader::getInstance()->getTheOperationPatten());
-
-        this->lastTableName = tableName;
-
-        DAO::getInstance()->appendARow(tableName,patientInfoRecord,buttonTimeRecord);
-        CSVWriter::getInstance()->appendARecord(tableName,patientInfoRecord,buttonTimeRecord);
-
-        std::map<unsigned int,QString>().swap(this->patientInfoRecord);
-        this->patientInfoRecord.clear();
-
-        std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
-        this->buttonTimeRecord.clear();
-
-        result = true;
-
-        this->menuBar->getMenu("Setting")->actions().at(2)->setEnabled(true);
-    }
-
-    return result;
-}
 
 void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
     if(0 >= this->buttonsMap->size()){

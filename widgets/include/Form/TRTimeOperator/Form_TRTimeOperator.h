@@ -53,7 +53,6 @@ private:
     void clear();
 
 private:
-    bool timeRecord(unsigned int);
     void changeButtonStatus(unsigned int);
     void queryForNextPatient();
     void inputPatientInfo(PatientInputMode model);
