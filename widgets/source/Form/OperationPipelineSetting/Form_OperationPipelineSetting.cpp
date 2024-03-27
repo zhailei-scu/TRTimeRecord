@@ -1,5 +1,5 @@
 #include "../../../include/Form/OperationPipelineSetting/Form_OperationPipelineSetting.h"
-#include "../../../include/Config/Config_ConfigLoader.h"
+#include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include "ui_OperationPipelineSetting.h"
 #include <QPushButton>
 #include <QPoint>

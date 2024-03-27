@@ -4,7 +4,7 @@
 #include <QString>
 #include <map>
 #include <list>
-#include "../../Config/Config_ConfigLoader.h"
+#include "../../Global/Config/Global_Config_ConfigLoader.h"
 
 class DAO_Interface{
 public:

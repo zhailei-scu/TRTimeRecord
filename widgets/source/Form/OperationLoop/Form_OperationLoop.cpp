@@ -58,14 +58,10 @@ OperationLoop::~OperationLoop(){
     this->onePattern.clear();
 }
 
-bool TRTimeOperator::timeRecord(unsigned int buttonID){
+bool OperationLoop::timeRecord(unsigned int buttonID){
     bool result = false;
     QString time = QTime::currentTime().toString("hh:mm:ss");
     QString tableName = "Date_";
-
-    if(0 == buttonID){
-        this->inputPatientInfo(PatientInputMode(ViewAndModify));
-    }
 
     if(this->buttonTimeRecord.find(buttonID) == this->buttonTimeRecord.end()){
         this->buttonTimeRecord.insert(std::pair<unsigned int,QString>(buttonID,time));

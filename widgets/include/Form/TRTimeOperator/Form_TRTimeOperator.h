@@ -38,9 +38,6 @@ private:
 private:
     std::map<unsigned int,QAbstractButton*> *buttonsMap = NULL;
     std::map<unsigned int,QFrame*> *linesMap = NULL;
-    std::map<unsigned int,QString> patientInfoRecord;
-    std::map<unsigned int,QString> buttonTimeRecord;
-    QString lastTableName;
     DAOViewer *daoViewer = NULL;
     CSVViewer *csvViewer = NULL;
 

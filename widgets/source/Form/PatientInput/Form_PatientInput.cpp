@@ -1,5 +1,5 @@
 #include "../../../include/Form/PatientInput/Form_PatientInput.h"
-#include "../../../include/Config/Config_ConfigLoader.h"
+#include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include <QPushButton>
 #include <QMessageBox>
 #include <QScrollBar>

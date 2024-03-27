@@ -9,7 +9,7 @@
 #include "../../include/Form/TRTimeOperator/Form_TRTimeOperator.h"
 #include "../../include/Storage/DAO/Storage_DAO.h"
 #include "../../include/Storage/CSV/Storage_CSV_Writer.h"
-#include "../../include/Config/Config_ConfigLoader.h"
+#include "../../include/Global/Config/Global_Config_ConfigLoader.h"
 
 int main(int argc,char** argv){
     /*Start QT compents*/

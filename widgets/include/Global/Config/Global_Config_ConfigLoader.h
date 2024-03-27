@@ -1,5 +1,5 @@
-#ifndef CONFIG_CONFIGLOADER_H
-#define CONFIG_CONFIGLOADER_H
+#ifndef GLOBAL_CONFIG_CONFIGLOADER_H
+#define GLOBAL_CONFIG_CONFIGLOADER_H
 
 #include <QJsonObject>
 #include <map>
@@ -106,4 +106,4 @@ private:
     static GbClear m_GbClear;
 };
 
-#endif // CONFIG_CONFIGLOADER_H
+#endif // GLOBAL_CONFIG_CONFIGLOADER_H

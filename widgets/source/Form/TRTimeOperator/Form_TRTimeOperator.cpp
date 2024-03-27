@@ -5,14 +5,13 @@
 #include "../../../include/Form/OperationPipelineSetting/Form_OperationPipelineSetting.h"
 #include "../../../include/Storage/DAO/Storage_DAO.h"
 #include "../../../include/Storage/CSV/Storage_CSV_Writer.h"
-#include "../../../include/Config/Config_ConfigLoader.h"
-#include "../../../include/Common/Util/Common_Util_Base.h"
+#include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
+#include "../../../include/Global/Communication/Global_Communication_Record.h"
 #include "../../../include/Common/Ui/Common_Ui_SelfPushButton.h"
 #include "../../../include/Form/OperationLoop/Form_OperationLoop.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
-#include <algorithm>
 #include <QDateTime>
 #include <QDate>
 #include <QHBoxLayout>
@@ -161,8 +160,8 @@ void TRTimeOperator::buttonClear(){
         this->linesMap = NULL;
     }
 
-    std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
-    this->buttonTimeRecord.clear();
+    std::map<unsigned int,QString>().swap(Record::getInstance()->buttonTimeRecord);
+    Record::getInstance()->buttonTimeRecord.clear();
 }
 
 void TRTimeOperator::buttonConstruct(){
@@ -270,13 +269,7 @@ void TRTimeOperator::clear(){
         this->linesMap = NULL;
     }
 
-    std::map<unsigned int,QString>().swap(this->patientInfoRecord);
-    this->patientInfoRecord.clear();
-
-    std::map<unsigned int,QString>().swap(this->buttonTimeRecord);
-    this->buttonTimeRecord.clear();
-
-    this->lastTableName = "";
+    Record::getInstance()->clear();
 
     if(this->csvViewer){
         this->csvViewer->clear();
@@ -293,6 +286,10 @@ void TRTimeOperator::clear(){
 
 void TRTimeOperator::HandleSignal(int ID){
     this->menuBar->getMenu("Setting")->actions().at(2)->setEnabled(false);
+
+    if(0 == ID){
+        this->inputPatientInfo(PatientInputMode(ViewAndModify));
+    }
 
     OperationLoop * operationForm = new OperationLoop(this,ID);
     operationForm->exec();
@@ -612,7 +609,7 @@ void TRTimeOperator::queryForNextPatient(){
             QMessageBox::information(nullptr,"Error",QString("Input: %1, you should input 'hficm'").arg(inputed));
         }
         if(OK){
-            DAO::getInstance()->deleteLastRecord(this->lastTableName);
+            DAO::getInstance()->deleteLastRecord(Record::getInstance()->lastTableName);
             CSVWriter::getInstance()->deleteLastRecord();
         }
         this->inputPatientInfo(PatientInputMode(Modify));
@@ -629,14 +626,14 @@ void TRTimeOperator::queryForNextPatient(){
 }
 
 void TRTimeOperator::inputPatientInfo(PatientInputMode model){
-    PatientInput * patientForm = new PatientInput(this,&this->patientInfoRecord,model);
+    PatientInput * patientForm = new PatientInput(this,&Record::getInstance()->patientInfoRecord,model);
     patientForm->exec();
     const std::map<unsigned int,QString>* info = patientForm->getInfos();
 
     for(std::map<unsigned int,QString>::const_iterator it = info->begin();
                                                        it != info->end();
                                                        it++){
-        this->patientInfoRecord.insert(*it);
+        Record::getInstance()->patientInfoRecord.insert(*it);
     }
 
     delete patientForm;

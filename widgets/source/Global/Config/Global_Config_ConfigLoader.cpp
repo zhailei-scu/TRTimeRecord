@@ -1,5 +1,5 @@
-#include "../../include/Config/Config_ConfigLoader.h"
-#include "../../include/Common/Util/Common_Util_JsonExt.h"
+#include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
+#include "../../../include/Common/Util/Common_Util_JsonExt.h"
 #include <fstream>
 #include <sstream>
 #include <QMessageBox>

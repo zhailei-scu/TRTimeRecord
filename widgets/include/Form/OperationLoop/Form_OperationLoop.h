@@ -1,7 +1,7 @@
 #ifndef FORM_OPERATIONLOOP_H
 #define FORM_OPERATIONLOOP_H
 
-#include "../../../include/Config/Config_ConfigLoader.h"
+#include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include <QDialog>
 #include <map>
 #include <QString>
