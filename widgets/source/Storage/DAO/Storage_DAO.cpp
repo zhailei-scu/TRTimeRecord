@@ -20,6 +20,7 @@
 */
 
 static char appendFlag = 'F';
+static QString patientInfoTableName = "patientInfo";
 
 DAO* DAO::thePtr = nullptr;
 DAO::GbClear DAO::m_GbClear;
@@ -30,6 +31,12 @@ DAO::DAO(){
     this->theDataBase->setDatabaseName(systemDBPath);
     if(!this->theDataBase->open()){
         QMessageBox::information(nullptr, "Error",this->theDataBase->lastError().text());
+    }
+
+    if(!DAO::getInstance()->tableExisted(patientInfoTableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfoTableName;
+        DAO::getInstance()->createEmptyTable_PatientInfo(tableName);
+        count = "0";
     }
 }
 
