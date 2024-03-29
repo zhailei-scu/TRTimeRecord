@@ -31,13 +31,15 @@ DAO::DAO(){
     this->theDataBase->setDatabaseName(systemDBPath);
     if(!this->theDataBase->open()){
         QMessageBox::information(nullptr, "Error",this->theDataBase->lastError().text());
+        exit(-1);
     }
 
+    /*
     if(!DAO::getInstance()->tableExisted(patientInfoTableName)){
         qDebug()<<"Table is not existed, create a new table: "<<patientInfoTableName;
-        DAO::getInstance()->createEmptyTable_PatientInfo(tableName);
-        count = "0";
+        DAO::getInstance()->createEmptyTable(patientInfoTableName);
     }
+*/
 }
 
 DAO::~DAO(){
