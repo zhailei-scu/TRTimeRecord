@@ -27,6 +27,7 @@ DAO_Interface * DAO::getConnection(){
 }
 
 void DAO::reConnect(){
+    int result = 0;
     this->clear();
     //Test mysql online connection
     DAO_Mysql* mysqlConnection = new DAO_Mysql();
@@ -34,9 +35,14 @@ void DAO::reConnect(){
         delete mysqlConnection;
         mysqlConnection = NULL;
 
-        result = QMessageBox::information(nullptr,"Information","The online data base connection is invalid, a local data base is applied");
+        result = QMessageBox::information(nullptr,
+                                          "Information",
+                                          "The online database is not valid,"
+                                          "click 'Yes' button to re-configure online database,"
+                                          "click 'No' button to just use local database?",
+                                          QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
-        if(accept != result){
+        if(QMessageBox::Yes != result){
             DAO_Sqlite* sqliteConnection = new DAO_Sqlite();
             if(!sqliteConnection->isDataBaseOpened()){
                 QMessageBox::information(nullptr, "Error","Open sqlite error");
