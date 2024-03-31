@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>OnlineDatabaseSetting</class>
+ <widget class="QDialog" name="OnlineDatabaseSetting">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>270</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Online database setting</string>
+  </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>54</x>
+     <y>20</y>
+     <width>133</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Data base server IP</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>54</x>
+     <y>60</y>
+     <width>133</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Data base server Port</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>54</x>
+     <y>100</y>
+     <width>133</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Data base name</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>54</x>
+     <y>140</y>
+     <width>133</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Data base username</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_password">
+   <property name="geometry">
+    <rect>
+     <x>54</x>
+     <y>180</y>
+     <width>133</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Data base password</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_IP">
+   <property name="geometry">
+    <rect>
+     <x>222</x>
+     <y>20</y>
+     <width>145</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_Port">
+   <property name="geometry">
+    <rect>
+     <x>222</x>
+     <y>60</y>
+     <width>145</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_DatabaseName">
+   <property name="geometry">
+    <rect>
+     <x>222</x>
+     <y>100</y>
+     <width>145</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_username">
+   <property name="geometry">
+    <rect>
+     <x>222</x>
+     <y>140</y>
+     <width>145</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_password">
+   <property name="geometry">
+    <rect>
+     <x>222</x>
+     <y>180</y>
+     <width>145</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>114</x>
+     <y>230</y>
+     <width>166</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="locale">
+    <locale language="English" country="UnitedStates"/>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+   <property name="centerButtons">
+    <bool>false</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

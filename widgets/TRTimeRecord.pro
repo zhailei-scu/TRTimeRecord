@@ -52,6 +52,7 @@ HEADERS += \
     include/Storage/DAO/Storage_DAO_Viewer.h
 
 FORMS += \
+    ui/Form/OnlineDatabaseSetting.ui \
     ui/Form/OperationLoop.ui \
     ui/Form/OperationPipelineSetting.ui \
     ui/Form/PatientInfoSetting.ui \
