@@ -1,6 +1,6 @@
 #include "../../../include/Form/OperationLoop/Form_OperationLoop.h"
 #include "../../../include/Global/Communication/Global_Communication_Record.h"
-#include "../../../include/Storage/DAO/Storage_DAO_Sqlite.h"
+#include "../../../include/Storage/DAO/Storage_DAO.h"
 #include "../../../include/Storage/CSV/Storage_CSV_Writer.h"
 #include "ui_OperationLoop.h"
 #include <QMessageBox>
@@ -79,11 +79,11 @@ void OperationLoop::timeRecord(RunStatu statu){
     Record::getInstance()->buttonTimeRecord.clear();
     Record::getInstance()->buttonTimeRecord.insert(std::pair<unsigned int,QString>(this->buttonID*3 + statu,time));
 
-    DAO::getInstance()->updateTableName(Record::getInstance()->lastTableName,
+    DAO::getConnection()->updateTableName(Record::getInstance()->lastTableName,
                                         *ConfigLoader::getInstance()->getThePatientInfoPatten(),
                                         *ConfigLoader::getInstance()->getTheOperationPatten());
 
-    DAO::getInstance()->appendARow(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
+    DAO::getConnection()->appendARow(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
     CSVWriter::getInstance()->appendARecord(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
 }
 

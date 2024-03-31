@@ -21,6 +21,7 @@ SOURCES += \
     source/Form/TRTimeOperator/Form_TRTimeOperator_ToolBar.cpp \
     source/Storage/CSV/Storage_CSV_Viewer.cpp \
     source/Storage/CSV/Storage_CSV_Writer.cpp \
+    source/Storage/DAO/Storage_DAO.cpp \
     source/Storage/DAO/Storage_DAO_Mysql.cpp \
     source/Storage/DAO/Storage_DAO_Sqlite.cpp \
     source/Storage/DAO/Storage_DAO_Viewer.cpp
@@ -44,6 +45,7 @@ HEADERS += \
     include/PatientInput/PatientInput.h \
     include/Storage/CSV/Storage_CSV_Viewer.h \
     include/Storage/CSV/Storage_CSV_Writer.h \
+    include/Storage/DAO/Storage_DAO.h \
     include/Storage/DAO/Storage_DAO_Interface.h \
     include/Storage/DAO/Storage_DAO_Mysql.h \
     include/Storage/DAO/Storage_DAO_Sqlite.h \

@@ -19,20 +19,12 @@
  * but always error
 */
 
-static char appendFlag = 'F';
-
-DAO_Sqlite* DAO_Sqlite::thePtr = nullptr;
-DAO_Sqlite::GbClear DAO_Sqlite::m_GbClear;
 
 DAO_Sqlite::DAO_Sqlite(){
     this->clear();
     this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
     this->theDataBase->setDatabaseName(systemDBPath);
-    if(!this->theDataBase->open()){
-        QMessageBox::information(nullptr, "Error",this->theDataBase->lastError().text());
-        exit(-1);
-    }
-
+    this->theDataBase->open();
     /*
     if(!DAO::getInstance()->tableExisted(patientInfoTableName)){
         qDebug()<<"Table is not existed, create a new table: "<<patientInfoTableName;
@@ -45,18 +37,6 @@ DAO_Sqlite::~DAO_Sqlite(){
     this->clear();
 }
 
-DAO_Sqlite * DAO_Sqlite::getInstance(){
-    if(!thePtr){
-        thePtr = new DAO_Sqlite();
-    }
-    return thePtr;
-}
-
-void DAO_Sqlite::Start(){
-    getInstance();
-    qDebug()<<"DataBase Started...";
-}
-
 void DAO_Sqlite::clear(){
     if(this->theDataBase){
         this->theDataBase->close();
@@ -67,6 +47,12 @@ void DAO_Sqlite::clear(){
 }
 
 /*Realize the interface*/
+bool DAO_Sqlite::isDataBaseOpened(){
+    return NULL != this->theDataBase &&
+           this->theDataBase->isValid() &&
+           this->theDataBase->isOpen();
+}
+
 bool DAO_Sqlite::tableExisted(const QString & tableName){
     bool result = false;
     QSqlQuery query;
@@ -148,9 +134,9 @@ void DAO_Sqlite::appendARow(const QString & tableName,
                      const std::map<unsigned int,QString> & patientInfos,
                      const std::map<unsigned int,QString> & operatorTimes){
     QString count;
-    if(!DAO_Sqlite::getInstance()->tableExisted(tableName)){
+    if(!this->tableExisted(tableName)){
         qDebug()<<"Table is not existed, create a new table: "<<tableName;
-        DAO_Sqlite::getInstance()->createEmptyTable(tableName);
+        this->createEmptyTable(tableName);
         count = "0";
     }else{
         count = getRowCount(tableName);
@@ -204,7 +190,7 @@ void DAO_Sqlite::appendARow(const QString & tableName,
 
 void DAO_Sqlite::deleteLastRecord(const QString & tableName){
     QString str("");
-    if(DAO::getInstance()->tableExisted(tableName)){
+    if(this->tableExisted(tableName)){
         QSqlQuery query;
         str = str.append("delete from %1 where id like ("
                                                      "select id from %1 order by id desc limit 1"
@@ -290,18 +276,5 @@ void DAO_Sqlite::updateTableName(QString & tableName,
         }else{
             tableName.append("_").append(appendFlag).append("1");
         }
-    }
-}
-
-
-/*Garbge clear*/
-DAO_Sqlite::GbClear::GbClear(){
-
-}
-
-DAO_Sqlite::GbClear::~GbClear(){
-    if(thePtr){
-        delete thePtr;
-        thePtr = NULL;
     }
 }

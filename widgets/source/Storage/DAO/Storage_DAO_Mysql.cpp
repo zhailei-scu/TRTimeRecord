@@ -19,42 +19,15 @@
  * but always error
 */
 
-static char appendFlag = 'F';
-
-DAO_Mysql* DAO_Mysql::thePtr = nullptr;
-DAO_Mysql::GbClear DAO_Mysql::m_GbClear;
-
 DAO_Mysql::DAO_Mysql(){
     this->clear();
     this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QMYSQL"));
     this->theDataBase->setDatabaseName(systemDBPath);
-    if(!this->theDataBase->open()){
-        QMessageBox::information(nullptr, "Error",this->theDataBase->lastError().text());
-        exit(-1);
-    }
-
-    /*
-    if(!DAO::getInstance()->tableExisted(patientInfoTableName)){
-        qDebug()<<"Table is not existed, create a new table: "<<patientInfoTableName;
-        DAO::getInstance()->createEmptyTable(patientInfoTableName);
-    }
-*/
+    this->theDataBase->open();
 }
 
 DAO_Mysql::~DAO_Mysql(){
     this->clear();
-}
-
-DAO_Mysql * DAO_Mysql::getInstance(){
-    if(!thePtr){
-        thePtr = new DAO_Mysql();
-    }
-    return thePtr;
-}
-
-void DAO_Mysql::Start(){
-    getInstance();
-    qDebug()<<"DataBase Started...";
 }
 
 void DAO_Mysql::clear(){
@@ -67,6 +40,12 @@ void DAO_Mysql::clear(){
 }
 
 /*Realize the interface*/
+bool DAO_Mysql::isDataBaseOpened(){
+    return this->theDataBase &&
+           this->theDataBase->isValid() &&
+           this->theDataBase->isOpen();
+}
+
 bool DAO_Mysql::tableExisted(const QString & tableName){
     bool result = false;
     QSqlQuery query;
@@ -148,9 +127,9 @@ void DAO_Mysql::appendARow(const QString & tableName,
                      const std::map<unsigned int,QString> & patientInfos,
                      const std::map<unsigned int,QString> & operatorTimes){
     QString count;
-    if(!DAO_Mysql::getInstance()->tableExisted(tableName)){
+    if(!this->tableExisted(tableName)){
         qDebug()<<"Table is not existed, create a new table: "<<tableName;
-        DAO_Mysql::getInstance()->createEmptyTable(tableName);
+        this->createEmptyTable(tableName);
         count = "0";
     }else{
         count = getRowCount(tableName);
@@ -204,7 +183,7 @@ void DAO_Mysql::appendARow(const QString & tableName,
 
 void DAO_Mysql::deleteLastRecord(const QString & tableName){
     QString str("");
-    if(DAO_Mysql::getInstance()->tableExisted(tableName)){
+    if(this->tableExisted(tableName)){
         QSqlQuery query;
         str = str.append("delete from %1 where id like ("
                                                      "select id from %1 order by id desc limit 1"
@@ -290,18 +269,5 @@ void DAO_Mysql::updateTableName(QString & tableName,
         }else{
             tableName.append("_").append(appendFlag).append("1");
         }
-    }
-}
-
-
-/*Garbge clear*/
-DAO_Mysql::GbClear::GbClear(){
-
-}
-
-DAO_Mysql::GbClear::~GbClear(){
-    if(thePtr){
-        delete thePtr;
-        thePtr = NULL;
     }
 }

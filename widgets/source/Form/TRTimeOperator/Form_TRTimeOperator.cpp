@@ -3,7 +3,7 @@
 #include "../../../include/Form/TRTimeOperator/Form_TRTimeOperator_QueryForNextPatient.h"
 #include "../../../include/Form/PatientInfoSetting/Form_PatientInfoSetting.h"
 #include "../../../include/Form/OperationPipelineSetting/Form_OperationPipelineSetting.h"
-#include "../../../include/Storage/DAO/Storage_DAO_Sqlite.h"
+#include "../../../include/Storage/DAO/Storage_DAO.h"
 #include "../../../include/Storage/CSV/Storage_CSV_Writer.h"
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include "../../../include/Global/Communication/Global_Communication_Record.h"
@@ -465,7 +465,7 @@ void TRTimeOperator::dataBaseView(){
     tempWidgetTable->setTabPosition(QTabWidget::South);
     tempWidgetTable->setDocumentMode(true);
 
-    const std::list<QString> & tables = DAO::getInstance()->getAllTablesName();
+    const std::list<QString> & tables = DAO::getConnection()->getAllTablesName();
     for(std::list<QString>::const_reverse_iterator it = tables.rbegin();
                                                    it != tables.rend();
                                                    ++it){
@@ -610,7 +610,7 @@ void TRTimeOperator::queryForNextPatient(){
             QMessageBox::information(nullptr,"Error",QString("Input: %1, you should input 'hficm'").arg(inputed));
         }
         if(OK){
-            DAO::getInstance()->deleteLastRecord(Record::getInstance()->lastTableName);
+            DAO::getConnection()->deleteLastRecord(Record::getInstance()->lastTableName);
             CSVWriter::getInstance()->deleteLastRecord();
         }
         this->inputPatientInfo(PatientInputMode(Modify));

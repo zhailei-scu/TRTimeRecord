@@ -4,14 +4,21 @@
 #include <QString>
 #include <map>
 #include <list>
+#include <QSqlDatabase>
 #include "../../Global/Config/Global_Config_ConfigLoader.h"
+
+static char appendFlag = 'F';
 
 class DAO_Interface{
 public:
     DAO_Interface(){};
     virtual ~DAO_Interface(){};
 
+protected:
+    QSqlDatabase *theDataBase = NULL;
+
 public:
+    virtual bool isDataBaseOpened() = 0;
     virtual bool tableExisted(const QString & tableName) = 0;
     virtual QString getRowCount(const QString & tableName) = 0;
     virtual void createEmptyTable(const QString & tableName) = 0;

@@ -6,24 +6,14 @@
 #include "Storage_DAO_Interface.h"
 /**/
 class DAO_Mysql: public DAO_Interface{
-private:
+public:
     DAO_Mysql();
     DAO_Mysql(const DAO_Mysql &) = delete;
     const DAO_Mysql & operator = (const DAO_Mysql &) = delete;
     virtual ~DAO_Mysql();
-public:
-
-private:
-    static DAO_Mysql * thePtr;
-
-private:
-    QSqlDatabase *theDataBase = NULL;
-
-public:
-    static DAO_Mysql * getInstance();
-    static void Start();
 
 /*Realize the interface*/
+    virtual bool isDataBaseOpened();
     virtual bool tableExisted(const QString & tableName);
     virtual QString getRowCount(const QString & tableName);
     virtual void createEmptyTable(const QString & tableName);
@@ -39,15 +29,6 @@ public:
 
 private:
     void clear();
-
-private:
-    class GbClear{
-    public:
-        GbClear();
-        ~GbClear();
-    };
-
-    static GbClear m_GbClear;
 };
 
 #endif // STORAGE_DAO_MYSQL_H

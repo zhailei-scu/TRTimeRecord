@@ -6,24 +6,15 @@
 #include "Storage_DAO_Interface.h"
 /**/
 class DAO_Sqlite: public DAO_Interface{
-private:
+public:
     DAO_Sqlite();
     DAO_Sqlite(const DAO_Sqlite &) = delete;
     const DAO_Sqlite & operator = (const DAO_Sqlite &) = delete;
     virtual ~DAO_Sqlite();
-public:
-
-private:
-    static DAO_Sqlite * thePtr;
-
-private:
-    QSqlDatabase *theDataBase = NULL;
 
 public:
-    static DAO_Sqlite * getInstance();
-    static void Start();
-
 /*Realize the interface*/
+    virtual bool isDataBaseOpened();
     virtual bool tableExisted(const QString & tableName);
     virtual QString getRowCount(const QString & tableName);
     virtual void createEmptyTable(const QString & tableName);
@@ -39,15 +30,6 @@ public:
 
 private:
     void clear();
-
-private:
-    class GbClear{
-    public:
-        GbClear();
-        ~GbClear();
-    };
-
-    static GbClear m_GbClear;
 };
 
 #endif // STORAGE_DAO_SQLITE_H
