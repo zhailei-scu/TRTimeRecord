@@ -1,6 +1,6 @@
 #include "../../../include/Form/OperationLoop/Form_OperationLoop.h"
 #include "../../../include/Global/Communication/Global_Communication_Record.h"
-#include "../../../include/Storage/DAO/Storage_DAO.h"
+#include "../../../include/Storage/DAO/Storage_DAO_Sqlite.h"
 #include "../../../include/Storage/CSV/Storage_CSV_Writer.h"
 #include "ui_OperationLoop.h"
 #include <QMessageBox>

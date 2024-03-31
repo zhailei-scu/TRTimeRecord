@@ -1,4 +1,4 @@
-#include "../../../include/Storage/DAO/Storage_DAO.h"
+#include "../../../include/Storage/DAO/Storage_DAO_Sqlite.h"
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -20,19 +20,18 @@
 */
 
 static char appendFlag = 'F';
-static QString patientInfoTableName = "patientInfo";
 
-DAO* DAO::thePtr = nullptr;
-DAO::GbClear DAO::m_GbClear;
+DAO_Sqlite* DAO_Sqlite::thePtr = nullptr;
+DAO_Sqlite::GbClear DAO_Sqlite::m_GbClear;
 
-DAO::DAO(){
+DAO_Sqlite::DAO_Sqlite(){
     this->clear();
     this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
     this->theDataBase->setDatabaseName(systemDBPath);
     if(!this->theDataBase->open()){
         QMessageBox::information(nullptr, "Error",this->theDataBase->lastError().text());
         exit(-1);
-    }pi
+    }
 
     /*
     if(!DAO::getInstance()->tableExisted(patientInfoTableName)){
@@ -42,23 +41,23 @@ DAO::DAO(){
 */
 }
 
-DAO::~DAO(){
+DAO_Sqlite::~DAO_Sqlite(){
     this->clear();
 }
 
-DAO * DAO::getInstance(){
+DAO_Sqlite * DAO_Sqlite::getInstance(){
     if(!thePtr){
-        thePtr = new DAO();
+        thePtr = new DAO_Sqlite();
     }
     return thePtr;
 }
 
-void DAO::Start(){
+void DAO_Sqlite::Start(){
     getInstance();
     qDebug()<<"DataBase Started...";
 }
 
-void DAO::clear(){
+void DAO_Sqlite::clear(){
     if(this->theDataBase){
         this->theDataBase->close();
         this->theDataBase->removeDatabase(systemDBPath);
@@ -68,7 +67,7 @@ void DAO::clear(){
 }
 
 /*Realize the interface*/
-bool DAO::tableExisted(const QString & tableName){
+bool DAO_Sqlite::tableExisted(const QString & tableName){
     bool result = false;
     QSqlQuery query;
     query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table' AND tbl_name = '%1';").arg(tableName));
@@ -82,7 +81,7 @@ bool DAO::tableExisted(const QString & tableName){
     return result;
 }
 
-std::list<QString> DAO::getAllTablesName(){
+std::list<QString> DAO_Sqlite::getAllTablesName(){
     std::list<QString> result;
 
     QSqlQuery query;
@@ -95,7 +94,7 @@ std::list<QString> DAO::getAllTablesName(){
     return result;
 }
 
-std::list<QString> DAO::getLikelyTablesName(const QString & tableName){
+std::list<QString> DAO_Sqlite::getLikelyTablesName(const QString & tableName){
     std::list<QString> result;
 
     QSqlQuery query;
@@ -108,7 +107,7 @@ std::list<QString> DAO::getLikelyTablesName(const QString & tableName){
     return result;
 }
 
-QString DAO::getRowCount(const QString & tableName){
+QString DAO_Sqlite::getRowCount(const QString & tableName){
     QString result("0");
     QSqlQuery query;
     query.exec(QString("select count (*) from %1 ;").arg(tableName));
@@ -121,7 +120,7 @@ QString DAO::getRowCount(const QString & tableName){
     return result;
 }
 
-void DAO::createEmptyTable(const QString & tableName){
+void DAO_Sqlite::createEmptyTable(const QString & tableName){
     QSqlQuery query;
     QString str("create table ");
     str.append(tableName).append("(id int primary key");
@@ -145,13 +144,13 @@ void DAO::createEmptyTable(const QString & tableName){
     qDebug()<<query.lastError();
 }
 
-void DAO::appendARow(const QString & tableName,
+void DAO_Sqlite::appendARow(const QString & tableName,
                      const std::map<unsigned int,QString> & patientInfos,
                      const std::map<unsigned int,QString> & operatorTimes){
     QString count;
-    if(!DAO::getInstance()->tableExisted(tableName)){
+    if(!DAO_Sqlite::getInstance()->tableExisted(tableName)){
         qDebug()<<"Table is not existed, create a new table: "<<tableName;
-        DAO::getInstance()->createEmptyTable(tableName);
+        DAO_Sqlite::getInstance()->createEmptyTable(tableName);
         count = "0";
     }else{
         count = getRowCount(tableName);
@@ -203,7 +202,7 @@ void DAO::appendARow(const QString & tableName,
     }
 }
 
-void DAO::deleteLastRecord(const QString & tableName){
+void DAO_Sqlite::deleteLastRecord(const QString & tableName){
     QString str("");
     if(DAO::getInstance()->tableExisted(tableName)){
         QSqlQuery query;
@@ -220,7 +219,7 @@ void DAO::deleteLastRecord(const QString & tableName){
     }
 }
 
-void DAO::updateTableName(QString & tableName,
+void DAO_Sqlite::updateTableName(QString & tableName,
                           const std::map<unsigned int,patientInfoPair> & patientPattern,
                           const std::map<unsigned int,OneOperationPattern> & OperationPattern){
     std::stringstream ss;
@@ -296,11 +295,11 @@ void DAO::updateTableName(QString & tableName,
 
 
 /*Garbge clear*/
-DAO::GbClear::GbClear(){
+DAO_Sqlite::GbClear::GbClear(){
 
 }
 
-DAO::GbClear::~GbClear(){
+DAO_Sqlite::GbClear::~GbClear(){
     if(thePtr){
         delete thePtr;
         thePtr = NULL;

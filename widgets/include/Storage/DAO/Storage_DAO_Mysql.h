@@ -1,26 +1,26 @@
-#ifndef STORAGE_DAO_H
-#define STORAGE_DAO_H
+#ifndef STORAGE_DAO_MYSQL_H
+#define STORAGE_DAO_MYSQL_H
 
 #include <QSqlDatabase>
 #include <list>
 #include "Storage_DAO_Interface.h"
 /**/
-class DAO: public DAO_Interface{
+class DAO_Mysql: public DAO_Interface{
 private:
-    DAO();
-    DAO(const DAO &) = delete;
-    const DAO & operator = (const DAO &) = delete;
-    virtual ~DAO();
+    DAO_Mysql();
+    DAO_Mysql(const DAO_Mysql &) = delete;
+    const DAO_Mysql & operator = (const DAO_Mysql &) = delete;
+    virtual ~DAO_Mysql();
 public:
 
 private:
-    static DAO * thePtr;
+    static DAO_Mysql * thePtr;
 
 private:
     QSqlDatabase *theDataBase = NULL;
 
 public:
-    static DAO * getInstance();
+    static DAO_Mysql * getInstance();
     static void Start();
 
 /*Realize the interface*/
@@ -50,4 +50,4 @@ private:
     static GbClear m_GbClear;
 };
 
-#endif // STORAGE_DAO_H
+#endif // STORAGE_DAO_MYSQL_H
