@@ -78,6 +78,14 @@ public:
     const std::map<unsigned int,OneOperationPattern>* getTheOperationPatten() const;
     void setThePatientPattern(const std::map<unsigned int,patientInfoPair> & patientPattern);
     void setTheOperationPattern(const std::map<unsigned int,OneOperationPattern> & operationPattern);
+    const QString & getOnlineDBIP() const;
+    unsigned int getOnlineDBPort() const;
+    const QString & getOnlineDBUserName() const;
+    const QString & getOnlineDBPassword() const;
+    void setOnlineDBIP(const QString &);
+    void setOnlineDBPort(unsigned int );
+    void setOnlineDBUserName(const QString & );
+    void setOnlineDBPassword(const QString & );
 
 private:
     bool readPatientInfoPatternFromFile();
@@ -90,6 +98,10 @@ private:
 private:
     std::map<unsigned int,patientInfoPair>* thePatientInfoPatten = NULL;
     std::map<unsigned int,OneOperationPattern>* theOperationPatten = NULL;
+    QString onlineDBIP = "localhost";
+    unsigned int onlineDBPort = 3306;
+    QString onlineDBUserName = "root";
+    QString onlineDBPassword = "hfimc";
 
 private:
     void ConstructPatientInfoPatten();

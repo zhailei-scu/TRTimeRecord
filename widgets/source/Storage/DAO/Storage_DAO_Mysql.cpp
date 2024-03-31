@@ -19,10 +19,16 @@
  * but always error
 */
 
+static QString patientInfoDataBaseName = "tr_patientinfo";
+
 DAO_Mysql::DAO_Mysql(){
     this->clear();
     this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QMYSQL"));
-    this->theDataBase->setDatabaseName(systemDBPath);
+    this->theDataBase->setHostName(ConfigLoader::getInstance()->getOnlineDBIP());
+    this->theDataBase->setPort(ConfigLoader::getInstance()->getOnlineDBPort());
+    this->theDataBase->setUserName(ConfigLoader::getInstance()->getOnlineDBUserName());
+    this->theDataBase->setPassword(ConfigLoader::getInstance()->getOnlineDBPassword());
+    this->theDataBase->setDatabaseName(patientInfoDataBaseName);
     this->theDataBase->open();
 }
 

@@ -25,12 +25,6 @@ DAO_Sqlite::DAO_Sqlite(){
     this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
     this->theDataBase->setDatabaseName(systemDBPath);
     this->theDataBase->open();
-    /*
-    if(!DAO::getInstance()->tableExisted(patientInfoTableName)){
-        qDebug()<<"Table is not existed, create a new table: "<<patientInfoTableName;
-        DAO::getInstance()->createEmptyTable(patientInfoTableName);
-    }
-*/
 }
 
 DAO_Sqlite::~DAO_Sqlite(){

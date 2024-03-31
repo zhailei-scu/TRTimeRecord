@@ -87,6 +87,38 @@ void ConfigLoader::setTheOperationPattern(const std::map<unsigned int,OneOperati
     this->writeOperationPatternToFile(*this->theOperationPatten);
 }
 
+const QString & ConfigLoader::getOnlineDBIP() const{
+    return this->onlineDBIP;
+}
+
+unsigned int ConfigLoader::getOnlineDBPort() const{
+    return this->onlineDBPort;
+}
+
+const QString & ConfigLoader::getOnlineDBUserName() const{
+    return this->onlineDBUserName;
+}
+
+const QString & ConfigLoader::getOnlineDBPassword() const{
+    return this->onlineDBPassword;
+}
+
+void ConfigLoader::setOnlineDBIP(const QString & IP){
+    this->onlineDBIP = IP;
+}
+
+void ConfigLoader::setOnlineDBPort(unsigned int port){
+    this->onlineDBPort = port;
+}
+
+void ConfigLoader::setOnlineDBUserName(const QString & name){
+    this->onlineDBUserName = name;
+}
+
+void ConfigLoader::setOnlineDBPassword(const QString & passwd){
+    this->onlineDBPassword = passwd;
+}
+
 bool ConfigLoader::readPatientInfoPatternFromFile(){
     std::stringstream ss;
     int id = 0;

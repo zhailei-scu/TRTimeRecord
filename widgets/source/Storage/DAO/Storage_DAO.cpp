@@ -12,25 +12,7 @@ DAO* DAO::thePtr = nullptr;
 DAO::GbClear DAO::m_GbClear;
 
 DAO::DAO(){
-    this->clear();
-    //Test mysql online connection
-    DAO_Mysql* mysqlConnection = new DAO_Mysql();
-    if(!mysqlConnection->isDataBaseOpened()){
-        delete mysqlConnection;
-        mysqlConnection = NULL;
-
-        QMessageBox::information(nullptr,"Information","The online data base connection is invalid, a local data base is applied");
-
-        DAO_Sqlite* sqliteConnection = new DAO_Sqlite();
-
-        if(!sqliteConnection->isDataBaseOpened()){
-            QMessageBox::information(nullptr, "Error","Open sqlite error");
-            exit(-1);
-        }
-        this->connection = sqliteConnection;
-    }else{
-        this->connection = mysqlConnection;
-    }
+    this->reConnect();
 }
 
 DAO::~DAO(){
@@ -39,10 +21,34 @@ DAO::~DAO(){
 
 DAO_Interface * DAO::getConnection(){
     if(!thePtr){
-        //Test mysql online connection
         thePtr = new DAO();
     }
     return thePtr->connection;
+}
+
+void DAO::reConnect(){
+    this->clear();
+    //Test mysql online connection
+    DAO_Mysql* mysqlConnection = new DAO_Mysql();
+    if(!mysqlConnection->isDataBaseOpened()){
+        delete mysqlConnection;
+        mysqlConnection = NULL;
+
+        result = QMessageBox::information(nullptr,"Information","The online data base connection is invalid, a local data base is applied");
+
+        if(accept != result){
+            DAO_Sqlite* sqliteConnection = new DAO_Sqlite();
+            if(!sqliteConnection->isDataBaseOpened()){
+                QMessageBox::information(nullptr, "Error","Open sqlite error");
+                exit(-1);
+            }
+            this->connection = sqliteConnection;
+        }else{
+            reConnect();
+        }
+    }else{
+        this->connection = mysqlConnection;
+    }
 }
 
 void DAO::Start(){

@@ -2,7 +2,6 @@
 #define STORAGE_DAO_H
 
 #include <QSqlDatabase>
-#include <list>
 #include "Storage_DAO_Interface.h"
 
 /**/
@@ -22,9 +21,11 @@ private:
 public:
     static DAO_Interface * getConnection();
     static void Start();
+    void reConnect();
 
 private:
     void clear();
+
 
 private:
     class GbClear{
