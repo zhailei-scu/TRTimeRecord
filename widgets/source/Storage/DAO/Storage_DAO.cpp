@@ -32,7 +32,7 @@ DAO::DAO(){
     if(!this->theDataBase->open()){
         QMessageBox::information(nullptr, "Error",this->theDataBase->lastError().text());
         exit(-1);
-    }
+    }pi
 
     /*
     if(!DAO::getInstance()->tableExisted(patientInfoTableName)){
