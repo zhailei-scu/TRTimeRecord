@@ -1,10 +1,9 @@
 #include "../../../include/Storage/DAO/Storage_DAO.h"
 #include "../../../include/Storage/DAO/Storage_DAO_Sqlite.h"
 #include "../../../include/Storage/DAO/Storage_DAO_Mysql.h"
-#include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
+#include "../../../include/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
-#include <sstream>
 #include <QSqlError>
 #include <QMessageBox>
 
@@ -30,6 +29,7 @@ void DAO::reConnect(){
     int result = 0;
     this->clear();
     //Test mysql online connection
+    OnlineDatabaseSetting* databaseSettingForm = NULL;
     DAO_Mysql* mysqlConnection = new DAO_Mysql();
     if(!mysqlConnection->isDataBaseOpened()){
         delete mysqlConnection;
@@ -50,7 +50,15 @@ void DAO::reConnect(){
             }
             this->connection = sqliteConnection;
         }else{
-            reConnect();
+            databaseSettingForm = new OnlineDatabaseSetting(NULL);
+            result = databaseSettingForm->exec();
+
+            delete databaseSettingForm;
+            databaseSettingForm = NULL;
+
+            if(QDialog::Accepted == result){
+                reConnect();
+            }
         }
     }else{
         this->connection = mysqlConnection;

@@ -10,6 +10,7 @@ SOURCES += \
     source/Common/Util/Common_Util_JsonExt.cpp \
     source/Global/Communication/Global_Communication_Record.cpp \
     source/Global/Config/Global_Config_ConfigLoader.cpp \
+    source/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.cpp \
     source/Form/OperationLoop/Form_OperationLoop.cpp \
     source/Form/OperationPipelineSetting/Form_OperationPipelineSetting.cpp \
     source/Form/PatientInfoSetting/Form_PatientInfoSetting.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     include/Common/Util/Common_Util_JsonExt.h \
     include/Global/Communication/Global_Communication_Record.h \
     include/Global/Config/Global_Config_ConfigLoader.h \
+    include/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.h \
     include/Form/OperationLoop/Form_OperationLoop.h \
     include/Form/OperationPipelineSetting/Form_OperationPipelineSetting.h \
     include/Form/PatientInfoSetting/Form_PatientInfoSetting.h \

@@ -11,6 +11,34 @@ static QString systemDBPath = "TR.db";
 static QString systemCfgPath = "TR.json";
 static unsigned long totalShowCSVLine = 1000;
 
+
+class OnlineInfoPattern{
+private:
+    OnlineInfoPattern();
+    OnlineInfoPattern(const OnlineInfoPattern & ) = delete;
+    const OnlineInfoPattern & operator = (const OnlineInfoPattern &) = delete;
+    virtual ~OnlineInfoPattern();
+private:
+    static OnlineInfoPattern *m_ptr;
+
+    std::map<QString,QString> defalutPattern;
+
+public:
+    static OnlineInfoPattern* getInstance();
+    const std::map<QString,QString> & getDefalutPattern();
+
+private:
+    void clear();
+
+private:
+    class GbClear{
+    public:
+        GbClear();
+        ~GbClear();
+    };
+    static GbClear m_GbClear;
+};
+
 struct OneOperationPattern{
 public:
     OneOperationPattern(){}
@@ -78,32 +106,27 @@ public:
     const std::map<unsigned int,OneOperationPattern>* getTheOperationPatten() const;
     void setThePatientPattern(const std::map<unsigned int,patientInfoPair> & patientPattern);
     void setTheOperationPattern(const std::map<unsigned int,OneOperationPattern> & operationPattern);
-    const QString & getOnlineDBIP() const;
-    unsigned int getOnlineDBPort() const;
-    const QString & getOnlineDBUserName() const;
-    const QString & getOnlineDBPassword() const;
-    void setOnlineDBIP(const QString &);
-    void setOnlineDBPort(unsigned int );
-    void setOnlineDBUserName(const QString & );
-    void setOnlineDBPassword(const QString & );
+    const std::map<QString,QString> & getOnlineDatabaseInfo() const;
+    void setOnlineDatabaseInfo(const std::map<QString,QString> & );
 
 private:
+    bool readOnlineDatabaseInfoFromFile();
+    void writeOnlineDatabaseInfoToFile(const std::map<QString,QString> &);
+    void setDefaultOnlineDatabaseInfo();
     bool readPatientInfoPatternFromFile();
     void writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> &);
+    void setDefaultPatientInfoPatten();
     bool readOperationPatternFromFile();
     void writeOperationPatternToFile(const std::map<unsigned int,OneOperationPattern> &);
-    void setDefaultPatientInfoPatten();
     void setDefaultOperationPatten();
 
 private:
     std::map<unsigned int,patientInfoPair>* thePatientInfoPatten = NULL;
     std::map<unsigned int,OneOperationPattern>* theOperationPatten = NULL;
-    QString onlineDBIP = "localhost";
-    unsigned int onlineDBPort = 3306;
-    QString onlineDBUserName = "root";
-    QString onlineDBPassword = "hfimc";
+    std::map<QString,QString> onlineDBInfo;
 
 private:
+    void ConstructOnlineDBInfo();
     void ConstructPatientInfoPatten();
     void ConstructOperationPatten();
     void clear();

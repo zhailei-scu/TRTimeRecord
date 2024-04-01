@@ -4,6 +4,7 @@
 #include <sstream>
 #include <QMessageBox>
 
+static std::string str_OnlineDatabaseInfo = "OnlineDatabaseInfo";
 static std::string str_PatientInfoPattern = "PatientInfoPattern";
 static std::string str_OperationPattern = "OperationPattern";
 
@@ -15,11 +16,57 @@ static std::string str_HintInfos = "HintInfos";
 ConfigLoader* ConfigLoader::thePtr = NULL;  //lazy mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
 
+OnlineInfoPattern* OnlineInfoPattern::m_ptr = NULL;
+OnlineInfoPattern::GbClear OnlineInfoPattern::m_GbClear;
+
+OnlineInfoPattern::OnlineInfoPattern(){
+    this->clear();
+
+    this->defalutPattern.insert(std::pair<QString,QString>("onlineDBIP","localhost"));
+    this->defalutPattern.insert(std::pair<QString,QString>("onlineDBPort","3306"));
+    this->defalutPattern.insert(std::pair<QString,QString>("onlineDBName","tr_patientinfo"));
+    this->defalutPattern.insert(std::pair<QString,QString>("onlineDBUserName","root"));
+    this->defalutPattern.insert(std::pair<QString,QString>("onlineDBPassword","hfimc"));
+}
+
+OnlineInfoPattern::~OnlineInfoPattern(){
+    this->clear();
+}
+
+OnlineInfoPattern* OnlineInfoPattern::getInstance(){
+    if(!m_ptr){
+        m_ptr = new OnlineInfoPattern();
+    }
+
+    return m_ptr;
+}
+
+const std::map<QString,QString> & OnlineInfoPattern::getDefalutPattern(){
+    return this->defalutPattern;
+}
+
+void OnlineInfoPattern::clear(){
+    std::map<QString,QString>().swap(this->defalutPattern);
+    this->defalutPattern.clear();
+}
+
+OnlineInfoPattern::GbClear::GbClear(){
+
+}
+
+OnlineInfoPattern::GbClear::~GbClear(){
+    if(m_ptr){
+        delete m_ptr;
+        m_ptr = NULL;
+    }
+}
+
 ConfigLoader::ConfigLoader(){
     this->clear();
 
     this->ConstructPatientInfoPatten();
     this->ConstructOperationPatten();
+    this->ConstructOnlineDBInfo();
 
     qDebug()<<"Comming";
 }
@@ -46,6 +93,19 @@ const std::map<unsigned int,patientInfoPair>* ConfigLoader::getThePatientInfoPat
 
 const std::map<unsigned int,OneOperationPattern>* ConfigLoader::getTheOperationPatten() const{
     return this->theOperationPatten;
+}
+
+const std::map<QString,QString> & ConfigLoader::getOnlineDatabaseInfo() const{
+    return this->onlineDBInfo;
+}
+
+
+void ConfigLoader::setOnlineDatabaseInfo(const std::map<QString,QString> & info){
+    std::map<QString,QString>().swap(this->onlineDBInfo);
+    this->onlineDBInfo.clear();
+    this->onlineDBInfo = info;
+
+    this->writeOnlineDatabaseInfoToFile(this->onlineDBInfo);
 }
 
 void ConfigLoader::setThePatientPattern(const std::map<unsigned int,patientInfoPair> & patientPattern){
@@ -87,36 +147,109 @@ void ConfigLoader::setTheOperationPattern(const std::map<unsigned int,OneOperati
     this->writeOperationPatternToFile(*this->theOperationPatten);
 }
 
-const QString & ConfigLoader::getOnlineDBIP() const{
-    return this->onlineDBIP;
+bool ConfigLoader::readOnlineDatabaseInfoFromFile(){
+    std::stringstream ss;
+    bool result = true;
+    std::ifstream ifs;
+    JsonExt* ext = new JsonExt();
+
+    ifs.open(systemCfgPath.toStdString().c_str());
+
+    if(ifs.is_open()){
+        ext->Extract(ifs);
+
+        if(ext->getJsonInfo() && ext->getJsonInfo()->namedObjects){
+            std::map<std::string,JsonBase*>::const_iterator it_top = ext->getJsonInfo()->namedObjects->find(str_OnlineDatabaseInfo);
+            if(it_top != ext->getJsonInfo()->namedObjects->end()){
+                if(it_top->second && it_top->second->namedPairs){
+                    for(std::map<QString,QString>::const_iterator it = OnlineInfoPattern::getInstance()->getDefalutPattern().begin();
+                                                                  it != OnlineInfoPattern::getInstance()->getDefalutPattern().end();
+                                                                  it++){
+                        std::map<std::string,std::string>::const_iterator findIt = it_top->second->namedPairs->find(it->first.toStdString());
+                        if(it_top->second->namedPairs->end() != findIt){
+                            if(0 == this->onlineDBInfo.count(it->first)){
+                                this->onlineDBInfo.insert(std::pair<QString,QString>(it->first,findIt->second.c_str()));
+                            }else{
+                                this->onlineDBInfo[it->first] = findIt->second.c_str();
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
+
+        ifs.close();
+    }
+
+    delete ext;
+    ext = NULL;
+
+    return result;
 }
 
-unsigned int ConfigLoader::getOnlineDBPort() const{
-    return this->onlineDBPort;
-}
+void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> & input){
+    std::ifstream ifs;
+    std::stringstream ss;
+    std::string str_Index;
+    JsonExt* ext = new JsonExt();
+    JsonBase* base = NULL;
+    JsonBase* patientPattern = NULL;
+    JsonBase* onePatientInfoLine = NULL;
 
-const QString & ConfigLoader::getOnlineDBUserName() const{
-    return this->onlineDBUserName;
-}
+    ifs.open(systemCfgPath.toStdString());
+    if(ifs.is_open()){
+        ext->Extract(ifs);
+    }
+    ifs.close();
 
-const QString & ConfigLoader::getOnlineDBPassword() const{
-    return this->onlineDBPassword;
-}
+    base = ext->getJsonInfo();
+    if(base){
+        if(ext->getJsonInfo()->namedObjects){
+            for(std::map<std::string,JsonBase*>::iterator it = ext->getJsonInfo()->namedObjects->begin();
+                 it != ext->getJsonInfo()->namedObjects->end();
+                 it++){
+                if(str_PatientInfoPattern == it->first){
+                    //remove
+                    ext->getJsonInfo()->namedObjects->erase(it);
+                }
+            }
+        }
+    }else{
+        base = new JsonBase();
+        ext->setJsonInfo(base);
+    }
 
-void ConfigLoader::setOnlineDBIP(const QString & IP){
-    this->onlineDBIP = IP;
-}
+    if(!base->namedObjects){
+        base->namedObjects = new std::map<std::string,JsonBase*>();
+    }
 
-void ConfigLoader::setOnlineDBPort(unsigned int port){
-    this->onlineDBPort = port;
-}
+    patientPattern = new JsonBase();
 
-void ConfigLoader::setOnlineDBUserName(const QString & name){
-    this->onlineDBUserName = name;
-}
+    patientPattern->namedObjects = new std::map<std::string,JsonBase*>();
 
-void ConfigLoader::setOnlineDBPassword(const QString & passwd){
-    this->onlineDBPassword = passwd;
+    for(std::map<unsigned int,patientInfoPair>::const_iterator it = input.begin();
+         it != input.end();
+         it++){
+        ss.str("");
+        ss.clear();
+        ss<<it->first;
+        str_Index = "";
+        ss>>str_Index;
+        onePatientInfoLine = new JsonBase();
+        onePatientInfoLine->namedPairs = new std::map<std::string,std::string>();
+        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(it->second.first.toStdString(),it->second.second.toStdString()));
+
+        patientPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,onePatientInfoLine));
+    }
+
+    base->namedObjects->insert(std::pair<std::string,JsonBase*>(str_PatientInfoPattern,patientPattern));
+
+    ext->WriteBackToFile(systemCfgPath.toStdString().c_str(),std::ios::ate);
+
+    delete ext;
+    ext = NULL;
 }
 
 bool ConfigLoader::readPatientInfoPatternFromFile(){
@@ -528,6 +661,13 @@ void ConfigLoader::writeOperationPatternToFile(const std::map<unsigned int,OneOp
     ext = NULL;
 }
 
+void ConfigLoader::ConstructOnlineDBInfo(){
+    std::map<QString,QString>().swap(this->onlineDBInfo);
+    this->onlineDBInfo.clear();
+    this->readOnlineDatabaseInfoFromFile();
+}
+
+
 void ConfigLoader::ConstructPatientInfoPatten(){
     if(this->thePatientInfoPatten){
         std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
@@ -607,6 +747,13 @@ void ConfigLoader::setDefaultOperationPatten(){
     this->theOperationPatten->insert(std::pair<unsigned int,OneOperationPattern>(3,OneOperationPattern("Leaving Room","LeavingRoom",1,hintInfos)));
 }
 
+void ConfigLoader::setDefaultOnlineDatabaseInfo(){
+    std::map<QString,QString>().swap(this->onlineDBInfo);
+    this->onlineDBInfo.clear();
+
+    this->onlineDBInfo = OnlineInfoPattern::getInstance()->getDefalutPattern();
+}
+
 void ConfigLoader::clear(){
     if(this->theJson){
         for(QJsonObject::iterator it = this->theJson->begin(); it != this->theJson->end(); it++){
@@ -629,6 +776,10 @@ void ConfigLoader::clear(){
         delete this->theOperationPatten;
         this->theOperationPatten = NULL;
     }
+
+    std::map<QString,QString>().swap(this->onlineDBInfo);
+    this->onlineDBInfo.clear();
+    this->onlineDBInfo = OnlineInfoPattern::getInstance()->getDefalutPattern();
 }
 
 /*Garbge clear*/
