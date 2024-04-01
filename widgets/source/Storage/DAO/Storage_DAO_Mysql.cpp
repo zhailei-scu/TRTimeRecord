@@ -29,10 +29,10 @@ DAO_Mysql::DAO_Mysql(QWidget* parent):DAO_Interface(parent){
     img->load(":/img/link.svg");
     QLabel* label = new QLabel(this);
 
-    this->setWindowTitle("Connecting to database...");
+    this->setWindowTitle("Connecting to online database...");
     this->setWindowIcon(QIcon(":/img/logo.ico"));
     this->setWindowFlags(Qt::WindowTitleHint);
-    //this->setStyleSheet("background-color: #6fcade");
+    this->setStyleSheet("background-color: #aaaaaa");
 
     if(parent){
         this->setGeometry(parent->geometry().center().x() - parent->geometry().width()*0.1,
@@ -41,14 +41,17 @@ DAO_Mysql::DAO_Mysql(QWidget* parent):DAO_Interface(parent){
                           parent->geometry().height()*0.05);
     }else{
         this->setGeometry(QApplication::primaryScreen()->geometry().center().x() - QApplication::primaryScreen()->geometry().width()*0.1,
-                          QApplication::primaryScreen()->geometry().center().y() - QApplication::primaryScreen()->geometry().width()*0.025,
+                          QApplication::primaryScreen()->geometry().center().y() - QApplication::primaryScreen()->geometry().height()*0.0001,
                           QApplication::primaryScreen()->geometry().width()*0.2,
-                          QApplication::primaryScreen()->geometry().width()*0.05);
+                          1);
     }
     label->setGeometry(0,0,this->width(),this->height());
 
-    label->setPixmap(QPixmap::fromImage(*img).scaled(label->size()));
+    label->setPixmap(QPixmap::fromImage(*img));
+    label->show();
     this->show();
+    this->update();
+    this->repaint();
 
     this->clear();
     this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QMYSQL"));

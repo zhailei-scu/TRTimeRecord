@@ -28,7 +28,7 @@ DAO_Sqlite::DAO_Sqlite(QWidget* parent):DAO_Interface(parent){
     img->load(":/img/link.svg");
     QLabel* label = new QLabel();
 
-    this->setWindowTitle("Connecting to database...");
+    this->setWindowTitle("Connecting to local database...");
     this->setWindowIcon(QIcon(":/img/logo.ico"));
     this->setWindowFlags(Qt::WindowTitleHint);
     //this->setStyleSheet("background-color: #6fcade");
@@ -40,9 +40,9 @@ DAO_Sqlite::DAO_Sqlite(QWidget* parent):DAO_Interface(parent){
                           parent->geometry().height()*0.05);
     }else{
         this->setGeometry(QApplication::primaryScreen()->geometry().center().x() - QApplication::primaryScreen()->geometry().width()*0.1,
-                          QApplication::primaryScreen()->geometry().center().y() - QApplication::primaryScreen()->geometry().width()*0.025,
+                          QApplication::primaryScreen()->geometry().center().y() - QApplication::primaryScreen()->geometry().height()*0.025,
                           QApplication::primaryScreen()->geometry().width()*0.2,
-                          QApplication::primaryScreen()->geometry().width()*0.05);
+                          1);
     }
     label->setGeometry(0,0,this->width(),this->height());
 
