@@ -35,12 +35,12 @@ DAO_Sqlite::DAO_Sqlite(QWidget* parent):DAO_Interface(parent){
 
     if(parent){
         this->setGeometry(parent->geometry().center().x() - parent->geometry().width()*0.1,
-                          parent->geometry().center().y() - parent->geometry().height()*0.025,
+                          parent->geometry().center().y() - 1,
                           parent->geometry().width()*0.2,
-                          parent->geometry().height()*0.05);
+                          1);
     }else{
         this->setGeometry(QApplication::primaryScreen()->geometry().center().x() - QApplication::primaryScreen()->geometry().width()*0.1,
-                          QApplication::primaryScreen()->geometry().center().y() - QApplication::primaryScreen()->geometry().height()*0.025,
+                          QApplication::primaryScreen()->geometry().center().y() - 1,
                           QApplication::primaryScreen()->geometry().width()*0.2,
                           1);
     }
