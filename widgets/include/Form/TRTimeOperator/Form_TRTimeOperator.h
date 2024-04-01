@@ -67,6 +67,7 @@ private slots:
     void storageSetting();
     void patientInfoSetting();
     void pipleLineSetting();
+    void networkSetting();
 };
 
 

@@ -21,11 +21,11 @@ private:
 private:
     static OnlineInfoPattern *m_ptr;
 
-    std::map<QString,QString> defalutPattern;
+    std::map<unsigned int,QString> defalutPattern;
 
 public:
     static OnlineInfoPattern* getInstance();
-    const std::map<QString,QString> & getDefalutPattern();
+    const std::map<unsigned int,QString> & getDefalutPattern();
 
 private:
     void clear();

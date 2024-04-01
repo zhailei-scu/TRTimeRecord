@@ -7,7 +7,7 @@
 /**/
 class DAO_Mysql: public DAO_Interface{
 public:
-    DAO_Mysql();
+    DAO_Mysql(QWidget* parent = NULL);
     DAO_Mysql(const DAO_Mysql &) = delete;
     const DAO_Mysql & operator = (const DAO_Mysql &) = delete;
     virtual ~DAO_Mysql();

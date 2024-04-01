@@ -9,5 +9,6 @@
         <file>img/next.svg</file>
         <file>img/Continue.svg</file>
         <file>img/Pause.svg</file>
+        <file>img/link.svg</file>
     </qresource>
 </RCC>

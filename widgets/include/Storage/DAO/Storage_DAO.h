@@ -19,7 +19,8 @@ private:
 private:
     DAO_Interface* connection = NULL;
 public:
-    static DAO_Interface * getConnection();
+    static DAO * getInstance();
+    DAO_Interface * getConnection();
     static void Start();
     void reConnect();
 

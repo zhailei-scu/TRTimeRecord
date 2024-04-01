@@ -18,6 +18,7 @@ void OperatorMenuBar::uiConstruct(const QRect & geometry){
     menu->addAction("Storage");
     menu->addAction("PatientInfo");
     menu->addAction("Pipline");
+    menu->addAction("NetWork");
 
     //this->menuBar->addSeparator();
 

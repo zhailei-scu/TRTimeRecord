@@ -8,11 +8,11 @@ OnlineDatabaseSetting::OnlineDatabaseSetting(QWidget* parent):QDialog(parent),ui
     uiForm->setupUi(this);
 
     /*Load configuration*/
-    this->uiForm->lineEdit_IP->setText(ConfigLoader::getInstance()->getOnlineDBIP());
-    this->uiForm->lineEdit_Port->setText(QString("%1").arg(ConfigLoader::getInstance()->getOnlineDBPort()));
-    this->uiForm->lineEdit_DatabaseName->setText(ConfigLoader::getInstance()->getOnlineDBName());
-    this->uiForm->lineEdit_username->setText(ConfigLoader::getInstance()->getOnlineDBUserName());
-    this->uiForm->lineEdit_password->setText(ConfigLoader::getInstance()->getOnlineDBPassword());
+    this->uiForm->lineEdit_IP->setText(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(0)));
+    this->uiForm->lineEdit_Port->setText(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(1)));
+    this->uiForm->lineEdit_DatabaseName->setText(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(2)));
+    this->uiForm->lineEdit_username->setText(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(3)));
+    this->uiForm->lineEdit_password->setText(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(4)));
 
     QObject::connect(this->uiForm->pushButton_Save,
                      SIGNAL(pressed()),
@@ -35,11 +35,15 @@ void OnlineDatabaseSetting::closeEvent(QCloseEvent *event){
 }
 
 void OnlineDatabaseSetting::SaveConfigHandle(){
-    ConfigLoader::getInstance()->setOnlineDBIP(this->uiForm->lineEdit_IP->text());
-    ConfigLoader::getInstance()->setOnlineDBPort(this->uiForm->lineEdit_Port->text().toInt());
-    ConfigLoader::getInstance()->setOnlineDBName(this->uiForm->lineEdit_DatabaseName->text());
-    ConfigLoader::getInstance()->setOnlineDBUserName(this->uiForm->lineEdit_username->text());
-    ConfigLoader::getInstance()->setOnlineDBPassword(this->uiForm->lineEdit_password->text());
+    std::map<QString,QString> config;
+    config.insert(std::pair<QString,QString>(OnlineInfoPattern::getInstance()->getDefalutPattern().at(0),this->uiForm->lineEdit_IP->text()));
+    config.insert(std::pair<QString,QString>(OnlineInfoPattern::getInstance()->getDefalutPattern().at(1),this->uiForm->lineEdit_Port->text()));
+    config.insert(std::pair<QString,QString>(OnlineInfoPattern::getInstance()->getDefalutPattern().at(2),this->uiForm->lineEdit_DatabaseName->text()));
+    config.insert(std::pair<QString,QString>(OnlineInfoPattern::getInstance()->getDefalutPattern().at(3),this->uiForm->lineEdit_username->text()));
+    config.insert(std::pair<QString,QString>(OnlineInfoPattern::getInstance()->getDefalutPattern().at(4),this->uiForm->lineEdit_password->text()));
+
+    ConfigLoader::getInstance()->setOnlineDatabaseInfo(config);
+
     accept();
 }
 

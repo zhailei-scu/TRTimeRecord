@@ -6,6 +6,9 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QMessageBox>
+#include <QApplication>
+#include <QScreen>
+#include <QPalette>
 
 DAO* DAO::thePtr = nullptr;
 DAO::GbClear DAO::m_GbClear;
@@ -18,10 +21,15 @@ DAO::~DAO(){
     this->clear();
 }
 
-DAO_Interface * DAO::getConnection(){
+DAO * DAO::getInstance(){
     if(!thePtr){
-        thePtr = new DAO();
+        QMessageBox::critical(nullptr,"Error","You must Start the DAO before!");
+        exit(-1);
     }
+    return thePtr;
+}
+
+DAO_Interface * DAO::getConnection(){
     return thePtr->connection;
 }
 
@@ -66,7 +74,9 @@ void DAO::reConnect(){
 }
 
 void DAO::Start(){
-    getConnection();
+    if(!thePtr){
+        thePtr = new DAO();
+    }
     qDebug()<<"DataBase Started...";
 }
 

@@ -9,6 +9,7 @@
 #include "../../../include/Global/Communication/Global_Communication_Record.h"
 #include "../../../include/Common/Ui/Common_Ui_SelfPushButton.h"
 #include "../../../include/Form/OperationLoop/Form_OperationLoop.h"
+#include "../../../include/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
@@ -70,6 +71,10 @@ void TRTimeOperator::uiConstruct(){
                      &QAction::triggered,
                      this,
                      &TRTimeOperator::pipleLineSetting);
+    QObject::connect(this->menuBar->getMenu("Setting")->actions().at(3),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::networkSetting);
 
     this->toolBar = new OperatorToolBar(this);
     this->toolBar->uiConstruct(QRect(0,
@@ -465,7 +470,7 @@ void TRTimeOperator::dataBaseView(){
     tempWidgetTable->setTabPosition(QTabWidget::South);
     tempWidgetTable->setDocumentMode(true);
 
-    const std::list<QString> & tables = DAO::getConnection()->getAllTablesName();
+    const std::list<QString> & tables = DAO::getInstance()->getConnection()->getAllTablesName();
     for(std::list<QString>::const_reverse_iterator it = tables.rbegin();
                                                    it != tables.rend();
                                                    ++it){
@@ -555,6 +560,16 @@ void TRTimeOperator::pipleLineSetting(){
     form = NULL;
 }
 
+void TRTimeOperator::networkSetting(){
+    OnlineDatabaseSetting *databaseSettingForm = new OnlineDatabaseSetting(this);
+    databaseSettingForm->exec();
+
+    DAO::getInstance()->reConnect();
+
+    delete databaseSettingForm;
+    databaseSettingForm = NULL;
+}
+
 void TRTimeOperator::changeButtonStatus(unsigned int buttonID){
     if(0 >= this->buttonsMap->size()){
         QMessageBox::critical(nullptr, "Error", "None button registerd!");
@@ -610,7 +625,7 @@ void TRTimeOperator::queryForNextPatient(){
             QMessageBox::information(nullptr,"Error",QString("Input: %1, you should input 'hficm'").arg(inputed));
         }
         if(OK){
-            DAO::getConnection()->deleteLastRecord(Record::getInstance()->lastTableName);
+            DAO::getInstance()->getConnection()->deleteLastRecord(Record::getInstance()->lastTableName);
             CSVWriter::getInstance()->deleteLastRecord();
         }
         this->inputPatientInfo(PatientInputMode(Modify));

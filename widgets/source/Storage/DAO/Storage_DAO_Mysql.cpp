@@ -5,7 +5,10 @@
 #include <sstream>
 #include <QSqlError>
 #include <QMessageBox>
-
+#include <QApplication>
+#include <QScreen>
+#include <QImage>
+#include <QLabel>
 /*
  * In current softwares, there are two place to record the operation data:
  * (1) The .csv file recorded the patient therapy time, located in user specialed path
@@ -21,15 +24,41 @@
 
 static QString patientInfoDataBaseName = "tr_patientinfo";
 
-DAO_Mysql::DAO_Mysql(){
+DAO_Mysql::DAO_Mysql(QWidget* parent):DAO_Interface(parent){
+    QImage *img = new QImage();
+    img->load(":/img/link.svg");
+    QLabel* label = new QLabel(this);
+
+    this->setWindowTitle("Connecting to database...");
+    this->setWindowIcon(QIcon(":/img/logo.ico"));
+    this->setWindowFlags(Qt::WindowTitleHint);
+    //this->setStyleSheet("background-color: #6fcade");
+
+    if(parent){
+        this->setGeometry(parent->geometry().center().x() - parent->geometry().width()*0.1,
+                          parent->geometry().center().y() - parent->geometry().height()*0.025,
+                          parent->geometry().width()*0.2,
+                          parent->geometry().height()*0.05);
+    }else{
+        this->setGeometry(QApplication::primaryScreen()->geometry().center().x() - QApplication::primaryScreen()->geometry().width()*0.1,
+                          QApplication::primaryScreen()->geometry().center().y() - QApplication::primaryScreen()->geometry().width()*0.025,
+                          QApplication::primaryScreen()->geometry().width()*0.2,
+                          QApplication::primaryScreen()->geometry().width()*0.05);
+    }
+    label->setGeometry(0,0,this->width(),this->height());
+
+    label->setPixmap(QPixmap::fromImage(*img).scaled(label->size()));
+    this->show();
+
     this->clear();
     this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QMYSQL"));
-    this->theDataBase->setHostName(ConfigLoader::getInstance()->getOnlineDBIP());
-    this->theDataBase->setPort(ConfigLoader::getInstance()->getOnlineDBPort());
-    this->theDataBase->setUserName(ConfigLoader::getInstance()->getOnlineDBUserName());
-    this->theDataBase->setPassword(ConfigLoader::getInstance()->getOnlineDBPassword());
-    this->theDataBase->setDatabaseName(patientInfoDataBaseName);
+    this->theDataBase->setHostName(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(0)));
+    this->theDataBase->setPort(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(1)).toInt());
+    this->theDataBase->setDatabaseName(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(2)));
+    this->theDataBase->setUserName(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(3)));
+    this->theDataBase->setPassword(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(4)));
     this->theDataBase->open();
+    this->hide();
 }
 
 DAO_Mysql::~DAO_Mysql(){

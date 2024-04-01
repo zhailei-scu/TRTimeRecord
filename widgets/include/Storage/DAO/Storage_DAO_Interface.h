@@ -5,13 +5,15 @@
 #include <map>
 #include <list>
 #include <QSqlDatabase>
+#include <QDialog>
 #include "../../Global/Config/Global_Config_ConfigLoader.h"
 
 static char appendFlag = 'F';
 
-class DAO_Interface{
+class DAO_Interface:public QDialog{
+
 public:
-    DAO_Interface(){};
+    DAO_Interface(QWidget* parent = NULL):QDialog(parent){};
     virtual ~DAO_Interface(){};
 
 protected:
