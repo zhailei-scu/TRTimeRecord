@@ -398,40 +398,49 @@ bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,patientIn
 }
 
 
-void DAO_Sqlite::updateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern){
-    std::stringstream ss;
-    std::string str_value;
-    std::list<QString> list;
-    bool flag = false;
-    signed int pos = 0;
-
+void DAO_Sqlite::updateTable_Patient(){
+    std::map<QString,unsigned int> oldColumnIndexMap;
+    std::map<unsigned int,int> indexMap;
     QSqlQuery query(*this->theDataBase);
+    QString oldTableName = patientInfo_TableName.append("_back");
+    unsigned int index = 0;
+    query.exec(QString("alter table %1 rename to %2").arg(patientInfo_TableName)
+                                                     .arg(oldTableName));
+    this->createEmptyTable_Patient();
 
-    list.push_back("id");
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
-         it != patientPattern.end();
-         it++){
-        list.push_back(it->second.second);
-    }
-
-    query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+    query.exec(QString("PRAGMA table_info(%1)").arg(oldTableName));
     qDebug()<<query.lastError();
     while(query.next()){
         if(query.value(0).isValid()){
-            if(0 == list.size()){
-                flag = true;
-                break;
-            }
+            oldColumnIndexMap.insert(std::pair<QString,unsigned int>(query.value(1).toString(),index));
+        }
+        index++;
+    }
 
-            if(query.value(1).toString() != list.front()){
-                flag = true;
-                break;
+    const std::map<unsigned int,patientInfoPair> * patientInfo = ConfigLoader::getInstance()->getThePatientInfoPatten();
+
+    if(patientInfo){
+        for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfo->begin();
+                                                                   it != patientInfo->end();
+                                                                   it++){
+            std::map<QString,unsigned int>::iterator it_find = oldColumnIndexMap.find(it->second.second);
+            if(oldColumnIndexMap.end() != it_find){
+                indexMap.insert(std::pair<unsigned int,int>(it->first,it_find->second));
+            }else{
+                indexMap.insert(std::pair<unsigned int,int>(it->first,-1));
             }
-            list.pop_front();
         }
     }
 
-    if(list.size() > 0){
-        flag = true;
+    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfo->begin();
+                                                               it != patientInfo->end();
+                                                               it++){
+        if(indexMap.at(it->first) > 0){
+            query.exec(QString("update %1 set %1.%3 = %2.%3 ;").arg(patientInfo_TableName)
+                                                               .arg(oldTableName)
+                                                               .arg(it->second.second));
+        }
     }
+
+    qDebug()<<query.lastError();
 }
