@@ -491,7 +491,7 @@ void TRTimeOperator::dataBaseView(){
         compents->model = new QSqlTableModel(tempWidget);
 
         compents->model->setTable(*it);
-        compents->model->setQuery(QString("select * from %1").arg(*it));
+        compents->model->setQuery(QString("select * from %1").arg(*it),*DAO::getInstance()->getTrInfoConnection()->getTheDataBase());
 
         compents->tableView->setModel(compents->model);
         compents->tableView->setGeometry(0,

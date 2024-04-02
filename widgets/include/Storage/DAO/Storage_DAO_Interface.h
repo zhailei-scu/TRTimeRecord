@@ -24,15 +24,21 @@ public:
     virtual bool isDataBaseOpened() = 0;
     virtual bool tableExisted(const QString & tableName) = 0;
     virtual QString getRowCount(const QString & tableName) = 0;
-    virtual void createEmptyTable(const QString & tableName) = 0;
-    virtual void appendARow(const QString & tableName,
-                            const std::map<unsigned int,QString> & patientInfos,
-                            const std::map<unsigned int,QString> & operatorTimes) = 0;
+    virtual void createEmptyTable_TR(const QString & tableName) = 0;
+    virtual void createEmptyTable_Patient() = 0;
+    virtual void appendARow_TR(const QString & tableName,
+                               const std::map<unsigned int,QString> & patientInfos,
+                               const std::map<unsigned int,QString> & operatorTimes) = 0;
+    virtual void appendARow_Patient(const std::map<unsigned int,QString> & patientInfos) = 0;
     virtual void deleteLastRecord(const QString & tableName) = 0;
     virtual std::list<QString> getAllTablesName() = 0;
     virtual std::list<QString> getLikelyTablesName(const QString & tableName) = 0;
-    virtual void updateTableName(QString & str,
-                                 const std::map<unsigned int,patientInfoPair> & patientPattern,
-                                 const std::map<unsigned int,OneOperationPattern> & OperationPattern) = 0;
+    virtual void updateTableName_TR(QString & str,
+                                    const std::map<unsigned int,patientInfoPair> & patientPattern,
+                                    const std::map<unsigned int,OneOperationPattern> & OperationPattern) = 0;
+    virtual void updateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern) = 0;
+    virtual const QSqlDatabase* getTheDataBase() const{
+        return this->theDataBase;
+    }
 };
 #endif // STORAGE_DAO_INTERFACE_H
