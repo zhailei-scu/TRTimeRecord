@@ -357,9 +357,8 @@ void DAO_Sqlite::updateTableName_TR(QString & tableName,
     }
 }
 
-void DAO_Sqlite::updateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern){
+bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern){
     std::stringstream ss;
-    int value = 0;
     std::string str_value;
     std::list<QString> list;
     bool flag = false;
@@ -395,23 +394,44 @@ void DAO_Sqlite::updateTable_Patient(const std::map<unsigned int,patientInfoPair
         flag = true;
     }
 
+    return flag;
+}
 
-    if(flag){
-        pos = tableName.toStdString().find_first_of(appendFlag);
 
-        if(pos>=0){
-            ss.str("");
-            ss.clear();
-            ss<<tableName.toStdString().substr(pos+1,tableName.size()-1);
-            ss>>value;
-            ss.str("");
-            ss.clear();
-            ss<<value + 1;
-            ss>>str_value;
-            tableName = tableName.toStdString().substr(0,pos+1).c_str();
-            tableName.append(str_value);
-        }else{
-            tableName.append("_").append(appendFlag).append("1");
+void DAO_Sqlite::updateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern){
+    std::stringstream ss;
+    std::string str_value;
+    std::list<QString> list;
+    bool flag = false;
+    signed int pos = 0;
+
+    QSqlQuery query(*this->theDataBase);
+
+    list.push_back("id");
+    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
+         it != patientPattern.end();
+         it++){
+        list.push_back(it->second.second);
+    }
+
+    query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+    qDebug()<<query.lastError();
+    while(query.next()){
+        if(query.value(0).isValid()){
+            if(0 == list.size()){
+                flag = true;
+                break;
+            }
+
+            if(query.value(1).toString() != list.front()){
+                flag = true;
+                break;
+            }
+            list.pop_front();
         }
+    }
+
+    if(list.size() > 0){
+        flag = true;
     }
 }
