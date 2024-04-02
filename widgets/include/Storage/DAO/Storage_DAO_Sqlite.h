@@ -7,7 +7,7 @@
 /**/
 class DAO_Sqlite: public DAO_Interface{
 public:
-    DAO_Sqlite(QWidget* parent = NULL);
+    DAO_Sqlite(QWidget* parent = NULL,const QString & linkName = "");
     DAO_Sqlite(const DAO_Sqlite &) = delete;
     const DAO_Sqlite & operator = (const DAO_Sqlite &) = delete;
     virtual ~DAO_Sqlite();

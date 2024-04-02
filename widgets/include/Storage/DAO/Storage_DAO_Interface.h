@@ -13,11 +13,12 @@ static char appendFlag = 'F';
 class DAO_Interface:public QDialog{
 
 public:
-    DAO_Interface(QWidget* parent = NULL):QDialog(parent){};
+    DAO_Interface(QWidget* parent = NULL,const QString & Name = ""):QDialog(parent),linkName(Name){};
     virtual ~DAO_Interface(){};
 
 protected:
     QSqlDatabase *theDataBase = NULL;
+    QString linkName = "";
 
 public:
     virtual bool isDataBaseOpened() = 0;

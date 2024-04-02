@@ -23,7 +23,7 @@
 */
 
 
-DAO_Sqlite::DAO_Sqlite(QWidget* parent):DAO_Interface(parent){
+DAO_Sqlite::DAO_Sqlite(QWidget* parent,const QString & linkName):DAO_Interface(parent,linkName){
     QImage *img = new QImage();
     img->load(":/img/link.svg");
     QLabel* label = new QLabel();
@@ -50,7 +50,7 @@ DAO_Sqlite::DAO_Sqlite(QWidget* parent):DAO_Interface(parent){
 
     this->show();
     this->clear();
-    this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
+    this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE",linkName));
     this->theDataBase->setDatabaseName(systemDBPath);
     this->theDataBase->open();
     this->hide();
@@ -78,8 +78,8 @@ bool DAO_Sqlite::isDataBaseOpened(){
 
 bool DAO_Sqlite::tableExisted(const QString & tableName){
     bool result = false;
-    QSqlQuery query;
-    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table' AND tbl_name = '%1';").arg(tableName));
+    QSqlQuery query(QString("select tbl_name from sqlite_master WHERE type = 'table' AND tbl_name = '%1';").arg(tableName),*this->theDataBase);
+    query.exec();
     qDebug()<<query.lastError();
     if(query.next()){
         if(query.value(0).isValid() && query.value(0).toString() == tableName){
@@ -93,8 +93,8 @@ bool DAO_Sqlite::tableExisted(const QString & tableName){
 std::list<QString> DAO_Sqlite::getAllTablesName(){
     std::list<QString> result;
 
-    QSqlQuery query;
-    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table';"));
+    QSqlQuery query(QString("select tbl_name from sqlite_master WHERE type = 'table';"),*this->theDataBase);
+    query.exec();
     qDebug()<<query.lastError();
     while(query.next()){
         result.push_back(query.value(0).toString());
@@ -106,8 +106,8 @@ std::list<QString> DAO_Sqlite::getAllTablesName(){
 std::list<QString> DAO_Sqlite::getLikelyTablesName(const QString & tableName){
     std::list<QString> result;
 
-    QSqlQuery query;
-    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table' and tbl_name like '%1\%';").arg(tableName));
+    QSqlQuery query(QString("select tbl_name from sqlite_master WHERE type = 'table' and tbl_name like '%1\%';").arg(tableName),*this->theDataBase);
+    query.exec();
     qDebug()<<query.lastError();
     while(query.next()){
         result.push_back(query.value(0).toString());
@@ -118,8 +118,8 @@ std::list<QString> DAO_Sqlite::getLikelyTablesName(const QString & tableName){
 
 QString DAO_Sqlite::getRowCount(const QString & tableName){
     QString result("0");
-    QSqlQuery query;
-    query.exec(QString("select count (*) from %1 ;").arg(tableName));
+    QSqlQuery query(QString("select count (*) from %1 ;").arg(tableName),*this->theDataBase);
+    query.exec();
     qDebug()<<query.lastError();
     if(query.next()){
         if(query.value(0).isValid()){
@@ -130,7 +130,6 @@ QString DAO_Sqlite::getRowCount(const QString & tableName){
 }
 
 void DAO_Sqlite::createEmptyTable(const QString & tableName){
-    QSqlQuery query;
     QString str("create table ");
     str.append(tableName).append("(id int primary key");
 
@@ -149,7 +148,8 @@ void DAO_Sqlite::createEmptyTable(const QString & tableName){
     }
     str.append(");");
 
-    query.exec(str);
+    QSqlQuery query(str,*this->theDataBase);
+    query.exec();
     qDebug()<<query.lastError();
 }
 
@@ -165,7 +165,6 @@ void DAO_Sqlite::appendARow(const QString & tableName,
         count = getRowCount(tableName);
     }
 
-    QSqlQuery query;
     QString str("INSERT INTO ");
     str.append(tableName).append(" (id");
     const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
@@ -204,7 +203,8 @@ void DAO_Sqlite::appendARow(const QString & tableName,
 
     str.append(");");
 
-    query.exec(str);
+    QSqlQuery query(str,*this->theDataBase);
+    query.exec();
     if(QSqlError::NoError != query.lastError().type()){
         QMessageBox::critical(nullptr,"Error",query.lastError().text());
         exit(-1);
@@ -214,12 +214,12 @@ void DAO_Sqlite::appendARow(const QString & tableName,
 void DAO_Sqlite::deleteLastRecord(const QString & tableName){
     QString str("");
     if(this->tableExisted(tableName)){
-        QSqlQuery query;
         str = str.append("delete from %1 where id like ("
                                                      "select id from %1 order by id desc limit 1"
                                                      ")"
                          ";").arg(tableName);
-        query.exec(str);
+        QSqlQuery query(str,*this->theDataBase);
+        query.exec();
 
         if(QSqlError::NoError != query.lastError().type()){
             QMessageBox::critical(nullptr,"Error",query.lastError().text());
@@ -234,7 +234,6 @@ void DAO_Sqlite::updateTableName(QString & tableName,
     std::stringstream ss;
     int value = 0;
     std::string str_value;
-    QSqlQuery query;
     std::list<QString> list;
     bool flag = false;
     signed int pos = 0;
@@ -260,7 +259,8 @@ void DAO_Sqlite::updateTableName(QString & tableName,
     }
 
     if(this->tableExisted(tableName)){
-        query.exec(QString("PRAGMA table_info(%1)").arg(tableName));
+        QSqlQuery query(QString("PRAGMA table_info(%1)").arg(tableName),*this->theDataBase);
+        query.exec();
         qDebug()<<query.lastError();
         while(query.next()){
             if(query.value(0).isValid()){

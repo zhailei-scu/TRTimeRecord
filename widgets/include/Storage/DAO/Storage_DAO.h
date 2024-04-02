@@ -17,12 +17,14 @@ private:
     static DAO * thePtr;
 
 private:
-    DAO_Interface* connection = NULL;
+    DAO_Interface* patientInfoConnection = NULL;
+    DAO_Interface* trInfoConnection = NULL;
 public:
     static DAO * getInstance();
-    DAO_Interface * getConnection();
+    DAO_Interface * getPatientInfoConnection();
+    DAO_Interface * getTrInfoConnection();
     static void Start();
-    void reConnect();
+    void patientInfoReConnect();
 
 private:
     void clear();

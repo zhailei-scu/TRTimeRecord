@@ -470,7 +470,7 @@ void TRTimeOperator::dataBaseView(){
     tempWidgetTable->setTabPosition(QTabWidget::South);
     tempWidgetTable->setDocumentMode(true);
 
-    const std::list<QString> & tables = DAO::getInstance()->getConnection()->getAllTablesName();
+    const std::list<QString> & tables = DAO::getInstance()->getTrInfoConnection()->getAllTablesName();
     for(std::list<QString>::const_reverse_iterator it = tables.rbegin();
                                                    it != tables.rend();
                                                    ++it){
@@ -564,7 +564,7 @@ void TRTimeOperator::networkSetting(){
     OnlineDatabaseSetting *databaseSettingForm = new OnlineDatabaseSetting(this);
     databaseSettingForm->exec();
 
-    DAO::getInstance()->reConnect();
+    DAO::getInstance()->patientInfoReConnect();
 
     delete databaseSettingForm;
     databaseSettingForm = NULL;
@@ -625,7 +625,7 @@ void TRTimeOperator::queryForNextPatient(){
             QMessageBox::information(nullptr,"Error",QString("Input: %1, you should input 'hficm'").arg(inputed));
         }
         if(OK){
-            DAO::getInstance()->getConnection()->deleteLastRecord(Record::getInstance()->lastTableName);
+            DAO::getInstance()->getTrInfoConnection()->deleteLastRecord(Record::getInstance()->lastTableName);
             CSVWriter::getInstance()->deleteLastRecord();
         }
         this->inputPatientInfo(PatientInputMode(Modify));

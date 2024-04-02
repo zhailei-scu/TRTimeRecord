@@ -14,7 +14,12 @@ DAO* DAO::thePtr = nullptr;
 DAO::GbClear DAO::m_GbClear;
 
 DAO::DAO(){
-    this->reConnect();
+    this->clear();
+    /*tr record in local*/
+    this->trInfoConnection = new DAO_Sqlite(NULL,"trInfoConnection");
+
+    /*patient info in online or local*/
+    this->patientInfoReConnect();
 }
 
 DAO::~DAO(){
@@ -29,16 +34,23 @@ DAO * DAO::getInstance(){
     return thePtr;
 }
 
-DAO_Interface * DAO::getConnection(){
-    return thePtr->connection;
+DAO_Interface * DAO::getPatientInfoConnection(){
+    return thePtr->patientInfoConnection;
 }
 
-void DAO::reConnect(){
+DAO_Interface * DAO::getTrInfoConnection(){
+    return thePtr->trInfoConnection;
+}
+
+void DAO::patientInfoReConnect(){
     int result = 0;
-    this->clear();
+    if(this->patientInfoConnection){
+        delete this->patientInfoConnection;
+        this->patientInfoConnection = NULL;
+    }
     //Test mysql online connection
     OnlineDatabaseSetting* databaseSettingForm = NULL;
-    DAO_Mysql* mysqlConnection = new DAO_Mysql();
+    DAO_Mysql* mysqlConnection = new DAO_Mysql(NULL,"patientInfoReConnect");
     if(!mysqlConnection->isDataBaseOpened()){
         delete mysqlConnection;
         mysqlConnection = NULL;
@@ -51,12 +63,12 @@ void DAO::reConnect(){
                                           QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
         if(QMessageBox::Yes != result){
-            DAO_Sqlite* sqliteConnection = new DAO_Sqlite();
+            DAO_Sqlite* sqliteConnection = new DAO_Sqlite(NULL,"patientInfoReConnect");
             if(!sqliteConnection->isDataBaseOpened()){
                 QMessageBox::information(nullptr, "Error","Open sqlite error");
                 exit(-1);
             }
-            this->connection = sqliteConnection;
+            this->patientInfoConnection = sqliteConnection;
         }else{
             databaseSettingForm = new OnlineDatabaseSetting(NULL);
             result = databaseSettingForm->exec();
@@ -65,11 +77,11 @@ void DAO::reConnect(){
             databaseSettingForm = NULL;
 
             if(QDialog::Accepted == result){
-                reConnect();
+                patientInfoReConnect();
             }
         }
     }else{
-        this->connection = mysqlConnection;
+        this->patientInfoConnection = mysqlConnection;
     }
 }
 
@@ -81,9 +93,14 @@ void DAO::Start(){
 }
 
 void DAO::clear(){
-    if(this->connection){
-        delete this->connection;
-        this->connection = NULL;
+    if(this->patientInfoConnection){
+        delete this->patientInfoConnection;
+        this->patientInfoConnection = NULL;
+    }
+
+    if(this->trInfoConnection){
+        delete this->trInfoConnection;
+        this->trInfoConnection = NULL;
     }
 }
 

@@ -24,7 +24,7 @@
 
 static QString patientInfoDataBaseName = "tr_patientinfo";
 
-DAO_Mysql::DAO_Mysql(QWidget* parent):DAO_Interface(parent){
+DAO_Mysql::DAO_Mysql(QWidget* parent,const QString & linkName):DAO_Interface(parent,linkName){
     QImage *img = new QImage();
     img->load(":/img/link.svg");
     QLabel* label = new QLabel(this);
@@ -54,7 +54,7 @@ DAO_Mysql::DAO_Mysql(QWidget* parent):DAO_Interface(parent){
     this->repaint();
 
     this->clear();
-    this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QMYSQL"));
+    this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QMYSQL",linkName));
     this->theDataBase->setHostName(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(0)));
     this->theDataBase->setPort(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(1)).toInt());
     this->theDataBase->setDatabaseName(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(2)));
