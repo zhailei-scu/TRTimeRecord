@@ -6,8 +6,6 @@
 #include "Storage_DAO_Interface.h"
 /**/
 
-QString patientInfo_TableName = "patientInfo";
-
 class DAO_Sqlite: public DAO_Interface{
 public:
     DAO_Sqlite(QWidget* parent = NULL,const QString & linkName = "");
@@ -33,7 +31,7 @@ public:
                                     const std::map<unsigned int,patientInfoPair> & patientPattern,
                                     const std::map<unsigned int,OneOperationPattern> & OperationPattern);
     virtual bool needToUpdateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern);
-    virtual void updateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern);
+    virtual void updateTable_Patient();
 
 private:
     void clear();

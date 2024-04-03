@@ -397,13 +397,14 @@ bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,patientIn
     return flag;
 }
 
-
 void DAO_Sqlite::updateTable_Patient(){
     std::map<QString,unsigned int> oldColumnIndexMap;
     std::map<unsigned int,int> indexMap;
     QSqlQuery query(*this->theDataBase);
-    QString oldTableName = patientInfo_TableName.append("_back");
+    QString oldTableName = patientInfo_TableName;
     unsigned int index = 0;
+    oldTableName.append("_back");
+
     query.exec(QString("alter table %1 rename to %2").arg(patientInfo_TableName)
                                                      .arg(oldTableName));
     this->createEmptyTable_Patient();

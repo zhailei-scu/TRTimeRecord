@@ -79,11 +79,11 @@ void OperationLoop::timeRecord(RunStatu statu){
     Record::getInstance()->buttonTimeRecord.clear();
     Record::getInstance()->buttonTimeRecord.insert(std::pair<unsigned int,QString>(this->buttonID*3 + statu,time));
 
-    DAO::getInstance()->getTrInfoConnection()->updateTableName(Record::getInstance()->lastTableName,
-                                                         *ConfigLoader::getInstance()->getThePatientInfoPatten(),
-                                                         *ConfigLoader::getInstance()->getTheOperationPatten());
+    DAO::getInstance()->getTrInfoConnection()->updateTableName_TR(Record::getInstance()->lastTableName,
+                                                                  *ConfigLoader::getInstance()->getThePatientInfoPatten(),
+                                                                  *ConfigLoader::getInstance()->getTheOperationPatten());
 
-    DAO::getInstance()->getTrInfoConnection()->appendARow(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
+    DAO::getInstance()->getTrInfoConnection()->appendARow_TR(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
     CSVWriter::getInstance()->appendARecord(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
 }
 
