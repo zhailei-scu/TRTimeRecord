@@ -26,7 +26,7 @@
 DAO_Sqlite::DAO_Sqlite(QWidget* parent,const QString & linkName):DAO_Interface(parent,linkName){
     QImage *img = new QImage();
     img->load(":/img/link.svg");
-    QLabel* label = new QLabel();
+    QLabel* label = new QLabel(this);
 
     this->setWindowTitle("Connecting to local database...");
     this->setWindowIcon(QIcon(":/img/logo.ico"));

@@ -202,6 +202,7 @@ void PatientInput::rejectHandle(){
 
         this->reject();
     }else{
+        this->currentMode = PatientInputMode(Modify);
         for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
                                                                        it != this->patternCompents->end();
                                                                        it++){
@@ -215,4 +216,8 @@ void PatientInput::rejectHandle(){
 
 const std::map<unsigned int,QString>* PatientInput::getInfos() const{
     return this->infos;
+}
+
+PatientInputMode PatientInput::getCurrentMode() const{
+    return this->currentMode;
 }

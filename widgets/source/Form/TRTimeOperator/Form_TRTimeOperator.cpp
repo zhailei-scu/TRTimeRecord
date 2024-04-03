@@ -646,12 +646,15 @@ void TRTimeOperator::inputPatientInfo(PatientInputMode model){
     patientForm->exec();
     const std::map<unsigned int,QString>* info = patientForm->getInfos();
 
-    for(std::map<unsigned int,QString>::const_iterator it = info->begin();
-                                                       it != info->end();
-                                                       it++){
-        Record::getInstance()->patientInfoRecord.insert(*it);
-    }
+    if(PatientInputMode(Modify) == patientForm->getCurrentMode()){
+        for(std::map<unsigned int,QString>::const_iterator it = info->begin();
+                                                           it != info->end();
+                                                           it++){
+            Record::getInstance()->patientInfoRecord.insert(*it);
+        }
 
+        DAO::getInstance()->getPatientInfoConnection()->appendARow_Patient(Record::getInstance()->patientInfoRecord);
+    }
     delete patientForm;
     patientForm = NULL;
 }
