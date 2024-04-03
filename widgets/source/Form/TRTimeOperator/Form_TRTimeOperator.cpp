@@ -643,7 +643,7 @@ void TRTimeOperator::queryForNextPatient(){
 
 void TRTimeOperator::inputPatientInfo(PatientInputMode model){
     PatientInput * patientForm = new PatientInput(this,&Record::getInstance()->patientInfoRecord,model);
-    patientForm->exec();
+    int result = patientForm->exec();
     const std::map<unsigned int,QString>* info = patientForm->getInfos();
 
     if(PatientInputMode(Modify) == patientForm->getCurrentMode()){
@@ -653,7 +653,13 @@ void TRTimeOperator::inputPatientInfo(PatientInputMode model){
             Record::getInstance()->patientInfoRecord.insert(*it);
         }
 
-        DAO::getInstance()->getPatientInfoConnection()->appendARow_Patient(Record::getInstance()->patientInfoRecord);
+        if(QDialog::Accepted == result){
+            if(DAO::getInstance()->getPatientInfoConnection()->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
+                DAO::getInstance()->getPatientInfoConnection()->updateTable_Patient();
+            }
+
+            DAO::getInstance()->getPatientInfoConnection()->appendARow_Patient(Record::getInstance()->patientInfoRecord);
+        }
     }
     delete patientForm;
     patientForm = NULL;

@@ -85,7 +85,37 @@ private:
     const QString &m_value;
 };
 
-using patientInfoPair = std::pair<QString,QString>; //(label, Name)
+//using patientInfoPair = std::pair<QString,QString>; //(label, Name)
+
+struct OnePatientPattern{
+public:
+    OnePatientPattern(){}
+
+    OnePatientPattern(const QString & label,
+                      const QString & name,
+                      const QString & isNecessary):labelName(label),infoName(name),necessary(isNecessary){}
+
+    OnePatientPattern(const std::string & label,
+                      const std::string & name,
+                      const std::string & isNecessary):labelName(label.c_str()),infoName(name.c_str()),necessary(isNecessary.c_str()){}
+
+    OnePatientPattern(const char* label,
+                      const char* name,
+                      const char* isNecessary):labelName(label),infoName(name),necessary(isNecessary){}
+
+public:
+    QString labelName = "";
+    QString infoName = "";
+    QString necessary = "false";
+
+public:
+    void clear(){
+        labelName = "";
+        infoName = "";
+        necessary = "false";
+    }
+};
+
 /**/
 class ConfigLoader{
 private:
@@ -102,9 +132,9 @@ public:
     static ConfigLoader* getInstance();
     static void Start();
 public:
-    const std::map<unsigned int,patientInfoPair>* getThePatientInfoPatten() const;
+    const std::map<unsigned int,OnePatientPattern>* getThePatientInfoPatten() const;
     const std::map<unsigned int,OneOperationPattern>* getTheOperationPatten() const;
-    void setThePatientPattern(const std::map<unsigned int,patientInfoPair> & patientPattern);
+    void setThePatientPattern(const std::map<unsigned int,OnePatientPattern> & patientPattern);
     void setTheOperationPattern(const std::map<unsigned int,OneOperationPattern> & operationPattern);
     const std::map<QString,QString> & getOnlineDatabaseInfo() const;
     void setOnlineDatabaseInfo(const std::map<QString,QString> & );
@@ -114,14 +144,14 @@ private:
     void writeOnlineDatabaseInfoToFile(const std::map<QString,QString> &);
     void setDefaultOnlineDatabaseInfo();
     bool readPatientInfoPatternFromFile();
-    void writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> &);
+    void writePatientInfoPatternToFile(const std::map<unsigned int,OnePatientPattern> &);
     void setDefaultPatientInfoPatten();
     bool readOperationPatternFromFile();
     void writeOperationPatternToFile(const std::map<unsigned int,OneOperationPattern> &);
     void setDefaultOperationPatten();
 
 private:
-    std::map<unsigned int,patientInfoPair>* thePatientInfoPatten = NULL;
+    std::map<unsigned int,OnePatientPattern>* thePatientInfoPatten = NULL;
     std::map<unsigned int,OneOperationPattern>* theOperationPatten = NULL;
     std::map<QString,QString> onlineDBInfo;
 

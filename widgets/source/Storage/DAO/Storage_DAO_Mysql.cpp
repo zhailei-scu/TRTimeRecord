@@ -142,11 +142,11 @@ void DAO_Mysql::createEmptyTable_TR(const QString & tableName){
     QSqlQuery query(*this->theDataBase);
     str.append(tableName).append("(id int primary key");
 
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin();
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
          it != patientInfoPatten->end();
          it++){
-        str.append(", ").append(it->second.second).append(" varchar(50)");
+        str.append(", ").append(it->second.infoName).append(" varchar(50)");
     }
 
     const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
@@ -166,11 +166,11 @@ void DAO_Mysql::createEmptyTable_Patient(){
     QSqlQuery query(*this->theDataBase);
     str.append(patientInfo_TableName).append("(id int primary key");
 
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin();
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
          it != patientInfoPatten->end();
          it++){
-        str.append(", ").append(it->second.second).append(" varchar(50)");
+        str.append(", ").append(it->second.infoName).append(" varchar(50)");
     }
 
     str.append(");");
@@ -194,9 +194,9 @@ void DAO_Mysql::appendARow_TR(const QString & tableName,
 
     QString str("INSERT INTO ");
     str.append(tableName).append(" (id");
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
-        str.append(", ").append(it->second.second);
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
+        str.append(", ").append(it->second.infoName);
     }
 
     const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
@@ -250,9 +250,9 @@ void DAO_Mysql::appendARow_Patient(const std::map<unsigned int,QString> & patien
 
     QString str("INSERT INTO ");
     str.append(patientInfo_TableName).append(" (id");
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
-        str.append(", ").append(it->second.second);
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
+        str.append(", ").append(it->second.infoName);
     }
 
     str.append(") VALUES (").append(count);
@@ -294,7 +294,7 @@ void DAO_Mysql::deleteLastRecord(const QString & tableName){
 }
 
 void DAO_Mysql::updateTableName_TR(QString & tableName,
-                                    const std::map<unsigned int,patientInfoPair> & patientPattern,
+                                    const std::map<unsigned int,OnePatientPattern> & patientPattern,
                                     const std::map<unsigned int,OneOperationPattern> & OperationPattern){
     std::stringstream ss;
     int value = 0;
@@ -310,10 +310,10 @@ void DAO_Mysql::updateTableName_TR(QString & tableName,
     }
 
     list.push_back("id");
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
          it != patientPattern.end();
          it++){
-        list.push_back(it->second.second);
+        list.push_back(it->second.infoName);
     }
 
     for(std::map<unsigned int,OneOperationPattern>::const_iterator it = OperationPattern.begin();
@@ -367,7 +367,7 @@ void DAO_Mysql::updateTableName_TR(QString & tableName,
     }
 }
 
-bool DAO_Mysql::needToUpdateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern){
+bool DAO_Mysql::needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern){
     std::stringstream ss;
     std::string str_value;
     std::list<QString> list;
@@ -377,10 +377,10 @@ bool DAO_Mysql::needToUpdateTable_Patient(const std::map<unsigned int,patientInf
     QSqlQuery query(*this->theDataBase);
 
     list.push_back("id");
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
-         it != patientPattern.end();
-         it++){
-        list.push_back(it->second.second);
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
+                                                                 it != patientPattern.end();
+                                                                 it++){
+        list.push_back(it->second.infoName);
     }
 
     query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
@@ -429,13 +429,13 @@ void DAO_Mysql::updateTable_Patient(){
         index++;
     }
 
-    const std::map<unsigned int,patientInfoPair> * patientInfo = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    const std::map<unsigned int,OnePatientPattern> * patientInfo = ConfigLoader::getInstance()->getThePatientInfoPatten();
 
     if(patientInfo){
-        for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfo->begin();
+        for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfo->begin();
              it != patientInfo->end();
              it++){
-            std::map<QString,unsigned int>::iterator it_find = oldColumnIndexMap.find(it->second.second);
+            std::map<QString,unsigned int>::iterator it_find = oldColumnIndexMap.find(it->second.infoName);
             if(oldColumnIndexMap.end() != it_find){
                 indexMap.insert(std::pair<unsigned int,int>(it->first,it_find->second));
             }else{
@@ -444,13 +444,13 @@ void DAO_Mysql::updateTable_Patient(){
         }
     }
 
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfo->begin();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfo->begin();
          it != patientInfo->end();
          it++){
         if(indexMap.at(it->first) > 0){
             query.exec(QString("update %1 set %1.%3 = %2.%3 ;").arg(patientInfo_TableName)
                            .arg(oldTableName)
-                           .arg(it->second.second));
+                           .arg(it->second.infoName));
         }
     }
 

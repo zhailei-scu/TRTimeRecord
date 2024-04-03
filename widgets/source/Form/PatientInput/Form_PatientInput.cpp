@@ -12,7 +12,7 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,QString> *info,
 
     this->currentMode = model;
 
-    const std::map<unsigned int,patientInfoPair>* pattern = NULL;
+    const std::map<unsigned int,OnePatientPattern>* pattern = NULL;
     QWidget *backGround = new QWidget(this);
     QScrollArea* scrollArea = new QScrollArea(this);
 
@@ -51,11 +51,11 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,QString> *info,
     backGround->setMinimumWidth(this->width());
     backGround->setGeometry(0,0,this->geometry().width(),basicHeight*2*(pattern->size()+1.5));
 
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = pattern->begin();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = pattern->begin();
                                                                it != pattern->end();
                                                                it++){
         QLabel *label = new QLabel(backGround);
-        label->setText(it->second.first);
+        label->setText(it->second.labelName);
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         label->setGeometry(0.45*backGround->geometry().width() - basicWidth*1.1,
                            (it->first*2 + 1)*basicHeight,
@@ -109,7 +109,6 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,QString> *info,
 
     /*scrollArea*/
     scrollArea->setWidget(backGround);
-
 }
 
 PatientInput::~PatientInput(){
@@ -174,32 +173,34 @@ void PatientInput::clear(){
 }
 
 void PatientInput::acceptHandle(){
+    bool flag = true;
     this->clearInfos();
+    const std::map<unsigned int,OnePatientPattern>* pattern = ConfigLoader::getInstance()->getThePatientInfoPatten();
     if(this->patternCompents){
         this->infos = new std::map<unsigned int,QString>();
+
         for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
                                                                        it != this->patternCompents->end();
                                                                        it++){
+            if("true" == pattern->at(it->first).necessary && "" == it->second.second->text()){
+                QMessageBox::critical(nullptr,"Error",QString("The item %1 cannot be empty").arg(pattern->at(it->first).labelName));
+                flag = false;
+                break;
+            }
             this->infos->insert(std::pair<unsigned int,QString>(it->first,it->second.second->text()));
         }
+
     }
 
-    this->accept();
+    if(flag){
+        this->accept();
+    }
 }
 
 void PatientInput::rejectHandle(){
     this->clearInfos();
 
     if(PatientInputMode(Modify) == this->currentMode){
-        if(this->patternCompents){
-            this->infos = new std::map<unsigned int,QString>();
-            for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
-                it != this->patternCompents->end();
-                it++){
-                this->infos->insert(std::pair<unsigned int,QString>(it->first,""));
-            }
-        }
-
         this->reject();
     }else{
         this->currentMode = PatientInputMode(Modify);

@@ -84,7 +84,9 @@ void OperationLoop::timeRecord(RunStatu statu){
                                                                   *ConfigLoader::getInstance()->getTheOperationPatten());
 
     DAO::getInstance()->getTrInfoConnection()->appendARow_TR(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
-    CSVWriter::getInstance()->appendARecord(Record::getInstance()->lastTableName,Record::getInstance()->patientInfoRecord,Record::getInstance()->buttonTimeRecord);
+    CSVWriter::getInstance()->appendARecord(Record::getInstance()->lastTableName,
+                                            Record::getInstance()->patientInfoRecord,
+                                            Record::getInstance()->buttonTimeRecord);
 }
 
 void OperationLoop::nextIndexHandle(){

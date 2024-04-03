@@ -13,6 +13,10 @@ static std::string str_OperationName = "OperationName";
 static std::string str_RepeatTimes = "RepeatTimes";
 static std::string str_HintInfos = "HintInfos";
 
+static std::string str_PatientInfoLabel = "PatientInfoLabel";
+static std::string str_PatientInfoName = "PatientInfoName";
+static std::string str_PatientInfoNecessary = "Necessary";
+
 ConfigLoader* ConfigLoader::thePtr = NULL;  //lazy mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
 
@@ -87,7 +91,7 @@ void ConfigLoader::Start(){
     getInstance();
 }
 
-const std::map<unsigned int,patientInfoPair>* ConfigLoader::getThePatientInfoPatten() const{
+const std::map<unsigned int,OnePatientPattern>* ConfigLoader::getThePatientInfoPatten() const{
     return this->thePatientInfoPatten;
 }
 
@@ -108,20 +112,20 @@ void ConfigLoader::setOnlineDatabaseInfo(const std::map<QString,QString> & info)
     this->writeOnlineDatabaseInfoToFile(this->onlineDBInfo);
 }
 
-void ConfigLoader::setThePatientPattern(const std::map<unsigned int,patientInfoPair> & patientPattern){
+void ConfigLoader::setThePatientPattern(const std::map<unsigned int,OnePatientPattern> & patientPattern){
     if(this->thePatientInfoPatten){
-        std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
+        std::map<unsigned int,OnePatientPattern>().swap(*this->thePatientInfoPatten);
         this->thePatientInfoPatten->clear();
         delete this->thePatientInfoPatten;
         this->thePatientInfoPatten = NULL;
     }
 
-    this->thePatientInfoPatten = new std::map<unsigned int,patientInfoPair>();
+    this->thePatientInfoPatten = new std::map<unsigned int,OnePatientPattern>();
 
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
-                                                               it != patientPattern.end();
-                                                               it++){
-        this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(*it));
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
+                                                                 it != patientPattern.end();
+                                                                 it++){
+        this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(*it));
     }
 
     this->writePatientInfoPatternToFile(*this->thePatientInfoPatten);
@@ -250,8 +254,11 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
     bool result = false;
     std::ifstream ifs;
     JsonExt* ext = new JsonExt();
+    std::string labelName = "";
+    std::string name = "";
+    std::string necessary = "false";
 
-    this->thePatientInfoPatten = new std::map<unsigned int,patientInfoPair>();
+    this->thePatientInfoPatten = new std::map<unsigned int,OnePatientPattern>();
 
     ifs.open(systemCfgPath.toStdString().c_str());
 
@@ -278,17 +285,33 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                 exit(-1);
                             }
 
-                            if(1 < it->second->namedPairs->size()){
-                                QMessageBox::critical(nullptr,
-                                                      "Error",
-                                                      QString("The json file for patient input id: %1 included %2 information")
-                                                          .arg(id).arg(it->second->namedPairs->size()));
-                                exit(-1);
-                            }
-
                             if(this->thePatientInfoPatten->find(id) == this->thePatientInfoPatten->end()){
-                                std::string labelName = it->second->namedPairs->begin()->first;
-                                std::string name = it->second->namedPairs->begin()->second;
+                                std::map<std::string,std::string>::const_iterator it_Info = it->second->namedPairs->find(str_PatientInfoLabel);
+                                labelName = "";
+                                if(it_Info != it->second->namedPairs->end()){
+                                    labelName = it_Info->second;
+                                }
+
+                                it_Info = it->second->namedPairs->find(str_PatientInfoName);
+                                name = "";
+                                if(it_Info != it->second->namedPairs->end()){
+                                    name = it_Info->second;
+                                }
+
+                                it_Info = it->second->namedPairs->find(str_PatientInfoNecessary);
+                                necessary = "false";
+                                if(it_Info != it->second->namedPairs->end()){
+                                    necessary = it_Info->second;
+                                }
+
+                                if(necessary != "true" && necessary != "false"){
+                                    QMessageBox::critical(nullptr,
+                                                          "Error",
+                                                          QString("The json file for patient input id: %1 included wrong bool setting: %2")
+                                                              .arg(id).arg(necessary.c_str()));
+                                    exit(-1);
+                                }
+
                                 name.erase(0,name.find_first_not_of(" "));
                                 name.erase(name.find_last_not_of(" ")+1);
                                 if((signed int)(name.find_first_of(" "))>0){
@@ -299,8 +322,8 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                     exit(-1);
                                 }
 
-                                this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>
-                                                                   (id,patientInfoPair(QString(labelName.c_str()),QString(name.c_str()))));
+                                this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>
+                                                                   (id,OnePatientPattern(labelName.c_str(),name.c_str(),necessary.c_str())));
                                 result = true;
                             }else{
                                 QMessageBox::critical(nullptr,
@@ -324,7 +347,7 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
 
     if(!result){
         if(this->thePatientInfoPatten){
-            std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
+            std::map<unsigned int,OnePatientPattern>().swap(*this->thePatientInfoPatten);
             delete this->thePatientInfoPatten;
             this->thePatientInfoPatten = NULL;
         }
@@ -333,7 +356,7 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
     return result;
 }
 
-void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,patientInfoPair> & input){
+void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,OnePatientPattern> & input){
     std::ifstream ifs;
     std::stringstream ss;
     std::string str_Index;
@@ -373,7 +396,7 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,pat
 
     patientPattern->namedObjects = new std::map<std::string,JsonBase*>();
 
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = input.begin();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = input.begin();
                                                                it != input.end();
                                                                it++){
         ss.str("");
@@ -383,7 +406,9 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,pat
         ss>>str_Index;
         onePatientInfoLine = new JsonBase();
         onePatientInfoLine->namedPairs = new std::map<std::string,std::string>();
-        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(it->second.first.toStdString(),it->second.second.toStdString()));
+        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoLabel,it->second.labelName.toStdString()));
+        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoName,it->second.infoName.toStdString()));
+        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoNecessary,it->second.necessary.toStdString()));
 
         patientPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,onePatientInfoLine));
     }
@@ -663,7 +688,7 @@ void ConfigLoader::ConstructOnlineDBInfo(){
 
 void ConfigLoader::ConstructPatientInfoPatten(){
     if(this->thePatientInfoPatten){
-        std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
+        std::map<unsigned int,OnePatientPattern>().swap(*this->thePatientInfoPatten);
         this->thePatientInfoPatten->clear();
         delete this->thePatientInfoPatten;
         this->thePatientInfoPatten = NULL;
@@ -710,15 +735,15 @@ void ConfigLoader::setDefaultOnlineDatabaseInfo(){
 
 void ConfigLoader::setDefaultPatientInfoPatten(){
     if(this->thePatientInfoPatten){
-        std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
+        std::map<unsigned int,OnePatientPattern>().swap(*this->thePatientInfoPatten);
         this->thePatientInfoPatten->clear();
         delete this->thePatientInfoPatten;
         this->thePatientInfoPatten = NULL;
     }
-    this->thePatientInfoPatten = new std::map<unsigned int,patientInfoPair>();
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(0,patientInfoPair("PatientID","PatientID")));
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(1,patientInfoPair("PatientName","PatientName")));
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,patientInfoPair>(2,patientInfoPair("TherapyOrgan","TherapyOrgan")));
+    this->thePatientInfoPatten = new std::map<unsigned int,OnePatientPattern>();
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(0,OnePatientPattern("UUID","UUID","true")));
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(1,OnePatientPattern("PatientName","PatientName","true")));
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(2,OnePatientPattern("TherapyOrgan","TherapyOrgan","false")));
 }
 
 void ConfigLoader::setDefaultOperationPatten(){
@@ -761,7 +786,7 @@ void ConfigLoader::clear(){
     }
 
     if(this->thePatientInfoPatten){
-        std::map<unsigned int,patientInfoPair>().swap(*this->thePatientInfoPatten);
+        std::map<unsigned int,OnePatientPattern>().swap(*this->thePatientInfoPatten);
         this->thePatientInfoPatten->clear();
         delete this->thePatientInfoPatten;
         this->thePatientInfoPatten = NULL;

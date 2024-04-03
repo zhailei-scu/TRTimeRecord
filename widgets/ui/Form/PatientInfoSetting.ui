@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>450</width>
+    <height>301</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>401</width>
+     <width>451</width>
      <height>301</height>
     </rect>
    </property>
@@ -69,6 +69,11 @@
    <column>
     <property name="text">
      <string>ItemName(No blank)</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Necessary(bool)</string>
     </property>
    </column>
   </widget>

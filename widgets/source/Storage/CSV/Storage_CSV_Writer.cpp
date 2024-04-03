@@ -73,7 +73,7 @@ void CSVWriter::appendARecord(const QString & tableName,
                               const std::map<unsigned int,QString> & patientInfos,
                               const std::map<unsigned int,QString> & operatorTimes){
 
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
     const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
     QString tableNameNew("#");
     tableNameNew.append(tableName);
@@ -81,8 +81,9 @@ void CSVWriter::appendARecord(const QString & tableName,
     if(tableNameNew != this->lastLabel){
         this->ofs<<tableNameNew.toStdString()<<std::endl;
 
-        for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
-            ofs<<std::setw(30)<<it->second.second.toStdString()<<",";
+        for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
+            ofs<<std::setw(30)<<it->second.infoName.toStdString()<<",";
+            ofs<<std::setw(30)<<"necessary"<<",";
         }
 
         for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){

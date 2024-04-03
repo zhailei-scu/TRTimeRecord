@@ -41,7 +41,7 @@ public slots:
     void rejectHandle();
 public:
     const std::map<unsigned int,QString>* getInfos() const;
-    PatientInputMode getCurrentMode() const{
+    PatientInputMode getCurrentMode() const;
 };
 
 #endif

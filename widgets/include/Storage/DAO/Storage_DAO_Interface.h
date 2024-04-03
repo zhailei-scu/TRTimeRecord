@@ -35,9 +35,9 @@ public:
     virtual std::list<QString> getAllTablesName() = 0;
     virtual std::list<QString> getLikelyTablesName(const QString & tableName) = 0;
     virtual void updateTableName_TR(QString & str,
-                                    const std::map<unsigned int,patientInfoPair> & patientPattern,
+                                    const std::map<unsigned int,OnePatientPattern> & patientPattern,
                                     const std::map<unsigned int,OneOperationPattern> & OperationPattern) = 0;
-    virtual bool needToUpdateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern) = 0;
+    virtual bool needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern) = 0;
     virtual void updateTable_Patient() = 0;
     virtual const QSqlDatabase* getTheDataBase() const{
         return this->theDataBase;

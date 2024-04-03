@@ -89,6 +89,11 @@ void DAO::Start(){
     if(!thePtr){
         thePtr = new DAO();
     }
+
+    if(DAO::getInstance()->getPatientInfoConnection()->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
+        DAO::getInstance()->getPatientInfoConnection()->updateTable_Patient();
+    }
+
     qDebug()<<"DataBase Started...";
 }
 

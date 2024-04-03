@@ -141,15 +141,16 @@ void PatientInfoSetting::resetAction(){
     }
     this->uiForm->tableWidget->setRowCount(0);
 
-    const std::map<unsigned int,patientInfoPair> *patientInfo = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    const std::map<unsigned int,OnePatientPattern> *patientInfo = ConfigLoader::getInstance()->getThePatientInfoPatten();
 
     if(patientInfo){
-        for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfo->begin();
+        for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfo->begin();
                                                            it != patientInfo->end();
                                                            it++){
             this->uiForm->tableWidget->insertRow(it->first);
-            this->uiForm->tableWidget->setItem(it->first,0,new QTableWidgetItem(it->second.first));
-            this->uiForm->tableWidget->setItem(it->first,1,new QTableWidgetItem(it->second.second));
+            this->uiForm->tableWidget->setItem(it->first,0,new QTableWidgetItem(it->second.labelName));
+            this->uiForm->tableWidget->setItem(it->first,1,new QTableWidgetItem(it->second.infoName));
+            this->uiForm->tableWidget->setItem(it->first,2,new QTableWidgetItem(it->second.necessary));
         }
     }
 }
@@ -163,10 +164,21 @@ bool PatientInfoSetting::setPatientPattern(){
     int count = this->uiForm->tableWidget->rowCount();
     QString Label;
     QString Name;
-    std::map<unsigned int,patientInfoPair> patientPattern;
+    QString Necessary;
+    std::map<unsigned int,OnePatientPattern> patientPattern;
     for(int i = 0;i<count;i++){
         Label = this->uiForm->tableWidget->item(i,0)->text();
         Name = this->uiForm->tableWidget->item(i,1)->text();
+        Necessary = this->uiForm->tableWidget->item(i,2)->text();
+
+        if(Necessary != "true" && Necessary != "false"){
+            QMessageBox::critical(nullptr,
+                                  "Error",
+                                  QString("The : %1 th patient info including wrong bool value setting: %2")
+                                      .arg(i).arg(Necessary));
+            result = false;
+            break;
+        }
 
         if(Name.count(' ') > 0){
             QMessageBox::critical(nullptr,"Error",QString("The Name %1 is not supported").arg(Name));
@@ -174,10 +186,12 @@ bool PatientInfoSetting::setPatientPattern(){
             break;
         }
         patientPattern.insert(
-            std::pair<unsigned int,patientInfoPair>(i,patientInfoPair(Label,Name))
+            std::pair<unsigned int,OnePatientPattern>(i,OnePatientPattern(Label,Name,Necessary))
             );
     }
 
-    ConfigLoader::getInstance()->setThePatientPattern(patientPattern);
+    if(true == result){
+        ConfigLoader::getInstance()->setThePatientPattern(patientPattern);
+    }
     return result;
 }

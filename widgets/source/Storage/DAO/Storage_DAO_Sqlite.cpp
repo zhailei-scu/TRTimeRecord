@@ -132,11 +132,11 @@ void DAO_Sqlite::createEmptyTable_TR(const QString & tableName){
     QSqlQuery query(*this->theDataBase);
     str.append(tableName).append("(id int primary key");
 
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin();
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
         it != patientInfoPatten->end();
         it++){
-        str.append(", ").append(it->second.second).append(" varchar(50)");
+        str.append(", ").append(it->second.infoName).append(" varchar(50)");
     }
 
     const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
@@ -156,11 +156,11 @@ void DAO_Sqlite::createEmptyTable_Patient(){
     QSqlQuery query(*this->theDataBase);
     str.append(patientInfo_TableName).append("(id int primary key");
 
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin();
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
          it != patientInfoPatten->end();
          it++){
-        str.append(", ").append(it->second.second).append(" varchar(50)");
+        str.append(", ").append(it->second.infoName).append(" varchar(50)");
     }
 
     str.append(");");
@@ -170,8 +170,8 @@ void DAO_Sqlite::createEmptyTable_Patient(){
 }
 
 void DAO_Sqlite::appendARow_TR(const QString & tableName,
-                     const std::map<unsigned int,QString> & patientInfos,
-                     const std::map<unsigned int,QString> & operatorTimes){
+                               const std::map<unsigned int,QString> & patientInfos,
+                               const std::map<unsigned int,QString> & operatorTimes){
     QSqlQuery query(*this->theDataBase);
     QString count;
     if(!this->tableExisted(tableName)){
@@ -184,9 +184,9 @@ void DAO_Sqlite::appendARow_TR(const QString & tableName,
 
     QString str("INSERT INTO ");
     str.append(tableName).append(" (id");
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
-        str.append(", ").append(it->second.second);
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
+        str.append(", ").append(it->second.infoName);
     }
 
     const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
@@ -240,9 +240,9 @@ void DAO_Sqlite::appendARow_Patient(const std::map<unsigned int,QString> & patie
 
     QString str("INSERT INTO ");
     str.append(patientInfo_TableName).append(" (id");
-    const std::map<unsigned int,patientInfoPair> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
-        str.append(", ").append(it->second.second);
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
+        str.append(", ").append(it->second.infoName);
     }
 
     str.append(") VALUES (").append(count);
@@ -284,7 +284,7 @@ void DAO_Sqlite::deleteLastRecord(const QString & tableName){
 }
 
 void DAO_Sqlite::updateTableName_TR(QString & tableName,
-                                    const std::map<unsigned int,patientInfoPair> & patientPattern,
+                                    const std::map<unsigned int,OnePatientPattern> & patientPattern,
                                     const std::map<unsigned int,OneOperationPattern> & OperationPattern){
     std::stringstream ss;
     int value = 0;
@@ -300,10 +300,10 @@ void DAO_Sqlite::updateTableName_TR(QString & tableName,
     }
 
     list.push_back("id");
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
-                                                               it != patientPattern.end();
-                                                               it++){
-        list.push_back(it->second.second);
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
+                                                                 it != patientPattern.end();
+                                                                 it++){
+        list.push_back(it->second.infoName);
     }
 
     for(std::map<unsigned int,OneOperationPattern>::const_iterator it = OperationPattern.begin();
@@ -357,7 +357,7 @@ void DAO_Sqlite::updateTableName_TR(QString & tableName,
     }
 }
 
-bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,patientInfoPair> & patientPattern){
+bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern){
     std::stringstream ss;
     std::string str_value;
     std::list<QString> list;
@@ -367,80 +367,104 @@ bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,patientIn
     QSqlQuery query(*this->theDataBase);
 
     list.push_back("id");
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientPattern.begin();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
          it != patientPattern.end();
          it++){
-        list.push_back(it->second.second);
+        list.push_back(it->second.infoName);
     }
 
-    query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
-    qDebug()<<query.lastError();
-    while(query.next()){
-        if(query.value(0).isValid()){
-            if(0 == list.size()){
-                flag = true;
-                break;
-            }
+    if(tableExisted(patientInfo_TableName)){
 
-                if(query.value(1).toString() != list.front()){
+        query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+        qDebug()<<query.lastError();
+        while(query.next()){
+            if(query.value(0).isValid()){
+                if(0 == list.size()){
                     flag = true;
                     break;
                 }
-                list.pop_front();
-        }
-    }
 
-    if(list.size() > 0){
-        flag = true;
+                    if(query.value(1).toString() != list.front()){
+                        flag = true;
+                        break;
+                    }
+                    list.pop_front();
+            }
+        }
+
+        if(list.size() > 0){
+            flag = true;
+        }
+
     }
 
     return flag;
 }
 
 void DAO_Sqlite::updateTable_Patient(){
-    std::map<QString,unsigned int> oldColumnIndexMap;
-    std::map<unsigned int,int> indexMap;
+    std::map<QString,unsigned int> oldColumnNames;
+    std::map<unsigned int,std::pair<QString,QString>> newColumnNames;
     QSqlQuery query(*this->theDataBase);
-    QString oldTableName = patientInfo_TableName;
     unsigned int index = 0;
+    int findedID = -1;
+    QString oldTableName = patientInfo_TableName;
     oldTableName.append("_back");
+
+    if(tableExisted(oldTableName)){
+        query.exec(QString("drop table %1").arg(oldTableName));
+    }
 
     query.exec(QString("alter table %1 rename to %2").arg(patientInfo_TableName)
                                                      .arg(oldTableName));
-    this->createEmptyTable_Patient();
+
+    /*create table pp as select id from patientInfo*/
+    /*alter table pp add IDCP varchar(30) not null default ""*/
 
     query.exec(QString("PRAGMA table_info(%1)").arg(oldTableName));
     qDebug()<<query.lastError();
     while(query.next()){
         if(query.value(0).isValid()){
-            oldColumnIndexMap.insert(std::pair<QString,unsigned int>(query.value(1).toString(),index));
+            oldColumnNames.insert(std::pair<QString,unsigned int>(query.value(1).toString(),0));
+        }
+    }
+
+    this->createEmptyTable_Patient();
+
+    query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+    qDebug()<<query.lastError();
+    while(query.next()){
+        if(query.value(0).isValid()){
+            newColumnNames.insert(std::pair<unsigned int,std::pair<QString,QString>>(index,std::pair<QString,QString>(query.value(1).toString(),query.value(2).toString())));
         }
         index++;
     }
 
-    const std::map<unsigned int,patientInfoPair> * patientInfo = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    if(tableExisted(patientInfo_TableName)){
+        query.exec(QString("drop table %1").arg(patientInfo_TableName));
+    }
 
-    if(patientInfo){
-        for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfo->begin();
-                                                                   it != patientInfo->end();
-                                                                   it++){
-            std::map<QString,unsigned int>::iterator it_find = oldColumnIndexMap.find(it->second.second);
-            if(oldColumnIndexMap.end() != it_find){
-                indexMap.insert(std::pair<unsigned int,int>(it->first,it_find->second));
-            }else{
-                indexMap.insert(std::pair<unsigned int,int>(it->first,-1));
-            }
+    for(std::map<unsigned int,std::pair<QString,QString>>::iterator it = newColumnNames.begin();it != newColumnNames.end();it++){
+        if(oldColumnNames.find(it->second.first) != oldColumnNames.end()){
+            findedID = it->first;
+            query.exec(QString("create table %1 as select %3 from %2;").arg(patientInfo_TableName).arg(oldTableName).arg(it->second.first));
+            break;
         }
     }
 
-    for(std::map<unsigned int,patientInfoPair>::const_iterator it = patientInfo->begin();
-                                                               it != patientInfo->end();
-                                                               it++){
-        if(indexMap.at(it->first) > 0){
-            query.exec(QString("update %1 set %1.%3 = %2.%3 ;").arg(patientInfo_TableName)
-                                                               .arg(oldTableName)
-                                                               .arg(it->second.second));
+    if(QSqlError::NoError != query.lastError().type()){
+        QMessageBox::critical(nullptr,"Error",query.lastError().text());
+        exit(-1);
+    }
+
+    if(findedID >= 0){
+        for(std::map<unsigned int,std::pair<QString,QString>>::iterator it = newColumnNames.begin();it != newColumnNames.end();it++){
+            query.exec(QString("alter table %1 add %2 %3 not null default '';").arg(patientInfo_TableName).arg(it->second.first).arg(it->second.second));
+            if(oldColumnNames.find(it->second.first) != oldColumnNames.end()){
+                query.exec(QString("update %1 set %3 = (select %3 from %2);").arg(patientInfo_TableName).arg(oldTableName).arg(it->second.first));
+            }
         }
+    }else{
+        this->createEmptyTable_Patient();
     }
 
     qDebug()<<query.lastError();
