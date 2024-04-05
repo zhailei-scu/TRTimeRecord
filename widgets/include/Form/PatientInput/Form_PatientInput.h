@@ -18,7 +18,7 @@ class PatientInput: public QDialog{
     Q_OBJECT;
 
 public:
-    PatientInput(QWidget* parent = nullptr,std::map<unsigned int,QString> * info = NULL,PatientInputMode model = PatientInputMode(Modify));
+    PatientInput(QWidget* parent = nullptr,std::map<unsigned int,std::pair<QString,QString>> * info = NULL,PatientInputMode model = PatientInputMode(Modify));
     virtual ~PatientInput();
     PatientInput(const PatientInput & ) = delete;
     const PatientInput & operator = (const PatientInput &) = delete;

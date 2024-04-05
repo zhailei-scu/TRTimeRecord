@@ -22,7 +22,7 @@ Record* Record::getInstance(){
 
 void Record::clear(){
     this->lastTableName = "";
-    std::map<unsigned int,QString>().swap(this->patientInfoRecord);
+    std::map<unsigned int,std::pair<QString,QString>>().swap(this->patientInfoRecord);
     this->patientInfoRecord.clear();
 
     std::map<unsigned int,QString>().swap(this->buttonTimeRecord);

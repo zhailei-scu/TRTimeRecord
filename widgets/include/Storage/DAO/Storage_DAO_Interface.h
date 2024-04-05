@@ -28,9 +28,9 @@ public:
     virtual void createEmptyTable_TR(const QString & tableName) = 0;
     virtual void createEmptyTable_Patient() = 0;
     virtual void appendARow_TR(const QString & tableName,
-                               const std::map<unsigned int,QString> & patientInfos,
+                               const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes) = 0;
-    virtual void appendARow_Patient(const std::map<unsigned int,QString> & patientInfos) = 0;
+    virtual void appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos) = 0;
     virtual void deleteLastRecord(const QString & tableName) = 0;
     virtual std::list<QString> getAllTablesName() = 0;
     virtual std::list<QString> getLikelyTablesName(const QString & tableName) = 0;

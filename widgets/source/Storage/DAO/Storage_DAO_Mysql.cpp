@@ -180,7 +180,7 @@ void DAO_Mysql::createEmptyTable_Patient(){
 }
 
 void DAO_Mysql::appendARow_TR(const QString & tableName,
-                              const std::map<unsigned int,QString> & patientInfos,
+                              const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                               const std::map<unsigned int,QString> & operatorTimes){
     QSqlQuery query(*this->theDataBase);
     QString count;
@@ -213,7 +213,7 @@ void DAO_Mysql::appendARow_TR(const QString & tableName,
         if(it_find == patientInfos.end()){
             str.append(", '").append("").append("'");
         }else{
-            str.append(", '").append(it_find->second).append("'");
+            str.append(", '").append(it_find->second.second).append("'");
         }
     }
 
@@ -237,7 +237,7 @@ void DAO_Mysql::appendARow_TR(const QString & tableName,
     }
 }
 
-void DAO_Mysql::appendARow_Patient(const std::map<unsigned int,QString> & patientInfos){
+void DAO_Mysql::appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos){
     QSqlQuery query(*this->theDataBase);
     QString count;
     if(!this->tableExisted(patientInfo_TableName)){
@@ -262,7 +262,7 @@ void DAO_Mysql::appendARow_Patient(const std::map<unsigned int,QString> & patien
         if(it_find == patientInfos.end()){
             str.append(", '").append("").append("'");
         }else{
-            str.append(", '").append(it_find->second).append("'");
+            str.append(", '").append(it_find->second.second).append("'");
         }
     }
 

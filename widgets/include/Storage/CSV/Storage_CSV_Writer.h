@@ -24,7 +24,7 @@ public:
     static void Start();
 
     void appendARecord(const QString & tableName,
-                       const std::map<unsigned int,QString> & patientInfos,
+                       const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                        const std::map<unsigned int,QString> & operatorTimes);
 
     void deleteLastRecord();

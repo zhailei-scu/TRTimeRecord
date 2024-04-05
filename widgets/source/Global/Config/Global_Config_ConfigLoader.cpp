@@ -290,18 +290,33 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                 labelName = "";
                                 if(it_Info != it->second->namedPairs->end()){
                                     labelName = it_Info->second;
+                                }else{
+                                    QMessageBox::critical(nullptr,
+                                                          "Error",
+                                                          QString("You must special the pair with label string: %1").arg(str_PatientInfoLabel.c_str()));
+                                    exit(-1);
                                 }
 
                                 it_Info = it->second->namedPairs->find(str_PatientInfoName);
                                 name = "";
                                 if(it_Info != it->second->namedPairs->end()){
                                     name = it_Info->second;
+                                }else{
+                                    QMessageBox::critical(nullptr,
+                                                          "Error",
+                                                          QString("You must special the pair with label string: %1").arg(str_PatientInfoName.c_str()));
+                                    exit(-1);
                                 }
 
                                 it_Info = it->second->namedPairs->find(str_PatientInfoNecessary);
                                 necessary = "false";
                                 if(it_Info != it->second->namedPairs->end()){
                                     necessary = it_Info->second;
+                                }else{
+                                    QMessageBox::critical(nullptr,
+                                                          "Error",
+                                                          QString("You must special the pair with label string: %1").arg(str_PatientInfoNecessary.c_str()));
+                                    exit(-1);
                                 }
 
                                 if(necessary != "true" && necessary != "false"){

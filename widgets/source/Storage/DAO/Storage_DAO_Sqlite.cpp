@@ -146,8 +146,6 @@ void DAO_Sqlite::createEmptyTable_TR(const QString & tableName){
         str.append(", ").append(it->second.buttonName).append("_Continue").append("Time varchar(50)");
     }
     str.append(");");
-
-    query.exec(str);
     qDebug()<<query.lastError();
 }
 
@@ -166,11 +164,12 @@ void DAO_Sqlite::createEmptyTable_Patient(){
     str.append(");");
 
     query.exec(str);
+    qDebug()<<str;
     qDebug()<<query.lastError();
 }
 
 void DAO_Sqlite::appendARow_TR(const QString & tableName,
-                               const std::map<unsigned int,QString> & patientInfos,
+                               const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes){
     QSqlQuery query(*this->theDataBase);
     QString count;
@@ -203,7 +202,7 @@ void DAO_Sqlite::appendARow_TR(const QString & tableName,
         if(it_find == patientInfos.end()){
             str.append(", '").append("").append("'");
         }else{
-            str.append(", '").append(it_find->second).append("'");
+            str.append(", '").append(it_find->second.second).append("'");
         }
     }
 
@@ -227,7 +226,7 @@ void DAO_Sqlite::appendARow_TR(const QString & tableName,
     }
 }
 
-void DAO_Sqlite::appendARow_Patient(const std::map<unsigned int,QString> & patientInfos){
+void DAO_Sqlite::appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos){
     QSqlQuery query(*this->theDataBase);
     QString count;
     if(!this->tableExisted(patientInfo_TableName)){
@@ -252,7 +251,7 @@ void DAO_Sqlite::appendARow_Patient(const std::map<unsigned int,QString> & patie
         if(it_find == patientInfos.end()){
             str.append(", '").append("").append("'");
         }else{
-            str.append(", '").append(it_find->second).append("'");
+            str.append(", '").append(it_find->second.second).append("'");
         }
     }
 
@@ -362,7 +361,6 @@ bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,OnePatien
     std::string str_value;
     std::list<QString> list;
     bool flag = false;
-    signed int pos = 0;
 
     QSqlQuery query(*this->theDataBase);
 

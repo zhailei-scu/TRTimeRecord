@@ -19,7 +19,7 @@ private:
 private:
     static Record * m_theInstance;
 public:
-    std::map<unsigned int,QString> patientInfoRecord;
+    std::map<unsigned int,std::pair<QString,QString>> patientInfoRecord;
     std::map<unsigned int,QString> buttonTimeRecord;
     QString lastTableName;
 

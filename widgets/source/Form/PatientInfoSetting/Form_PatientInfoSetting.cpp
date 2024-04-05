@@ -1,5 +1,6 @@
 #include "../../../include/Form/PatientInfoSetting/Form_PatientInfoSetting.h"
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
+#include "../../../include/Global/Communication/Global_Communication_Record.h"
 #include "ui_PatientInfoSetting.h"
 #include <QPushButton>
 #include <QPoint>
@@ -192,6 +193,7 @@ bool PatientInfoSetting::setPatientPattern(){
 
     if(true == result){
         ConfigLoader::getInstance()->setThePatientPattern(patientPattern);
+        Record::getInstance()->upDatePatientInfoRecord();
     }
     return result;
 }

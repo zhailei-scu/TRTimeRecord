@@ -6,7 +6,7 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
-PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,QString> *info,PatientInputMode model):QDialog(parent){
+PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QString,QString>> *info,PatientInputMode model):QDialog(parent){
     float basicHeight = 0.0;
     float basicWidth = 0.0;
 
@@ -69,7 +69,7 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,QString> *info,
                               basicHeight);
 
         if(NULL != info && info->find(it->first) != info->end()){
-            lineEdit->setText(info->find(it->first)->second);
+            lineEdit->setText(info->find(it->first)->second.second);
         }
 
         if(PatientInputMode(ViewAndModify) == model){

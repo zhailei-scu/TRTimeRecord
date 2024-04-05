@@ -70,7 +70,7 @@ void CSVWriter::Start(){
 }
 
 void CSVWriter::appendARecord(const QString & tableName,
-                              const std::map<unsigned int,QString> & patientInfos,
+                              const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                               const std::map<unsigned int,QString> & operatorTimes){
 
     const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
@@ -106,7 +106,7 @@ void CSVWriter::appendARecord(const QString & tableName,
         if(patientInfos.end() == it_find){
             ofs<<std::setw(30)<<",";
         }else{
-           ofs<<std::setw(30)<<it_find->second.toStdString()<<",";
+           ofs<<std::setw(30)<<it_find->second.second.toStdString()<<",";
         }
     }
 

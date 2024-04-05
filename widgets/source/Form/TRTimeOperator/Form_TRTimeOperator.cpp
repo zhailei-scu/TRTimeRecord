@@ -303,7 +303,7 @@ void TRTimeOperator::HandleSignal(int ID){
     operationForm = NULL;
 
     if((unsigned int)(ID +1) == this->buttonsMap->size()){
-        std::map<unsigned int,QString>().swap(Record::getInstance()->patientInfoRecord);
+        std::map<unsigned int,std::pair<QString,QString>>().swap(Record::getInstance()->patientInfoRecord);
         Record::getInstance()->patientInfoRecord.clear();
 
         std::map<unsigned int,QString>().swap(Record::getInstance()->buttonTimeRecord);
