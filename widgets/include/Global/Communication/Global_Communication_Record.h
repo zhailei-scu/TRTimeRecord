@@ -2,6 +2,7 @@
 #define GLOBAL_COMMUNICATION_RECORD_H
 #include <QString>
 #include <map>
+#include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 
 enum RunStatu{
     Normal = 0,
@@ -25,6 +26,7 @@ public:
 
 public:
     static Record* getInstance();
+    void upDatePatientInfoRecord(const std::map<unsigned int,OnePatientPattern> &);
     void clear();
 
 private:

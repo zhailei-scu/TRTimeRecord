@@ -1,5 +1,6 @@
 #include "../../../include/Form/PatientInput/Form_PatientInput.h"
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
+#include "../../../include/Common/Util/Common_Util_Base.h"
 #include <QPushButton>
 #include <QMessageBox>
 #include <QScrollBar>
@@ -9,6 +10,7 @@
 PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QString,QString>> *info,PatientInputMode model):QDialog(parent){
     float basicHeight = 0.0;
     float basicWidth = 0.0;
+    std::map<unsigned int,std::pair<QString,QString>>::iterator it_find;
 
     this->currentMode = model;
 
@@ -69,7 +71,13 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
                               basicHeight);
 
         if(NULL != info && info->find(it->first) != info->end()){
-            lineEdit->setText(info->find(it->first)->second.second);
+            it_find = std::find_if(info->begin(),
+                                   info->end(),
+                                   map_value_finder_PairInValue<unsigned int,QString,QString>(it->second.infoName));
+
+            if(info->end() != it_find){
+                lineEdit->setText(it_find->second.second);
+            }
         }
 
         if(PatientInputMode(ViewAndModify) == model){

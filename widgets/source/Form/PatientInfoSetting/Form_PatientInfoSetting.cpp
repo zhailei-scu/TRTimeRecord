@@ -193,7 +193,7 @@ bool PatientInfoSetting::setPatientPattern(){
 
     if(true == result){
         ConfigLoader::getInstance()->setThePatientPattern(patientPattern);
-        Record::getInstance()->upDatePatientInfoRecord();
+        Record::getInstance()->upDatePatientInfoRecord(*ConfigLoader::getInstance()->getThePatientInfoPatten());
     }
     return result;
 }

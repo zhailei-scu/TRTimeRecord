@@ -116,6 +116,18 @@ public:
     }
 };
 
+class map_value_finder_PatientInfos
+{
+public:
+    map_value_finder_PatientInfos(const QString &cmp_value):m_value(cmp_value){}
+    bool  operator ()(const std::pair<unsigned int,OnePatientPattern> &pair)
+    {
+        return pair.second.infoName == m_value;
+    }
+private:
+    const QString &m_value;
+};
+
 /**/
 class ConfigLoader{
 private:

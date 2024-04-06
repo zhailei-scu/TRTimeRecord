@@ -642,6 +642,7 @@ void TRTimeOperator::queryForNextPatient(){
 }
 
 void TRTimeOperator::inputPatientInfo(PatientInputMode model){
+    QString InfoName;
     PatientInput * patientForm = new PatientInput(this,&Record::getInstance()->patientInfoRecord,model);
     int result = patientForm->exec();
     const std::map<unsigned int,QString>* info = patientForm->getInfos();
@@ -650,7 +651,13 @@ void TRTimeOperator::inputPatientInfo(PatientInputMode model){
         for(std::map<unsigned int,QString>::const_iterator it = info->begin();
                                                            it != info->end();
                                                            it++){
-            Record::getInstance()->patientInfoRecord.insert(*it);
+            InfoName = ConfigLoader::getInstance()->getThePatientInfoPatten()->at(it->first).infoName;
+            Record::getInstance()->patientInfoRecord.insert(
+                std::pair<unsigned int,std::pair<QString,QString>>(
+                    it->first,
+                    std::pair<QString,QString>(InfoName,it->second)
+                )
+            );
         }
 
         if(QDialog::Accepted == result){

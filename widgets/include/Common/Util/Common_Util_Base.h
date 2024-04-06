@@ -17,6 +17,20 @@ private:
     const T2 &m_value;
 };
 
+
+template<class T1,class T2,class T3>
+class map_value_finder_PairInValue
+{
+public:
+    map_value_finder_PairInValue( const T2 &cmp_value):m_value(cmp_value){}
+    bool  operator ()(const std::pair<T1,std::pair<T2,T3>> &pair)
+    {
+        return pair.second.first == m_value;
+    }
+private:
+    const T2 &m_value;
+};
+
 class StringOperation{
 public:
     static void split_notIncludeFlag(const char* Str,char split,std::vector<std::string> & result);

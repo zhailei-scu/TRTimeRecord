@@ -146,6 +146,7 @@ void DAO_Sqlite::createEmptyTable_TR(const QString & tableName){
         str.append(", ").append(it->second.buttonName).append("_Continue").append("Time varchar(50)");
     }
     str.append(");");
+    query.exec(str);
     qDebug()<<query.lastError();
 }
 
@@ -164,7 +165,6 @@ void DAO_Sqlite::createEmptyTable_Patient(){
     str.append(");");
 
     query.exec(str);
-    qDebug()<<str;
     qDebug()<<query.lastError();
 }
 
@@ -405,6 +405,7 @@ void DAO_Sqlite::updateTable_Patient(){
     QSqlQuery query(*this->theDataBase);
     unsigned int index = 0;
     int findedID = -1;
+    QString RefColName = "";
     QString oldTableName = patientInfo_TableName;
     oldTableName.append("_back");
 
@@ -444,6 +445,7 @@ void DAO_Sqlite::updateTable_Patient(){
     for(std::map<unsigned int,std::pair<QString,QString>>::iterator it = newColumnNames.begin();it != newColumnNames.end();it++){
         if(oldColumnNames.find(it->second.first) != oldColumnNames.end()){
             findedID = it->first;
+            RefColName = it->second.first;
             query.exec(QString("create table %1 as select %3 from %2;").arg(patientInfo_TableName).arg(oldTableName).arg(it->second.first));
             break;
         }
@@ -456,9 +458,15 @@ void DAO_Sqlite::updateTable_Patient(){
 
     if(findedID >= 0){
         for(std::map<unsigned int,std::pair<QString,QString>>::iterator it = newColumnNames.begin();it != newColumnNames.end();it++){
-            query.exec(QString("alter table %1 add %2 %3 not null default '';").arg(patientInfo_TableName).arg(it->second.first).arg(it->second.second));
+            if((signed int)it->first != findedID){
+                query.exec(QString("alter table %1 add %2 %3;").arg(patientInfo_TableName).arg(it->second.first).arg(it->second.second));
+            }
             if(oldColumnNames.find(it->second.first) != oldColumnNames.end()){
-                query.exec(QString("update %1 set %3 = (select %3 from %2);").arg(patientInfo_TableName).arg(oldTableName).arg(it->second.first));
+                query.exec(QString("update %1 set %3 = (select %3 from %2 where %1.%4=%2.%4);")
+                               .arg(patientInfo_TableName)
+                               .arg(oldTableName)
+                               .arg(it->second.first)
+                               .arg(RefColName));
             }
         }
     }else{
