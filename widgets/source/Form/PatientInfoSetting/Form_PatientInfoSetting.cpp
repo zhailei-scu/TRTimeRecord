@@ -137,6 +137,7 @@ void PatientInfoSetting::deleteAction(){
 }
 
 void PatientInfoSetting::resetAction(){
+    QTableWidgetItem* item = NULL;
     while(this->uiForm->tableWidget->rowCount()>0){
         this->uiForm->tableWidget->removeRow(0);
     }
@@ -146,12 +147,28 @@ void PatientInfoSetting::resetAction(){
 
     if(patientInfo){
         for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfo->begin();
-                                                           it != patientInfo->end();
-                                                           it++){
+                                                                     it != patientInfo->end();
+                                                                     it++){
             this->uiForm->tableWidget->insertRow(it->first);
-            this->uiForm->tableWidget->setItem(it->first,0,new QTableWidgetItem(it->second.labelName));
-            this->uiForm->tableWidget->setItem(it->first,1,new QTableWidgetItem(it->second.infoName));
-            this->uiForm->tableWidget->setItem(it->first,2,new QTableWidgetItem(it->second.necessary));
+
+            item = new QTableWidgetItem(it->second.labelName);
+            if(it->second.unRemoveable){
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable & ~Qt::ItemIsSelectable);
+            }
+            this->uiForm->tableWidget->setItem(it->first,0,item);
+
+            item = new QTableWidgetItem(it->second.infoName);
+            if(it->second.unRemoveable){
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable & ~Qt::ItemIsSelectable);
+            }
+            this->uiForm->tableWidget->setItem(it->first,1,item);
+
+            item = new QTableWidgetItem(it->second.necessary);
+            if(it->second.unRemoveable){
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable & ~Qt::ItemIsSelectable);
+            }
+            this->uiForm->tableWidget->setItem(it->first,2,item);
+
         }
     }
 }

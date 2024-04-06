@@ -54,8 +54,8 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
     backGround->setGeometry(0,0,this->geometry().width(),basicHeight*2*(pattern->size()+1.5));
 
     for(std::map<unsigned int,OnePatientPattern>::const_iterator it = pattern->begin();
-                                                               it != pattern->end();
-                                                               it++){
+                                                                 it != pattern->end();
+                                                                 it++){
         QLabel *label = new QLabel(backGround);
         label->setText(it->second.labelName);
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -82,6 +82,10 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
 
         if(PatientInputMode(ViewAndModify) == model){
             lineEdit->setEnabled(false);
+        }
+
+        if(it->second.unRemoveable){
+            lineEdit->setStyleSheet("background-color:yellow");
         }
 
         this->patternCompents->insert(std::pair<unsigned int,patientInfoQtCompentsPair>(it->first,patientInfoQtCompentsPair(label,lineEdit)));
