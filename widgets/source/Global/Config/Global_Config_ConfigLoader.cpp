@@ -1,5 +1,6 @@
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include "../../../include/Common/Util/Common_Util_JsonExt.h"
+#include "../../../include/Common/Util/Common_Util_Base.h"
 #include <fstream>
 #include <sstream>
 #include <QMessageBox>
@@ -16,6 +17,7 @@ static std::string str_HintInfos = "HintInfos";
 static std::string str_PatientInfoLabel = "PatientInfoLabel";
 static std::string str_PatientInfoName = "PatientInfoName";
 static std::string str_PatientInfoNecessary = "Necessary";
+static std::string str_PatientInfoUnRemoveable = "UnRemoveable";
 
 ConfigLoader* ConfigLoader::thePtr = NULL;  //lazy mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
@@ -305,6 +307,7 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
     std::string name = "";
     std::string necessary = "false";
     unsigned int idShift = 0;
+    bool unmremoveable = false;
 
     this->thePatientInfoPatten = new std::map<unsigned int,OnePatientPattern>();
 
@@ -364,6 +367,15 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                     exit(-1);
                                 }
 
+                                if(this->thePatientInfoPatten->end() != std::find_if(this->thePatientInfoPatten->begin(),
+                                                this->thePatientInfoPatten->end(),
+                                                 map_value_finder_PatientInfos(name.c_str()))){
+                                    QMessageBox::critical(nullptr,
+                                                          "Error",
+                                                          QString("The name: %1 repeated").arg(name.c_str()));
+                                    exit(-1);
+                                }
+
                                 it_Info = it->second->namedPairs->find(str_PatientInfoNecessary);
                                 necessary = "false";
                                 if(it_Info != it->second->namedPairs->end()){
@@ -393,8 +405,16 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                     exit(-1);
                                 }
 
+                                it_Info = it->second->namedPairs->find(str_PatientInfoUnRemoveable);
+                                if(it_Info != it->second->namedPairs->end()){
+                                    unmremoveable = StringOperation::StringToBool(it_Info->second);
+                                }else{
+                                    unmremoveable = false;
+                                }
+
                                 this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>
-                                                                   (id+idShift,OnePatientPattern(labelName.c_str(),name.c_str(),necessary.c_str())));
+                                                                   (id+idShift,OnePatientPattern(labelName.c_str(),name.c_str(),necessary.c_str(),false,unmremoveable)));
+
                                 result = true;
                             }else{
                                 QMessageBox::critical(nullptr,
@@ -474,7 +494,7 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,One
         if(it->first >= idShift){
             ss.str("");
             ss.clear();
-            ss<<it->first - (idShift-1);
+            ss<<it->first - idShift;
             str_Index = "";
             ss>>str_Index;
             onePatientInfoLine = new JsonBase();
@@ -482,6 +502,9 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,One
             onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoLabel,it->second.labelName.toStdString()));
             onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoName,it->second.infoName.toStdString()));
             onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoNecessary,it->second.necessary.toStdString()));
+            if(true == it->second.unRemoveable){
+                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoUnRemoveable,"true"));
+            }
 
             patientPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,onePatientInfoLine));
         }

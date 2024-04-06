@@ -167,7 +167,15 @@ bool PatientInfoSetting::setPatientPattern(){
     QString Name;
     QString Necessary;
     std::map<unsigned int,OnePatientPattern> patientPattern;
-    for(int i = 0;i<count;i++){
+    unsigned int idShift = FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().size();
+
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().begin();
+                                                                 it != FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().end();
+                                                                 it++){
+        patientPattern.insert(*it);
+    }
+
+    for(int i = idShift;i<count;i++){
         Label = this->uiForm->tableWidget->item(i,0)->text();
         Name = this->uiForm->tableWidget->item(i,1)->text();
         Necessary = this->uiForm->tableWidget->item(i,2)->text();
@@ -186,9 +194,14 @@ bool PatientInfoSetting::setPatientPattern(){
             result = false;
             break;
         }
-        patientPattern.insert(
-            std::pair<unsigned int,OnePatientPattern>(i,OnePatientPattern(Label,Name,Necessary))
-            );
+
+        if(patientPattern.end() != std::find_if(patientPattern.begin(),patientPattern.end(),map_value_finder_PatientInfos(Name))){
+            QMessageBox::critical(nullptr,"Error",QString("The Name %1 is repeated").arg(Name));
+            result = false;
+            break;
+        }
+
+        patientPattern.insert(std::pair<unsigned int,OnePatientPattern>(i,OnePatientPattern(Label,Name,Necessary)));
     }
 
     if(true == result){
