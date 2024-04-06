@@ -20,6 +20,9 @@ static std::string str_PatientInfoNecessary = "Necessary";
 ConfigLoader* ConfigLoader::thePtr = NULL;  //lazy mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
 
+FixedPatientInfoPattern* FixedPatientInfoPattern::m_ptr = NULL;  //lazy mode
+FixedPatientInfoPattern::GbClear FixedPatientInfoPattern::m_GbClear;
+
 OnlineInfoPattern* OnlineInfoPattern::m_ptr = NULL;
 OnlineInfoPattern::GbClear OnlineInfoPattern::m_GbClear;
 
@@ -63,6 +66,50 @@ OnlineInfoPattern::GbClear::~GbClear(){
         delete m_ptr;
         m_ptr = NULL;
     }
+}
+
+/**/
+FixedPatientInfoPattern::FixedPatientInfoPattern(){
+    this->clear();
+}
+
+FixedPatientInfoPattern::~FixedPatientInfoPattern(){
+    this->clear();
+}
+
+FixedPatientInfoPattern* FixedPatientInfoPattern::getInstance(){
+    if(!m_ptr){
+        m_ptr = new FixedPatientInfoPattern();
+    }
+    return m_ptr;
+}
+
+const std::map<unsigned int,OnePatientPattern> & FixedPatientInfoPattern::getTheFixedPatientInfoPatten(){
+    return getInstance()->theFixedPatientInfoPatten;
+}
+
+void FixedPatientInfoPattern::clear(){
+    std::map<unsigned int,OnePatientPattern>().swap(this->theFixedPatientInfoPatten);
+    this->theFixedPatientInfoPatten.clear();
+
+    OnePatientPattern tempPattern;
+    tempPattern.labelName="UUID";
+    tempPattern.infoName="UUID";
+    tempPattern.necessary="true";
+    tempPattern.primaryKey = true;
+    tempPattern.unRemoveable = true;
+    this->theFixedPatientInfoPatten.insert(std::pair<unsigned int,OnePatientPattern>(0,tempPattern));
+}
+
+FixedPatientInfoPattern::GbClear::GbClear(){
+
+}
+
+FixedPatientInfoPattern::GbClear::~GbClear(){
+    if(m_ptr){
+        delete m_ptr;
+    }
+    m_ptr = NULL;
 }
 
 ConfigLoader::ConfigLoader(){
@@ -257,8 +304,17 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
     std::string labelName = "";
     std::string name = "";
     std::string necessary = "false";
+    unsigned int idShift = 0;
 
     this->thePatientInfoPatten = new std::map<unsigned int,OnePatientPattern>();
+
+    /*Set unremoveable pattern*/
+    for(auto it = FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().begin();
+             it != FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().end();
+             it++){
+        this->thePatientInfoPatten->insert(*it);
+    }
+    idShift = FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().size();
 
     ifs.open(systemCfgPath.toStdString().c_str());
 
@@ -285,7 +341,7 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                 exit(-1);
                             }
 
-                            if(this->thePatientInfoPatten->find(id) == this->thePatientInfoPatten->end()){
+                            if(this->thePatientInfoPatten->find(id+idShift) == this->thePatientInfoPatten->end()){
                                 std::map<std::string,std::string>::const_iterator it_Info = it->second->namedPairs->find(str_PatientInfoLabel);
                                 labelName = "";
                                 if(it_Info != it->second->namedPairs->end()){
@@ -338,7 +394,7 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                 }
 
                                 this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>
-                                                                   (id,OnePatientPattern(labelName.c_str(),name.c_str(),necessary.c_str())));
+                                                                   (id+idShift,OnePatientPattern(labelName.c_str(),name.c_str(),necessary.c_str())));
                                 result = true;
                             }else{
                                 QMessageBox::critical(nullptr,
@@ -379,6 +435,7 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,One
     JsonBase* base = NULL;
     JsonBase* patientPattern = NULL;
     JsonBase* onePatientInfoLine = NULL;
+    unsigned int idShift = FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().size();
 
     ifs.open(systemCfgPath.toStdString());
     if(ifs.is_open()){
@@ -412,20 +469,22 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,One
     patientPattern->namedObjects = new std::map<std::string,JsonBase*>();
 
     for(std::map<unsigned int,OnePatientPattern>::const_iterator it = input.begin();
-                                                               it != input.end();
-                                                               it++){
-        ss.str("");
-        ss.clear();
-        ss<<it->first;
-        str_Index = "";
-        ss>>str_Index;
-        onePatientInfoLine = new JsonBase();
-        onePatientInfoLine->namedPairs = new std::map<std::string,std::string>();
-        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoLabel,it->second.labelName.toStdString()));
-        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoName,it->second.infoName.toStdString()));
-        onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoNecessary,it->second.necessary.toStdString()));
+                                                                 it != input.end();
+                                                                 it++){
+        if(it->first >= idShift){
+            ss.str("");
+            ss.clear();
+            ss<<it->first - (idShift-1);
+            str_Index = "";
+            ss>>str_Index;
+            onePatientInfoLine = new JsonBase();
+            onePatientInfoLine->namedPairs = new std::map<std::string,std::string>();
+            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoLabel,it->second.labelName.toStdString()));
+            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoName,it->second.infoName.toStdString()));
+            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoNecessary,it->second.necessary.toStdString()));
 
-        patientPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,onePatientInfoLine));
+            patientPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,onePatientInfoLine));
+        }
     }
 
     base->namedObjects->insert(std::pair<std::string,JsonBase*>(str_PatientInfoPattern,patientPattern));
@@ -749,6 +808,8 @@ void ConfigLoader::setDefaultOnlineDatabaseInfo(){
 }
 
 void ConfigLoader::setDefaultPatientInfoPatten(){
+    /*Set unremoveable pattern*/
+    unsigned int idShift = FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().size();
     if(this->thePatientInfoPatten){
         std::map<unsigned int,OnePatientPattern>().swap(*this->thePatientInfoPatten);
         this->thePatientInfoPatten->clear();
@@ -756,9 +817,15 @@ void ConfigLoader::setDefaultPatientInfoPatten(){
         this->thePatientInfoPatten = NULL;
     }
     this->thePatientInfoPatten = new std::map<unsigned int,OnePatientPattern>();
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(0,OnePatientPattern("UUID","UUID","true")));
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(1,OnePatientPattern("PatientName","PatientName","true")));
-    this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(2,OnePatientPattern("TherapyOrgan","TherapyOrgan","false")));
+
+    for(auto it = FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().begin();
+         it != FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().end();
+         it++){
+        this->thePatientInfoPatten->insert(*it);
+    }
+
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(idShift,OnePatientPattern("PatientName","PatientName","true")));
+    this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>(idShift+1,OnePatientPattern("TherapyOrgan","TherapyOrgan","false")));
 }
 
 void ConfigLoader::setDefaultOperationPatten(){

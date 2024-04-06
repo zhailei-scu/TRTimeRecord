@@ -93,20 +93,40 @@ public:
 
     OnePatientPattern(const QString & label,
                       const QString & name,
-                      const QString & isNecessary):labelName(label),infoName(name),necessary(isNecessary){}
+                      const QString & isNecessary,
+                      bool isPrimaryKey = false,
+                      bool isUnRemoveable = false):labelName(label),
+                                                   infoName(name),
+                                                   necessary(isNecessary),
+                                                   primaryKey(isPrimaryKey),
+                                                   unRemoveable(isUnRemoveable){}
 
     OnePatientPattern(const std::string & label,
                       const std::string & name,
-                      const std::string & isNecessary):labelName(label.c_str()),infoName(name.c_str()),necessary(isNecessary.c_str()){}
+                      const std::string & isNecessary,
+                      bool isPrimaryKey = false,
+                      bool isUnRemoveable = false):labelName(label.c_str()),
+                                                   infoName(name.c_str()),
+                                                   necessary(isNecessary.c_str()),
+                                                   primaryKey(isPrimaryKey),
+                                                   unRemoveable(isUnRemoveable){}
 
     OnePatientPattern(const char* label,
                       const char* name,
-                      const char* isNecessary):labelName(label),infoName(name),necessary(isNecessary){}
+                      const char* isNecessary,
+                      bool isPrimaryKey = false,
+                      bool isUnRemoveable = false):labelName(label),
+                                                   infoName(name),
+                                                   necessary(isNecessary),
+                                                   primaryKey(isPrimaryKey),
+                                                   unRemoveable(isUnRemoveable){}
 
 public:
     QString labelName = "";
     QString infoName = "";
     QString necessary = "false";
+    bool primaryKey = false;
+    bool unRemoveable = false;
 
 public:
     void clear(){
@@ -126,6 +146,35 @@ public:
     }
 private:
     const QString &m_value;
+};
+
+
+/**/
+class FixedPatientInfoPattern{
+private:
+    FixedPatientInfoPattern();
+    virtual ~FixedPatientInfoPattern();
+    FixedPatientInfoPattern(const FixedPatientInfoPattern &) = delete;
+    const FixedPatientInfoPattern & operator = (const FixedPatientInfoPattern &) = delete;
+
+private:
+    static FixedPatientInfoPattern* m_ptr;
+    std::map<unsigned int,OnePatientPattern> theFixedPatientInfoPatten;
+
+public:
+    static FixedPatientInfoPattern* getInstance();
+    static const std::map<unsigned int,OnePatientPattern> & getTheFixedPatientInfoPatten();
+
+private:
+    void clear();
+
+private:
+    class GbClear{
+    public:
+        GbClear();
+        virtual ~GbClear();
+    };
+    static GbClear m_GbClear;
 };
 
 /**/
