@@ -648,6 +648,8 @@ void TRTimeOperator::inputPatientInfo(PatientInputMode model){
     const std::map<unsigned int,QString>* info = patientForm->getInfos();
 
     if(PatientInputMode(Modify) == patientForm->getCurrentMode()){
+        std::map<unsigned int,std::pair<QString,QString>>().swap(Record::getInstance()->patientInfoRecord);
+        Record::getInstance()->patientInfoRecord.clear();
         for(std::map<unsigned int,QString>::const_iterator it = info->begin();
                                                            it != info->end();
                                                            it++){
