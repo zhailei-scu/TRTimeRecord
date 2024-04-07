@@ -42,5 +42,7 @@ public:
     virtual const QSqlDatabase* getTheDataBase() const{
         return this->theDataBase;
     }
+
+    virtual void getAllValueByKey_Patient(const QString & key,QStringList & result) const = 0;
 };
 #endif // STORAGE_DAO_INTERFACE_H

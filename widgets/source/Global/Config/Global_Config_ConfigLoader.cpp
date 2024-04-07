@@ -18,6 +18,7 @@ static std::string str_PatientInfoLabel = "PatientInfoLabel";
 static std::string str_PatientInfoName = "PatientInfoName";
 static std::string str_PatientInfoNecessary = "Necessary";
 static std::string str_PatientInfoUnRemoveable = "UnRemoveable";
+static std::string str_PatientInfoSupportPreQuery = "SupportPreQuery";
 
 ConfigLoader* ConfigLoader::thePtr = NULL;  //lazy mode
 ConfigLoader::GbClear ConfigLoader::m_GbClear;
@@ -98,6 +99,7 @@ void FixedPatientInfoPattern::clear(){
     tempPattern.labelName="UUID";
     tempPattern.infoName="UUID";
     tempPattern.necessary="true";
+    tempPattern.supportPreQuery = "true";
     tempPattern.primaryKey = true;
     tempPattern.unRemoveable = true;
     this->theFixedPatientInfoPatten.insert(std::pair<unsigned int,OnePatientPattern>(0,tempPattern));
@@ -306,6 +308,7 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
     std::string labelName = "";
     std::string name = "";
     std::string necessary = "false";
+    std::string supportPreQuery = "false";
     unsigned int idShift = 0;
     bool unmremoveable = false;
 
@@ -412,8 +415,19 @@ bool ConfigLoader::readPatientInfoPatternFromFile(){
                                     unmremoveable = false;
                                 }
 
+                                it_Info = it->second->namedPairs->find(str_PatientInfoSupportPreQuery);
+                                supportPreQuery = "";
+                                if(it_Info != it->second->namedPairs->end()){
+                                    supportPreQuery = it_Info->second.c_str();
+                                }
+
                                 this->thePatientInfoPatten->insert(std::pair<unsigned int,OnePatientPattern>
-                                                                   (id+idShift,OnePatientPattern(labelName.c_str(),name.c_str(),necessary.c_str(),false,unmremoveable)));
+                                                                   (id+idShift,OnePatientPattern(labelName.c_str(),
+                                                                                                 name.c_str(),
+                                                                                                 necessary.c_str(),
+                                                                                                 supportPreQuery.c_str(),
+                                                                                                 false,
+                                                                                                 unmremoveable)));
 
                                 result = true;
                             }else{
@@ -502,6 +516,12 @@ void ConfigLoader::writePatientInfoPatternToFile(const std::map<unsigned int,One
             onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoLabel,it->second.labelName.toStdString()));
             onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoName,it->second.infoName.toStdString()));
             onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoNecessary,it->second.necessary.toStdString()));
+
+            if("true" == it->second.supportPreQuery){
+                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoSupportPreQuery,it->second.supportPreQuery.toStdString()));
+            }else{
+                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoSupportPreQuery,"false"));
+            }
             if(true == it->second.unRemoveable){
                 onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoUnRemoveable,"true"));
             }

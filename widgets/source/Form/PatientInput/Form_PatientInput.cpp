@@ -1,15 +1,21 @@
 #include "../../../include/Form/PatientInput/Form_PatientInput.h"
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include "../../../include/Common/Util/Common_Util_Base.h"
+#include "../../../include/Storage/DAO/Storage_DAO.h"
 #include <QPushButton>
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QScrollArea>
 #include <QVBoxLayout>
+#include <QComboBox>
+#include <QCompleter>
 
 PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QString,QString>> *info,PatientInputMode model):QDialog(parent){
     float basicHeight = 0.0;
     float basicWidth = 0.0;
+    QLabel *label = NULL;
+    QWidget *editContent = NULL;
+    QStringList list;
     std::map<unsigned int,std::pair<QString,QString>>::iterator it_find;
 
     this->currentMode = model;
@@ -56,7 +62,7 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
     for(std::map<unsigned int,OnePatientPattern>::const_iterator it = pattern->begin();
                                                                  it != pattern->end();
                                                                  it++){
-        QLabel *label = new QLabel(backGround);
+        label = new QLabel(backGround);
         label->setText(it->second.labelName);
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         label->setGeometry(0.45*backGround->geometry().width() - basicWidth*1.1,
@@ -64,11 +70,23 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
                            basicWidth,
                            basicHeight);
 
-        QLineEdit *lineEdit = new QLineEdit(backGround);
-        lineEdit->setGeometry(0.45*backGround->geometry().width(),
-                              (it->first*2 + 1)*basicHeight,
-                              basicWidth,
-                              basicHeight);
+        if("true" != it->second.supportPreQuery){
+            editContent = new QLineEdit(backGround);
+        }else{
+            editContent = new QComboBox(backGround);
+            ((QComboBox*)editContent)->setStyleSheet("QComboBox::down-arrow{image:none;}");
+            ((QComboBox*)editContent)->setEditable(true);
+            QStringList().swap(list);
+            list.clear();
+            DAO::getInstance()->getPatientInfoConnection()->getAllValueByKey_Patient(it->second.infoName,list);
+            QCompleter *finder = new QCompleter(list,editContent);
+            ((QComboBox*)editContent)->setCompleter(finder);
+        }
+
+        editContent->setGeometry(0.45*backGround->geometry().width(),
+                                 (it->first*2 + 1)*basicHeight,
+                                 basicWidth,
+                                 basicHeight);
 
         if(NULL != info && info->find(it->first) != info->end()){
             it_find = std::find_if(info->begin(),
@@ -76,19 +94,23 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
                                    map_value_finder_PairInValue<unsigned int,QString,QString>(it->second.infoName));
 
             if(info->end() != it_find){
-                lineEdit->setText(it_find->second.second);
+                if("true" != it->second.supportPreQuery){
+                    dynamic_cast<QLineEdit*>(editContent)->setText(it_find->second.second);
+                }else{
+                    dynamic_cast<QComboBox*>(editContent)->setCurrentText(it_find->second.second);
+                }
             }
         }
 
         if(PatientInputMode(ViewAndModify) == model){
-            lineEdit->setEnabled(false);
+            editContent->setEnabled(false);
         }
 
         if(it->second.unRemoveable){
-            lineEdit->setStyleSheet("background-color:yellow");
+            editContent->setStyleSheet("background-color:yellow");
         }
 
-        this->patternCompents->insert(std::pair<unsigned int,patientInfoQtCompentsPair>(it->first,patientInfoQtCompentsPair(label,lineEdit)));
+        this->patternCompents->insert(std::pair<unsigned int,patientInfoQtCompentsPair>(it->first,patientInfoQtCompentsPair(label,editContent)));
     }
 
     /*Button*/
@@ -186,6 +208,7 @@ void PatientInput::clear(){
 
 void PatientInput::acceptHandle(){
     bool flag = true;
+    QString content = "";
     this->clearInfos();
     const std::map<unsigned int,OnePatientPattern>* pattern = ConfigLoader::getInstance()->getThePatientInfoPatten();
     if(this->patternCompents){
@@ -194,12 +217,18 @@ void PatientInput::acceptHandle(){
         for(std::map<unsigned int,patientInfoQtCompentsPair>::iterator it = this->patternCompents->begin();
                                                                        it != this->patternCompents->end();
                                                                        it++){
-            if("true" == pattern->at(it->first).necessary && "" == it->second.second->text()){
+            if("true" != pattern->at(it->first).supportPreQuery){
+                content = dynamic_cast<QLineEdit*>(it->second.second)->text();
+            }else{
+                content = dynamic_cast<QComboBox*>(it->second.second)->currentText();
+            }
+
+            if("true" == pattern->at(it->first).necessary && "" == content){
                 QMessageBox::critical(nullptr,"Error",QString("The item %1 cannot be empty").arg(pattern->at(it->first).labelName));
                 flag = false;
                 break;
             }
-            this->infos->insert(std::pair<unsigned int,QString>(it->first,it->second.second->text()));
+            this->infos->insert(std::pair<unsigned int,QString>(it->first,content));
         }
 
     }
@@ -223,7 +252,6 @@ void PatientInput::rejectHandle(){
             this->buttonOK->setText("OK");
             this->buttonCancle->setText("Cancel");
         }
-
     }
 }
 

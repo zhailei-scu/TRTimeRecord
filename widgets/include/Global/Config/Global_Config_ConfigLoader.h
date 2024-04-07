@@ -94,30 +94,36 @@ public:
     OnePatientPattern(const QString & label,
                       const QString & name,
                       const QString & isNecessary,
+                      const QString & isSupportQuery ="false",
                       bool isPrimaryKey = false,
                       bool isUnRemoveable = false):labelName(label),
                                                    infoName(name),
                                                    necessary(isNecessary),
+                                                   supportPreQuery(isSupportQuery),
                                                    primaryKey(isPrimaryKey),
                                                    unRemoveable(isUnRemoveable){}
 
     OnePatientPattern(const std::string & label,
                       const std::string & name,
                       const std::string & isNecessary,
+                      const std::string & isSupportQuery ="false",
                       bool isPrimaryKey = false,
                       bool isUnRemoveable = false):labelName(label.c_str()),
                                                    infoName(name.c_str()),
                                                    necessary(isNecessary.c_str()),
+                                                   supportPreQuery(isSupportQuery.c_str()),
                                                    primaryKey(isPrimaryKey),
                                                    unRemoveable(isUnRemoveable){}
 
     OnePatientPattern(const char* label,
                       const char* name,
                       const char* isNecessary,
+                      const char* isSupportQuery ="false",
                       bool isPrimaryKey = false,
                       bool isUnRemoveable = false):labelName(label),
                                                    infoName(name),
                                                    necessary(isNecessary),
+                                                   supportPreQuery(isSupportQuery),
                                                    primaryKey(isPrimaryKey),
                                                    unRemoveable(isUnRemoveable){}
 
@@ -125,6 +131,7 @@ public:
     QString labelName = "";
     QString infoName = "";
     QString necessary = "false";
+    QString supportPreQuery = "false";
     bool primaryKey = false;
     bool unRemoveable = false;
 

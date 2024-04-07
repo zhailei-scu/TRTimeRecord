@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
+    <width>602</width>
     <height>301</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>451</width>
+     <width>601</width>
      <height>301</height>
     </rect>
    </property>
@@ -74,6 +74,11 @@
    <column>
     <property name="text">
      <string>Necessary(bool)</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>SupportPreQuery(bool)</string>
     </property>
    </column>
   </widget>

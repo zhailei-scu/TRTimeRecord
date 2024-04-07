@@ -12,7 +12,7 @@ enum PatientInputMode{
     ViewAndModify = 1
 };
 
-using patientInfoQtCompentsPair = std::pair<QLabel*,QLineEdit*>;
+using patientInfoQtCompentsPair = std::pair<QLabel*,QWidget*>;
 
 class PatientInput: public QDialog{
     Q_OBJECT;

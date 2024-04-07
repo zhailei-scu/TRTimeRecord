@@ -167,8 +167,8 @@ void DAO_Mysql::createEmptyTable_Patient(){
 }
 
 void DAO_Mysql::appendARow_TR(const QString & tableName,
-                               const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
-                               const std::map<unsigned int,QString> & operatorTimes){
+                              const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
+                              const std::map<unsigned int,QString> & operatorTimes){
     QMessageBox::critical(nullptr,"Error","DAO handle depactch wrong: the operation info is not allowed to be handled online.");
     exit(-1);
 }
@@ -273,6 +273,46 @@ void DAO_Mysql::updateTableName_TR(QString & tableName,
     exit(-1);
 }
 
+bool DAO_Mysql::needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern){
+    std::list<QString> list;
+    bool flag = false;
+
+    QSqlQuery query(*this->theDataBase);
+
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
+         it != patientPattern.end();
+         it++){
+        list.push_back(it->second.infoName);
+    }
+
+    if(tableExisted(patientInfo_TableName)){
+
+        query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+        qDebug()<<query.lastError();
+        while(query.next()){
+            if(query.value(0).isValid()){
+                if(0 == list.size()){
+                    flag = true;
+                    break;
+                }
+
+                if(query.value(1).toString() != list.front()){
+                    flag = true;
+                    break;
+                }
+                list.pop_front();
+            }
+        }
+
+        if(list.size() > 0){
+            flag = true;
+        }
+
+    }
+
+    return flag;
+}
+
 void DAO_Mysql::updateTable_Patient(){
     std::map<QString,unsigned int> oldColumnNames;
     std::map<unsigned int,std::pair<QString,QString>> newColumnNames;
@@ -348,4 +388,16 @@ void DAO_Mysql::updateTable_Patient(){
     }
 
     qDebug()<<query.lastError();
+}
+
+void DAO_Mysql::getAllValueByKey_Patient(const QString & key,QStringList & result) const{
+    QSqlQuery query(*this->theDataBase);
+    query.exec(QString("select %1 from %2;").arg(key).arg(patientInfo_TableName));
+
+    qDebug()<<query.lastError();
+    while(query.next()){
+        if(query.value(0).isValid()){
+            result.push_back(query.value(0).toString());
+        }
+    }
 }

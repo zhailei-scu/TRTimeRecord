@@ -403,8 +403,6 @@ void DAO_Sqlite::updateTableName_TR(QString & tableName,
 }
 
 bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern){
-    std::stringstream ss;
-    std::string str_value;
     std::list<QString> list;
     bool flag = false;
 
@@ -519,4 +517,17 @@ void DAO_Sqlite::updateTable_Patient(){
     }
 
     qDebug()<<query.lastError();
+}
+
+
+void DAO_Sqlite::getAllValueByKey_Patient(const QString & key,QStringList & result) const{
+    QSqlQuery query(*this->theDataBase);
+    query.exec(QString("select %1 from %2;").arg(key).arg(patientInfo_TableName));
+
+    qDebug()<<query.lastError();
+    while(query.next()){
+        if(query.value(0).isValid()){
+            result.push_back(query.value(0).toString());
+        }
+    }
 }

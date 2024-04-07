@@ -114,6 +114,11 @@ void PatientInfoSetting::insertUpAction(){
     int rowId = this->uiForm->tableWidget->currentRow();
     if(rowId < 0) rowId = 0;
     this->uiForm->tableWidget->insertRow(rowId);
+
+    for(int i = 0;i<this->uiForm->tableWidget->columnCount();i++){
+        this->uiForm->tableWidget->setItem(rowId,i,new QTableWidgetItem());
+    }
+
     this->uiForm->tableWidget->update();
 }
 
@@ -123,6 +128,11 @@ void PatientInfoSetting::insertDownAction(){
         rowId = this->uiForm->tableWidget->currentRow() + 1;
     }
     this->uiForm->tableWidget->insertRow(rowId);
+
+    for(int i = 0;i<this->uiForm->tableWidget->columnCount();i++){
+        this->uiForm->tableWidget->setItem(rowId,i,new QTableWidgetItem());
+    }
+
     this->uiForm->tableWidget->update();
 }
 
@@ -169,6 +179,11 @@ void PatientInfoSetting::resetAction(){
             }
             this->uiForm->tableWidget->setItem(it->first,2,item);
 
+            item = new QTableWidgetItem(it->second.supportPreQuery);
+            if(it->second.unRemoveable){
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable & ~Qt::ItemIsSelectable);
+            }
+            this->uiForm->tableWidget->setItem(it->first,3,item);
         }
     }
 }
@@ -183,6 +198,7 @@ bool PatientInfoSetting::setPatientPattern(){
     QString Label;
     QString Name;
     QString Necessary;
+    QString SupportPreQuery;
     std::map<unsigned int,OnePatientPattern> patientPattern;
     unsigned int idShift = FixedPatientInfoPattern::getInstance()->getTheFixedPatientInfoPatten().size();
 
@@ -196,6 +212,7 @@ bool PatientInfoSetting::setPatientPattern(){
         Label = this->uiForm->tableWidget->item(i,0)->text();
         Name = this->uiForm->tableWidget->item(i,1)->text();
         Necessary = this->uiForm->tableWidget->item(i,2)->text();
+        SupportPreQuery = this->uiForm->tableWidget->item(i,3)->text();
 
         if(Necessary != "true" && Necessary != "false"){
             QMessageBox::critical(nullptr,
@@ -218,12 +235,13 @@ bool PatientInfoSetting::setPatientPattern(){
             break;
         }
 
-        patientPattern.insert(std::pair<unsigned int,OnePatientPattern>(i,OnePatientPattern(Label,Name,Necessary)));
+        patientPattern.insert(std::pair<unsigned int,OnePatientPattern>(i,OnePatientPattern(Label,Name,Necessary,SupportPreQuery)));
     }
 
     if(true == result){
         ConfigLoader::getInstance()->setThePatientPattern(patientPattern);
         Record::getInstance()->upDatePatientInfoRecord(*ConfigLoader::getInstance()->getThePatientInfoPatten());
     }
+
     return result;
 }

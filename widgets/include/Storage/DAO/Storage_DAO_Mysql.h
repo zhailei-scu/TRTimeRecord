@@ -31,6 +31,7 @@ public:
     virtual bool needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern);
     virtual void updateTable_Patient();
 
+    virtual void getAllValueByKey_Patient(const QString & key,QStringList & result) const;
 private:
     void clear();
 };
