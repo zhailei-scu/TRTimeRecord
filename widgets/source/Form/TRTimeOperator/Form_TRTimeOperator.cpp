@@ -455,6 +455,11 @@ void TRTimeOperator::csvView(){
 }
 
 void TRTimeOperator::dataBaseView(){
+    this->dataBaseView_TR();
+    this->dataBaseView_PatientInfo();
+}
+
+void TRTimeOperator::dataBaseView_TR(){
     QTabWidget* tempWidgetTable = new QTabWidget(this->uiForm->tabWidget);
     OneDataTableViewer* oneDataTableViewer = new OneDataTableViewer();
     daoViewer->insertOneLeaf(tempWidgetTable,oneDataTableViewer);
@@ -464,7 +469,7 @@ void TRTimeOperator::dataBaseView(){
                                  this->uiForm->tabWidget->size().width(),
                                  this->uiForm->tabWidget->size().height());
 
-    this->uiForm->tabWidget->addTab(tempWidgetTable,"DataBase Viewer");
+    this->uiForm->tabWidget->addTab(tempWidgetTable,"DataBase_TR");
 
     tempWidgetTable->setTabsClosable(true);
     tempWidgetTable->setTabPosition(QTabWidget::South);
@@ -474,6 +479,10 @@ void TRTimeOperator::dataBaseView(){
     for(std::list<QString>::const_reverse_iterator it = tables.rbegin();
                                                    it != tables.rend();
                                                    ++it){
+
+        if(*it == patientInfo_TableName || *it == (patientInfo_TableName + "_back")){
+            continue;
+        }
 
         QWidget* tempWidget = new QWidget(tempWidgetTable);
 
@@ -492,6 +501,95 @@ void TRTimeOperator::dataBaseView(){
 
         compents->model->setTable(*it);
         compents->model->setQuery(QString("select * from %1").arg(*it),*DAO::getInstance()->getTrInfoConnection()->getTheDataBase());
+
+        compents->tableView->setModel(compents->model);
+        compents->tableView->setGeometry(0,
+                                         0,
+                                         tempWidget->size().width(),
+                                         tempWidget->size().height()*0.9);
+
+        compents->tableView->setEditTriggers(QAbstractItemView::DoubleClicked);
+
+        compents->insertButton = new SelfPushButton(tempWidget);
+        //bind a shortcut
+        this->daoViewer->bindOneButtonToSqlModel(compents->insertButton,compents->model);
+        this->daoViewer->bindOneButtonToTableView(compents->insertButton,compents->tableView);
+        compents->insertButton->setText("Insert record");
+        compents->insertButton->setStyleSheet("background:#07343e");
+        compents->insertButton->setObjectName(compents->insertButton->text());
+        compents->insertButton->setGeometry(tempWidget->size().width()*0.2,
+                                            tempWidget->size().height()*0.91,
+                                            tempWidget->size().width()*0.2,
+                                            tempWidget->size().height()*0.04);
+        QObject::connect(compents->insertButton,SIGNAL(sign_handlePressEvent(QObject*)),this->daoViewer,SLOT(appendARow(QObject*)));
+
+        compents->deleteButton = new SelfPushButton(tempWidget);
+        //bind a shortcut
+        this->daoViewer->bindOneButtonToSqlModel(compents->deleteButton,compents->model);
+        this->daoViewer->bindOneButtonToTableView(compents->deleteButton,compents->tableView);
+        compents->deleteButton->setText("Delete record");
+        compents->deleteButton->setStyleSheet("background:#07343e");
+        compents->deleteButton->setObjectName(compents->deleteButton->text());
+        compents->deleteButton->setGeometry(tempWidget->size().width()*0.6,
+                                            tempWidget->size().height()*0.91,
+                                            tempWidget->size().width()*0.2,
+                                            tempWidget->size().height()*0.04);
+        QObject::connect(compents->deleteButton,SIGNAL(sign_handlePressEvent(QObject*)),this->daoViewer,SLOT(deleteRow(QObject*)));
+
+        compents->tableView->setStyleSheet(QString("background:'#498a78'"));
+        compents->tableView->show();
+    }
+
+    /*
+    table->record();
+    int count = table->rowCount();
+    table->insertRecord(count,)
+    */
+}
+
+
+void TRTimeOperator::dataBaseView_PatientInfo(){
+    QTabWidget* tempWidgetTable = new QTabWidget(this->uiForm->tabWidget);
+    OneDataTableViewer* oneDataTableViewer = new OneDataTableViewer();
+    daoViewer->insertOneLeaf(tempWidgetTable,oneDataTableViewer);
+
+    tempWidgetTable->setGeometry(0,
+                                 0,
+                                 this->uiForm->tabWidget->size().width(),
+                                 this->uiForm->tabWidget->size().height());
+
+    this->uiForm->tabWidget->addTab(tempWidgetTable,"DataBase_PatientInfo");
+
+    tempWidgetTable->setTabsClosable(true);
+    tempWidgetTable->setTabPosition(QTabWidget::South);
+    tempWidgetTable->setDocumentMode(true);
+
+    const std::list<QString> & tables = DAO::getInstance()->getPatientInfoConnection()->getAllTablesName();
+    for(std::list<QString>::const_reverse_iterator it = tables.rbegin();
+         it != tables.rend();
+         ++it){
+
+        if(*it != patientInfo_TableName){
+            continue;
+        }
+
+        QWidget* tempWidget = new QWidget(tempWidgetTable);
+
+        OneDataTableViewerCompents * compents = new OneDataTableViewerCompents();
+        oneDataTableViewer->insertOneLeaf(tempWidget,compents);
+
+        tempWidget->setGeometry(0,
+                                0,
+                                tempWidgetTable->width(),
+                                tempWidgetTable->height());
+
+        tempWidgetTable->addTab(tempWidget,*it);
+
+        compents->tableView = new QTableView(tempWidget);
+        compents->model = new QSqlTableModel(tempWidget);
+
+        compents->model->setTable(*it);
+        compents->model->setQuery(QString("select * from %1").arg(*it),*DAO::getInstance()->getPatientInfoConnection()->getTheDataBase());
 
         compents->tableView->setModel(compents->model);
         compents->tableView->setGeometry(0,

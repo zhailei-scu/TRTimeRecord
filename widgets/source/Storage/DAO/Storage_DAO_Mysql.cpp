@@ -23,8 +23,6 @@
  * but always error
 */
 
-static QString patientInfoDataBaseName = "tr_patientinfo";
-
 DAO_Mysql::DAO_Mysql(QWidget* parent,const QString & linkName):DAO_Interface(parent,linkName){
     QImage *img = new QImage();
     img->load(":/img/link.svg");

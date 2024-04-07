@@ -53,7 +53,8 @@ private:
     void changeButtonStatus(unsigned int);
     void queryForNextPatient();
     void inputPatientInfo(PatientInputMode model);
-
+    void dataBaseView_TR();
+    void dataBaseView_PatientInfo();
 /*
 signals:
     void buttonGroup_Click();
