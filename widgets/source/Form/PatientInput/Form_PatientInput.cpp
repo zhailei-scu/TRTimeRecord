@@ -80,6 +80,8 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
             list.clear();
             if(DAO::getInstance()->getPatientInfoConnection()->columnExisted_TR(it->second.infoName)){
                 DAO::getInstance()->getPatientInfoConnection()->getAllValueByKey_Patient(it->second.infoName,list);
+            }else{
+                qDebug()<<"Not existed..."<<it->second.infoName;
             }
             QCompleter *finder = new QCompleter(list,editContent);
             ((QComboBox*)editContent)->setCompleter(finder);
