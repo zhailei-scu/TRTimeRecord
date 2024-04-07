@@ -81,6 +81,10 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
             DAO::getInstance()->getPatientInfoConnection()->getAllValueByKey_Patient(it->second.infoName,list);
             QCompleter *finder = new QCompleter(list,editContent);
             ((QComboBox*)editContent)->setCompleter(finder);
+            finder->setObjectName(it->second.infoName);
+
+            //QObject::connect((QComboBox*)editContent,SIGNAL(textActivated(const QString &)),this,SLOT(fillInfo(const QString &)));
+            QObject::connect(finder,SIGNAL(activated(const QString &)),this,SLOT(fillInfo(const QString &)));
         }
 
         editContent->setGeometry(0.45*backGround->geometry().width(),
@@ -251,6 +255,42 @@ void PatientInput::rejectHandle(){
             it->second.second->setEnabled(true);
             this->buttonOK->setText("OK");
             this->buttonCancle->setText("Cancel");
+        }
+    }
+}
+
+void PatientInput::fillInfo(const QString & value){
+    QStringList list;
+    QWidget* editContent = NULL;
+    QString key = qobject_cast<QCompleter*>(sender())->objectName();
+    DAO::getInstance()->getPatientInfoConnection()->getRowValueByItemValue_Patient(key,value,list);
+
+    const std::map<unsigned int,OnePatientPattern>* pattern = ConfigLoader::getInstance()->getThePatientInfoPatten();
+
+    if(!pattern || pattern->size() <=0){
+        QMessageBox::critical(nullptr,"Error","There are not patient info pattern specialed!");
+        exit(-1);
+    }
+
+    if(!this->patternCompents || this->patternCompents->size() != pattern->size()){
+        QMessageBox::critical(nullptr,"Error","Internal error: pattern not matched!");
+        exit(-1);
+    }
+
+    if((int)this->patternCompents->size() != list.size()){
+        QMessageBox::critical(nullptr,"Error","Error: queried record not matched!");
+        exit(-1);
+    }
+
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = pattern->begin();
+                                                                 it != pattern->end();
+                                                                 it++){
+        editContent = this->patternCompents->at(it->first).second;
+
+        if("true" != it->second.supportPreQuery){
+            dynamic_cast<QLineEdit*>(editContent)->setText(list.at(it->first));
+        }else{
+            dynamic_cast<QComboBox*>(editContent)->setCurrentText(list.at(it->first));
         }
     }
 }

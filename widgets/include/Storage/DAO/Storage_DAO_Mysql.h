@@ -32,6 +32,8 @@ public:
     virtual void updateTable_Patient();
 
     virtual void getAllValueByKey_Patient(const QString & key,QStringList & result) const;
+
+    virtual void getRowValueByItemValue_Patient(const QString & key,const QString & value,QStringList & result) const;
 private:
     void clear();
 };

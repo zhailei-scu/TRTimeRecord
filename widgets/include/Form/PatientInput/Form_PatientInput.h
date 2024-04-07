@@ -39,6 +39,7 @@ private:
 public slots:
     void acceptHandle();
     void rejectHandle();
+    void fillInfo(const QString &);
 public:
     const std::map<unsigned int,QString>* getInfos() const;
     PatientInputMode getCurrentMode() const;

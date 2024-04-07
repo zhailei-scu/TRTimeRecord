@@ -401,3 +401,15 @@ void DAO_Mysql::getAllValueByKey_Patient(const QString & key,QStringList & resul
         }
     }
 }
+
+void DAO_Mysql::getRowValueByItemValue_Patient(const QString & key,const QString & value,QStringList & result) const{
+    QSqlQuery query(*this->theDataBase);
+    query.exec(QString("select * from %1 where %2 = '%3';").arg(patientInfo_TableName).arg(key).arg(value));
+
+    qDebug()<<query.lastError();
+    while(query.next()){
+        if(query.value(0).isValid()){
+            result.push_back(query.value(0).toString());
+        }
+    }
+}
