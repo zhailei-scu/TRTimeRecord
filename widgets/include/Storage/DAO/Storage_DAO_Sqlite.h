@@ -36,6 +36,8 @@ public:
     virtual void getAllValueByKey_Patient(const QString & key,QStringList & result) const;
 
     virtual void getRowValueByItemValue_Patient(const QString & key,const QString & value,QStringList & result) const;
+
+    bool columnExisted_TR(const QString & colName) const;
 private:
     void clear();
 };

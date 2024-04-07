@@ -345,6 +345,24 @@ void DAO_Sqlite::deleteLastRecord(const QString & tableName){
     }
 }
 
+bool DAO_Sqlite::columnExisted_TR(const QString & colName) const{
+    bool result = false;
+    QSqlQuery query(*this->theDataBase);
+
+    query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+    qDebug()<<query.lastError();
+    while(query.next()){
+        if(query.value(0).isValid()){
+            if(query.value(1).toString() == colName){
+                result = true;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
 void DAO_Sqlite::updateTableName_TR(QString & tableName,
                                     const std::map<unsigned int,OnePatientPattern> & patientPattern,
                                     const std::map<unsigned int,OneOperationPattern> & OperationPattern){

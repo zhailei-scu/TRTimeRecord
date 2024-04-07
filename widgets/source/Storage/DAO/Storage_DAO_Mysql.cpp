@@ -86,7 +86,7 @@ bool DAO_Mysql::isDataBaseOpened(){
 bool DAO_Mysql::tableExisted(const QString & tableName){
     bool result = false;
     QSqlQuery query(*this->theDataBase);
-    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table' AND tbl_name = '%1';").arg(tableName));
+    query.exec(QString("select tbl_name from information_schema.TABLES WHERE tbl_name = '%1';").arg(tableName));
     qDebug()<<query.lastError();
     if(query.next()){
         if(query.value(0).isValid() && query.value(0).toString() == tableName){
@@ -100,7 +100,7 @@ bool DAO_Mysql::tableExisted(const QString & tableName){
 std::list<QString> DAO_Mysql::getAllTablesName(){
     std::list<QString> result;
     QSqlQuery query(*this->theDataBase);
-    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table';"));
+    query.exec(QString("select tbl_name from information_schema.TABLES;"));
     qDebug()<<query.lastError();
     while(query.next()){
         result.push_back(query.value(0).toString());
@@ -112,7 +112,7 @@ std::list<QString> DAO_Mysql::getAllTablesName(){
 std::list<QString> DAO_Mysql::getLikelyTablesName(const QString & tableName){
     std::list<QString> result;
     QSqlQuery query(*this->theDataBase);
-    query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table' and tbl_name like '%1\%';").arg(tableName));
+    query.exec(QString("select tbl_name from information_schema.TABLES WHERE tbl_name like '%1\%';").arg(tableName));
     qDebug()<<query.lastError();
     while(query.next()){
         result.push_back(query.value(0).toString());
@@ -349,6 +349,24 @@ void DAO_Mysql::deleteLastRecord(const QString & tableName){
             exit(-1);
         }
     }
+}
+
+bool DAO_Mysql::columnExisted_TR(const QString & colName) const{
+    bool result = false;
+    QSqlQuery query(*this->theDataBase);
+
+    query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+    qDebug()<<query.lastError();
+    while(query.next()){
+        if(query.value(0).isValid()){
+            if(query.value(1).toString() == colName){
+                result = true;
+                break;
+            }
+        }
+    }
+
+    return result;
 }
 
 void DAO_Mysql::updateTableName_TR(QString & tableName,

@@ -628,12 +628,6 @@ void TRTimeOperator::dataBaseView_PatientInfo(){
         compents->tableView->setStyleSheet(QString("background:'#498a78'"));
         compents->tableView->show();
     }
-
-    /*
-    table->record();
-    int count = table->rowCount();
-    table->insertRecord(count,)
-    */
 }
 
 void TRTimeOperator::storageSetting(){

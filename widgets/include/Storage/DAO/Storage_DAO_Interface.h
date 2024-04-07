@@ -45,5 +45,7 @@ public:
 
     virtual void getAllValueByKey_Patient(const QString & key,QStringList & result) const = 0;
     virtual void getRowValueByItemValue_Patient(const QString & key,const QString & value,QStringList & result) const = 0;
+
+    virtual bool columnExisted_TR(const QString & colName) const = 0;
 };
 #endif // STORAGE_DAO_INTERFACE_H

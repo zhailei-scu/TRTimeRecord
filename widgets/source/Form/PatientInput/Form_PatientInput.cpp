@@ -78,7 +78,9 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
             ((QComboBox*)editContent)->setEditable(true);
             QStringList().swap(list);
             list.clear();
-            DAO::getInstance()->getPatientInfoConnection()->getAllValueByKey_Patient(it->second.infoName,list);
+            if(DAO::getInstance()->getPatientInfoConnection()->columnExisted_TR(it->second.infoName)){
+                DAO::getInstance()->getPatientInfoConnection()->getAllValueByKey_Patient(it->second.infoName,list);
+            }
             QCompleter *finder = new QCompleter(list,editContent);
             ((QComboBox*)editContent)->setCompleter(finder);
             finder->setObjectName(it->second.infoName);
