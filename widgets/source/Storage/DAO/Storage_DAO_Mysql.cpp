@@ -8,6 +8,8 @@
 #include <QScreen>
 #include <QImage>
 #include <QLabel>
+#include <sstream>
+#include <QSqlRecord>
 /*
  * In current softwares, there are two place to record the operation data:
  * (1) The .csv file recorded the patient therapy time, located in user specialed path
@@ -135,8 +137,26 @@ QString DAO_Mysql::getRowCount(const QString & tableName){
 }
 
 void DAO_Mysql::createEmptyTable_TR(const QString & tableName){
-    QMessageBox::critical(nullptr,"Error","DAO handle depactch wrong: the operation info is not allowed to be handled online.");
-    exit(-1);
+    QString str("create table ");
+    QSqlQuery query(*this->theDataBase);
+    str.append(tableName).append("(id int primary key");
+
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
+         it != patientInfoPatten->end();
+         it++){
+        str.append(", ").append(it->second.infoName).append(" varchar(50)");
+    }
+
+    const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
+    for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
+        str.append(", ").append(it->second.buttonName).append("Time varchar(50)");
+        str.append(", ").append(it->second.buttonName).append("_Pause").append("Time varchar(50)");
+        str.append(", ").append(it->second.buttonName).append("_Continue").append("Time varchar(50)");
+    }
+    str.append(");");
+    query.exec(str);
+    qDebug()<<query.lastError();
 }
 
 void DAO_Mysql::createEmptyTable_Patient(){
@@ -167,13 +187,66 @@ void DAO_Mysql::createEmptyTable_Patient(){
 }
 
 void DAO_Mysql::appendARow_TR(const QString & tableName,
-                              const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
-                              const std::map<unsigned int,QString> & operatorTimes){
-    QMessageBox::critical(nullptr,"Error","DAO handle depactch wrong: the operation info is not allowed to be handled online.");
-    exit(-1);
+                               const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
+                               const std::map<unsigned int,QString> & operatorTimes){
+    QSqlQuery query(*this->theDataBase);
+    QString count;
+    if(!this->tableExisted(tableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<tableName;
+        this->createEmptyTable_TR(tableName);
+        count = "0";
+    }else{
+        count = getRowCount(tableName);
+    }
+
+    QString str("INSERT INTO ");
+    str.append(tableName).append(" (id");
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
+        str.append(", ").append(it->second.infoName);
+    }
+
+    const std::map<unsigned int,OneOperationPattern> * operatorPatten = ConfigLoader::getInstance()->getTheOperationPatten();
+    for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
+        str.append(", ").append(it->second.buttonName).append("Time");
+        str.append(", ").append(it->second.buttonName).append("_Pause").append("Time");
+        str.append(", ").append(it->second.buttonName).append("_Continue").append("Time");
+    }
+
+    str.append(") VALUES (").append(count);
+
+    for(auto it = patientInfoPatten->begin(); it != patientInfoPatten->end();it++){
+        auto it_find = patientInfos.find(it->first);
+        if(it_find == patientInfos.end()){
+            str.append(", '").append("").append("'");
+        }else{
+            str.append(", '").append(it_find->second.second).append("'");
+        }
+    }
+
+    for(auto it = operatorPatten->begin();it != operatorPatten->end();it++){
+        for(unsigned int i = it->first*3;i<(it->first+1)*3;i++){
+            auto it_find = operatorTimes.find(i);
+            if(it_find == operatorTimes.end()){
+                str.append(", '").append("").append("'");
+            }else{
+                str.append(", '").append(it_find->second).append("'");
+            }
+        }
+    }
+
+    str.append(");");
+
+    query.exec(str);
+    if(QSqlError::NoError != query.lastError().type()){
+        QMessageBox::critical(nullptr,"Error",query.lastError().text());
+        exit(-1);
+    }
 }
 
 void DAO_Mysql::appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos){
+    QStringList list;
+    bool flag = true;
     QSqlQuery query(*this->theDataBase);
     const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
     unsigned int index = 0;
@@ -199,6 +272,20 @@ void DAO_Mysql::appendARow_Patient(const std::map<unsigned int,std::pair<QString
         if(it->second.primaryKey){
             auto it_find = patientInfos.find(it->first);
             if(it_find != patientInfos.end()){
+
+                this->getRowValueByItemValue_Patient(it->second.infoName,it_find->second.second,list);
+
+                if(list.size() == (int)patientInfos.size()){
+                    for(auto it_rep = patientInfos.begin();it_rep != patientInfos.end();it_rep++){
+                        if(list.at(it_rep->first) != it_rep->second.second){
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
+
+                if(flag) return;
+
                 query.exec(QString("DELETE FROM %1 WHERE %2 = '%3';")
                                .arg(patientInfo_TableName)
                                .arg(it->second.infoName)
@@ -269,8 +356,75 @@ void DAO_Mysql::deleteLastRecord(const QString & tableName){
 void DAO_Mysql::updateTableName_TR(QString & tableName,
                                     const std::map<unsigned int,OnePatientPattern> & patientPattern,
                                     const std::map<unsigned int,OneOperationPattern> & OperationPattern){
-    QMessageBox::critical(nullptr,"Error","DAO handle depactch wrong: the operation info is not allowed to be handled online.");
-    exit(-1);
+    std::stringstream ss;
+    int value = 0;
+    std::string str_value;
+    std::list<QString> list;
+    bool flag = false;
+    signed int pos = 0;
+    std::list<QString> tableNameList = getLikelyTablesName(tableName);
+    QSqlQuery query(*this->theDataBase);
+
+    if(tableNameList.size() > 0){
+        tableName = tableNameList.back();
+    }
+
+    list.push_back("id");
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
+         it != patientPattern.end();
+         it++){
+        list.push_back(it->second.infoName);
+    }
+
+    for(std::map<unsigned int,OneOperationPattern>::const_iterator it = OperationPattern.begin();
+         it != OperationPattern.end();
+         it++){
+        list.push_back(it->second.buttonName + "Time");
+        list.push_back(it->second.buttonName + "_Pause" + "Time");
+        list.push_back(it->second.buttonName + "_Continue" + "Time");
+    }
+
+    if(this->tableExisted(tableName)){
+        query.exec(QString("PRAGMA table_info(%1)").arg(tableName));
+        qDebug()<<query.lastError();
+        while(query.next()){
+            if(query.value(0).isValid()){
+                if(0 == list.size()){
+                    flag = true;
+                    break;
+                }
+
+                if(query.value(1).toString() != list.front()){
+                    flag = true;
+                    break;
+                }
+                list.pop_front();
+            }
+        }
+
+        if(list.size() > 0){
+            flag = true;
+        }
+    }
+
+    if(flag){
+        pos = tableName.toStdString().find_first_of(appendFlag);
+
+        if(pos>=0){
+            ss.str("");
+            ss.clear();
+            ss<<tableName.toStdString().substr(pos+1,tableName.size()-1);
+            ss>>value;
+            ss.str("");
+            ss.clear();
+            ss<<value + 1;
+            ss>>str_value;
+            tableName = tableName.toStdString().substr(0,pos+1).c_str();
+            tableName.append(str_value);
+        }else{
+            tableName.append("_").append(appendFlag).append("1");
+        }
+    }
 }
 
 bool DAO_Mysql::needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern){
@@ -390,6 +544,7 @@ void DAO_Mysql::updateTable_Patient(){
     qDebug()<<query.lastError();
 }
 
+
 void DAO_Mysql::getAllValueByKey_Patient(const QString & key,QStringList & result) const{
     QSqlQuery query(*this->theDataBase);
     query.exec(QString("select %1 from %2;").arg(key).arg(patientInfo_TableName));
@@ -404,12 +559,15 @@ void DAO_Mysql::getAllValueByKey_Patient(const QString & key,QStringList & resul
 
 void DAO_Mysql::getRowValueByItemValue_Patient(const QString & key,const QString & value,QStringList & result) const{
     QSqlQuery query(*this->theDataBase);
+    unsigned int size = 0;
     query.exec(QString("select * from %1 where %2 = '%3';").arg(patientInfo_TableName).arg(key).arg(value));
 
     qDebug()<<query.lastError();
+    size = query.record().count();
     while(query.next()){
-        if(query.value(0).isValid()){
-            result.push_back(query.value(0).toString());
+        for(unsigned int i = 0;i<size;i++){
+            result.push_back(query.record().value(i).toString());
         }
+        break;
     }
 }
