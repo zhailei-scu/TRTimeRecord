@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <sstream>
 #include <QSqlRecord>
+#include <QSqlField>
 /*
  * In current softwares, there are two place to record the operation data:
  * (1) The .csv file recorded the patient therapy time, located in user specialed path
@@ -86,7 +87,7 @@ bool DAO_Mysql::isDataBaseOpened(){
 bool DAO_Mysql::tableExisted(const QString & tableName){
     bool result = false;
     QSqlQuery query(*this->theDataBase);
-    query.exec(QString("select tbl_name from information_schema.TABLES WHERE tbl_name = '%1';").arg(tableName));
+    query.exec(QString("select table_name from information_schema.TABLES WHERE table_name = '%1';").arg(tableName));
     qDebug()<<query.lastError();
     if(query.next()){
         if(query.value(0).isValid() && query.value(0).toString() == tableName){
@@ -100,7 +101,7 @@ bool DAO_Mysql::tableExisted(const QString & tableName){
 std::list<QString> DAO_Mysql::getAllTablesName(){
     std::list<QString> result;
     QSqlQuery query(*this->theDataBase);
-    query.exec(QString("select tbl_name from information_schema.TABLES;"));
+    query.exec(QString("select table_name from information_schema.TABLES;"));
     qDebug()<<query.lastError();
     while(query.next()){
         result.push_back(query.value(0).toString());
@@ -112,7 +113,7 @@ std::list<QString> DAO_Mysql::getAllTablesName(){
 std::list<QString> DAO_Mysql::getLikelyTablesName(const QString & tableName){
     std::list<QString> result;
     QSqlQuery query(*this->theDataBase);
-    query.exec(QString("select tbl_name from information_schema.TABLES WHERE tbl_name like '%1\%';").arg(tableName));
+    query.exec(QString("select table_name from information_schema.TABLES WHERE table_name like '%1\%';").arg(tableName));
     qDebug()<<query.lastError();
     while(query.next()){
         result.push_back(query.value(0).toString());
@@ -243,7 +244,7 @@ void DAO_Mysql::appendARow_TR(const QString & tableName,
 }
 
 void DAO_Mysql::appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos){
-    QStringList list;
+    std::map<QString,QString>  list;
     bool flag = true;
     QSqlQuery query(*this->theDataBase);
     const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
@@ -273,9 +274,10 @@ void DAO_Mysql::appendARow_Patient(const std::map<unsigned int,std::pair<QString
 
                 this->getRowValueByItemValue_Patient(it->second.infoName,it_find->second.second,list);
 
-                if(list.size() == (int)patientInfos.size()){
+                if(list.size() == patientInfos.size()){
                     for(auto it_rep = patientInfos.begin();it_rep != patientInfos.end();it_rep++){
-                        if(list.at(it_rep->first) != it_rep->second.second){
+
+                        if(list.count(it_rep->second.first) <=0 || list.at(it_rep->second.first) != it_rep->second.second){
                             flag = false;
                             break;
                         }
@@ -355,11 +357,12 @@ bool DAO_Mysql::columnExisted_TR(const QString & colName) const{
     bool result = false;
     QSqlQuery query(*this->theDataBase);
 
-    query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+    query.exec(QString("SELECT COLUMN_NAME FROM information_schema.COLUMNS where table_name='%1';").arg(patientInfo_TableName));
     qDebug()<<query.lastError();
+
     while(query.next()){
         if(query.value(0).isValid()){
-            if(query.value(1).toString() == colName){
+            if(query.value(0).toString() == colName){
                 result = true;
                 break;
             }
@@ -573,7 +576,7 @@ void DAO_Mysql::getAllValueByKey_Patient(const QString & key,QStringList & resul
     }
 }
 
-void DAO_Mysql::getRowValueByItemValue_Patient(const QString & key,const QString & value,QStringList & result) const{
+void DAO_Mysql::getRowValueByItemValue_Patient(const QString & key,const QString & value,std::map<QString,QString> & result) const{
     QSqlQuery query(*this->theDataBase);
     unsigned int size = 0;
     query.exec(QString("select * from %1 where %2 = '%3';").arg(patientInfo_TableName).arg(key).arg(value));
@@ -582,7 +585,7 @@ void DAO_Mysql::getRowValueByItemValue_Patient(const QString & key,const QString
     size = query.record().count();
     while(query.next()){
         for(unsigned int i = 0;i<size;i++){
-            result.push_back(query.record().value(i).toString());
+            result.insert(std::pair<QString,QString>(query.record().fieldName(i),query.record().value(i).toString()));
         }
         break;
     }

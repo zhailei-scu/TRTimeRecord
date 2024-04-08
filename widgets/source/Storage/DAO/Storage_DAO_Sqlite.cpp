@@ -237,7 +237,7 @@ void DAO_Sqlite::appendARow_TR(const QString & tableName,
 }
 
 void DAO_Sqlite::appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos){
-    QStringList list;
+    std::map<QString,QString>  list;
     bool flag = true;
     QSqlQuery query(*this->theDataBase);
     const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
@@ -267,9 +267,10 @@ void DAO_Sqlite::appendARow_Patient(const std::map<unsigned int,std::pair<QStrin
 
                 this->getRowValueByItemValue_Patient(it->second.infoName,it_find->second.second,list);
 
-                if(list.size() == (int)patientInfos.size()){
+                if(list.size() == patientInfos.size()){
                     for(auto it_rep = patientInfos.begin();it_rep != patientInfos.end();it_rep++){
-                        if(list.at(it_rep->first) != it_rep->second.second){
+
+                        if(list.count(it_rep->second.first) <=0 || list.at(it_rep->second.first) != it_rep->second.second){
                             flag = false;
                             break;
                         }
@@ -567,7 +568,7 @@ void DAO_Sqlite::getAllValueByKey_Patient(const QString & key,QStringList & resu
     }
 }
 
-void DAO_Sqlite::getRowValueByItemValue_Patient(const QString & key,const QString & value,QStringList & result) const{
+void DAO_Sqlite::getRowValueByItemValue_Patient(const QString & key,const QString & value,std::map<QString,QString> & result) const{
     QSqlQuery query(*this->theDataBase);
     unsigned int size = 0;
     query.exec(QString("select * from %1 where %2 = '%3';").arg(patientInfo_TableName).arg(key).arg(value));
@@ -576,7 +577,7 @@ void DAO_Sqlite::getRowValueByItemValue_Patient(const QString & key,const QStrin
     size = query.record().count();
     while(query.next()){
         for(unsigned int i = 0;i<size;i++){
-            result.push_back(query.record().value(i).toString());
+            result.insert(std::pair<QString,QString>(query.record().fieldName(i),query.record().value(i).toString()));
         }
         break;
     }
