@@ -43,9 +43,14 @@ public:
         return this->theDataBase;
     }
 
+    virtual const QString & getTheLinkName() const{
+        return this->linkName;
+    }
+
     virtual void getAllValueByKey_Patient(const QString & key,QStringList & result) const = 0;
     virtual void getRowValueByItemValue_Patient(const QString & key,const QString & value,std::map<QString,QString> & result) const = 0;
 
-    virtual bool columnExisted_TR(const QString & colName) const = 0;
+    virtual bool columnExisted(const QString & tableName,const QString & colName) const = 0;
+    virtual void getAllColumnName(const QString & tableName,std::list<QString> & result) const = 0;
 };
 #endif // STORAGE_DAO_INTERFACE_H

@@ -480,7 +480,7 @@ void TRTimeOperator::dataBaseView_TR(){
                                                    it != tables.rend();
                                                    ++it){
 
-        if(*it == patientInfo_TableName || *it == (patientInfo_TableName + "_back")){
+        if((*it).toLower() == patientInfo_TableName.toLower() || (*it).toLower() == (patientInfo_TableName + "_back").toLower()){
             continue;
         }
 
@@ -569,7 +569,7 @@ void TRTimeOperator::dataBaseView_PatientInfo(){
          it != tables.rend();
          ++it){
 
-        if(*it != patientInfo_TableName){
+        if((*it).toLower() != patientInfo_TableName.toLower()){
             continue;
         }
 
@@ -599,6 +599,7 @@ void TRTimeOperator::dataBaseView_PatientInfo(){
 
         compents->tableView->setEditTriggers(QAbstractItemView::DoubleClicked);
 
+        /*
         compents->insertButton = new SelfPushButton(tempWidget);
         //bind a shortcut
         this->daoViewer->bindOneButtonToSqlModel(compents->insertButton,compents->model);
@@ -624,6 +625,7 @@ void TRTimeOperator::dataBaseView_PatientInfo(){
                                             tempWidget->size().width()*0.2,
                                             tempWidget->size().height()*0.04);
         QObject::connect(compents->deleteButton,SIGNAL(sign_handlePressEvent(QObject*)),this->daoViewer,SLOT(deleteRow(QObject*)));
+        */
 
         compents->tableView->setStyleSheet(QString("background:'#498a78'"));
         compents->tableView->show();

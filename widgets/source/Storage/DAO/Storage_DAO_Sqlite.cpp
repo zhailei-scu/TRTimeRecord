@@ -83,7 +83,7 @@ bool DAO_Sqlite::tableExisted(const QString & tableName){
     query.exec(QString("select tbl_name from sqlite_master WHERE type = 'table' AND tbl_name = '%1';").arg(tableName));
     qDebug()<<query.lastError();
     if(query.next()){
-        if(query.value(0).isValid() && query.value(0).toString() == tableName){
+        if(query.value(0).isValid() && query.value(0).toString().toLower() == tableName.toLower()){
             result = true;
         }
     }
@@ -275,6 +275,8 @@ void DAO_Sqlite::appendARow_Patient(const std::map<unsigned int,std::pair<QStrin
                             break;
                         }
                     }
+                }else{
+                    flag = false;
                 }
 
                 if(flag) return;
@@ -346,11 +348,23 @@ void DAO_Sqlite::deleteLastRecord(const QString & tableName){
     }
 }
 
-bool DAO_Sqlite::columnExisted_TR(const QString & colName) const{
+void DAO_Sqlite::getAllColumnName(const QString & tableName,std::list<QString> & result) const{
+    QSqlQuery query(*this->theDataBase);
+
+    query.exec(QString("PRAGMA table_info(%1)").arg(tableName));
+    qDebug()<<query.lastError();
+    while(query.next()){
+        if(query.value(0).isValid()){
+            result.push_back(query.value(1).toString());
+        }
+    }
+}
+
+bool DAO_Sqlite::columnExisted(const QString & tableName,const QString & colName) const{
     bool result = false;
     QSqlQuery query(*this->theDataBase);
 
-    query.exec(QString("PRAGMA table_info(%1)").arg(patientInfo_TableName));
+    query.exec(QString("PRAGMA table_info(%1)").arg(tableName));
     qDebug()<<query.lastError();
     while(query.next()){
         if(query.value(0).isValid()){

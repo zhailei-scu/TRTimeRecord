@@ -34,7 +34,9 @@ public:
     virtual void getAllValueByKey_Patient(const QString & key,QStringList & result) const;
 
     virtual void getRowValueByItemValue_Patient(const QString & key,const QString & value,std::map<QString,QString> & result) const;
-    bool columnExisted_TR(const QString & colName) const;
+
+    virtual bool columnExisted(const QString & tableName,const QString & colName) const;
+    virtual void getAllColumnName(const QString & tableName,std::list<QString> & result) const;
 private:
     void clear();
 };

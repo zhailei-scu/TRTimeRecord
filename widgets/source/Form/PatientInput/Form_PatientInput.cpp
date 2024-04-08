@@ -78,7 +78,7 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
             ((QComboBox*)editContent)->setEditable(true);
             QStringList().swap(list);
             list.clear();
-            if(DAO::getInstance()->getPatientInfoConnection()->columnExisted_TR(it->second.infoName)){
+            if(DAO::getInstance()->getPatientInfoConnection()->columnExisted(patientInfo_TableName,it->second.infoName)){
                 DAO::getInstance()->getPatientInfoConnection()->getAllValueByKey_Patient(it->second.infoName,list);
             }else{
                 qDebug()<<"Not existed..."<<it->second.infoName;

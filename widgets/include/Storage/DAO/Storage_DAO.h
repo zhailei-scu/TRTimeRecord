@@ -3,6 +3,12 @@
 
 #include <QSqlDatabase>
 #include "Storage_DAO_Interface.h"
+#include "../../../include/Storage/DAO/Storage_DAO_Sqlite.h"
+#include "../../../include/Storage/DAO/Storage_DAO_Mysql.h"
+
+const QString patientInfo_linkName_Sqlite = "patientInfoConnect_Sqlite";
+const QString patientInfo_linkName_MySql = "patientInfoConnect_MySql";
+const QString trRecord_linkName = "trInfoConnection";
 
 /**/
 class DAO{
@@ -27,6 +33,8 @@ public:
     void patientInfoReConnect();
 
 private:
+    void sync_PatientInfo();
+    void DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite* local);
     void clear();
 
 
