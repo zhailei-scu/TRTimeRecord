@@ -36,7 +36,9 @@ public:
     virtual void getRowValueByItemValue_Patient(const QString & key,const QString & value,std::map<QString,QString> & result) const;
 
     virtual bool columnExisted(const QString & tableName,const QString & colName) const;
-    virtual void getAllColumnName(const QString & tableName,std::list<QString> & result) const;
+    virtual void getAllColumnName(const QString & tableName,std::map<QString,unsigned int> & result) const;
+    virtual void getAllData_Patient(const QString & primaryKey,const std::map<QString,unsigned int> & columNames) const;
+
 private:
     void clear();
 };

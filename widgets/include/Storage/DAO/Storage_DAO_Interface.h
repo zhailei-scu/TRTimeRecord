@@ -51,6 +51,7 @@ public:
     virtual void getRowValueByItemValue_Patient(const QString & key,const QString & value,std::map<QString,QString> & result) const = 0;
 
     virtual bool columnExisted(const QString & tableName,const QString & colName) const = 0;
-    virtual void getAllColumnName(const QString & tableName,std::list<QString> & result) const = 0;
+    virtual void getAllColumnName(const QString & tableName,std::map<QString,unsigned int> & result) const = 0;
+    virtual void getAllData_Patient(const QString & primaryKey,const std::map<QString,unsigned int> & columNames) const = 0;
 };
 #endif // STORAGE_DAO_INTERFACE_H

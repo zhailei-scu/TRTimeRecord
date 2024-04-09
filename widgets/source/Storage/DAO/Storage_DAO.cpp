@@ -112,6 +112,10 @@ void DAO::sync_PatientInfo(){
 }
 
 void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite* local){
+    std::map<QString,unsigned int> remoteColumnNames;
+    std::map<QString,unsigned int> localColumnNames;
+    QString primaryKey = "";
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QSqlQuery query_remote(*remote->getTheDataBase());
     QSqlQuery query_local(*local->getTheDataBase());
 
@@ -123,9 +127,6 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
         local->createEmptyTable_Patient();
     }
 
-
-
-
     if(remote->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
         remote->updateTable_Patient();
     }
@@ -136,11 +137,47 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
         exit(-1);
     }
 
+    /*check column between remote and local*/
+    remote->getAllColumnName(patientInfo_TableName,remoteColumnNames);
+    local->getAllColumnName(patientInfo_TableName,localColumnNames);
 
+    for(std::map<QString,unsigned int>::iterator it = remoteColumnNames.begin();
+                                                 it != remoteColumnNames.end();
+                                                 it++){
+        std::map<QString,unsigned int>::iterator it_find = localColumnNames.find(it->first);
+        if(localColumnNames.end() == it_find){
+            QMessageBox::critical(nullptr,"Error","The lack of defination of column %1 in local database even after sync");
+            exit(-1);
+        }
+    }
 
+    for(std::map<QString,unsigned int>::iterator it = localColumnNames.begin();
+                                                 it != localColumnNames.end();
+                                                 it++){
+        std::map<QString,unsigned int>::iterator it_find = remoteColumnNames.find(it->first);
+        if(remoteColumnNames.end() == it_find){
+            QMessageBox::critical(nullptr,"Error","The lack of defination of column %1 in remote database even after sync");
+            exit(-1);
+        }
+    }
 
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
+                                                                 it != patientInfoPatten->end();
+                                                                 it++){
+        if(it->second.primaryKey){
+            primaryKey = it->second.infoName;
+            break;
+        }
+    }
 
+    if("" == primaryKey){
+        QMessageBox::critical(nullptr,"Error","The primary key is not finded!");
+        exit(-1);
+    }
 
+    /*sync from remote to local*/
+    remote->getAllData_Patient(primaryKey,localColumnNames);
+    local->getAllData_Patient(primaryKey,localColumnNames);
 
 
 
