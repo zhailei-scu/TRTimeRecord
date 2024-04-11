@@ -21,7 +21,9 @@ public:
     virtual void appendARow_TR(const QString & tableName,
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes);
-    virtual void appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos);
+    virtual void appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,bool lock = true);
+    virtual void appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock = true);
+    virtual void appendARow_Patient(const QString & colName,const QString & values,bool lock = true);
     virtual void deleteLastRecord(const QString & tableName);
     virtual std::list<QString> getAllTablesName();
     virtual std::list<QString> getLikelyTablesName(const QString & tableName);
@@ -37,8 +39,8 @@ public:
 
     virtual bool columnExisted(const QString & tableName,const QString & colName) const;
     virtual void getAllColumnName(const QString & tableName,std::map<QString,unsigned int> & result) const;
-    virtual void getAllData_Patient(const QString & primaryKey,const std::map<QString,unsigned int> & columNames) const;
-
+    virtual void getMultiRowData_Patient(const QString & primaryKey,const std::map<QString,unsigned int> & columNames,std::map<QString,QString> & result) const;
+    virtual void getMultiRowData_Patient(const QString & primaryKey,const QString & columNames,std::map<QString,QString> & result) const;
 private:
     void clear();
 };

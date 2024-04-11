@@ -30,7 +30,9 @@ public:
     virtual void appendARow_TR(const QString & tableName,
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes) = 0;
-    virtual void appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos) = 0;
+    virtual void appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,const bool lock = true) = 0;
+    virtual void appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock = true) = 0;
+    virtual void appendARow_Patient(const QString & colName,const QString & values,bool lock = true) = 0;
     virtual void deleteLastRecord(const QString & tableName) = 0;
     virtual std::list<QString> getAllTablesName() = 0;
     virtual std::list<QString> getLikelyTablesName(const QString & tableName) = 0;
@@ -52,6 +54,7 @@ public:
 
     virtual bool columnExisted(const QString & tableName,const QString & colName) const = 0;
     virtual void getAllColumnName(const QString & tableName,std::map<QString,unsigned int> & result) const = 0;
-    virtual void getAllData_Patient(const QString & primaryKey,const std::map<QString,unsigned int> & columNames) const = 0;
+    virtual void getMultiRowData_Patient(const QString & primaryKey,const std::map<QString,unsigned int> & columNames,std::map<QString,QString> & result) const = 0;
+    virtual void getMultiRowData_Patient(const QString & primaryKey,const QString & columNames,std::map<QString,QString> & result) const = 0;
 };
 #endif // STORAGE_DAO_INTERFACE_H

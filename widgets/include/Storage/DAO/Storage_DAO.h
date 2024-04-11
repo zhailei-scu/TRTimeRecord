@@ -35,9 +35,8 @@ public:
 private:
     void sync_PatientInfo();
     void DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite* local);
+    void MergeBasedOnFirst(QString & first,const QString & second);
     void clear();
-
-
 private:
     class GbClear{
     public:

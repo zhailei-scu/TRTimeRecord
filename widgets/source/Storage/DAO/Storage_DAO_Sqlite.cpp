@@ -236,6 +236,7 @@ void DAO_Sqlite::appendARow_TR(const QString & tableName,
     }
 }
 
+
 void DAO_Sqlite::appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos){
     std::map<QString,QString>  list;
     bool flag = true;
@@ -534,11 +535,14 @@ void DAO_Sqlite::getRowValueByItemValue_Patient(const QString & key,const QStrin
 }
 
 
-void DAO_Sqlite::getAllData_Patient(const std::map<QString,unsigned int> & columNames) const{
+void DAO_Sqlite::getAllData_Patient(const QString & primaryKey,
+                                    const std::map<QString,unsigned int> & columNames,
+                                    std::map<QString,QString> & result) const{
     QSqlQuery query(*this->theDataBase);
     QString queryColumn;
     unsigned int size = columNames.size();
     unsigned int index = 0;
+    QString str = "";
 
     for(std::map<QString,unsigned int>::const_iterator it = columNames.begin();
          it != columNames.end();
@@ -555,7 +559,19 @@ void DAO_Sqlite::getAllData_Patient(const std::map<QString,unsigned int> & colum
 
     qDebug()<<"all: "<<query.lastError();
 
-    for(int i = 0;i<query.boundValues().count();i++){
-        qDebug()<<i<<query.boundValues();
+    while(query.next()){
+        size = query.record().count();
+        str = "";
+        index = 0;
+        for(unsigned int i = 0;i<size;i++){
+            index++;
+            str.append(query.record().value(i).toString());
+
+            if(index != size){
+                str.append(",");
+            }
+        }
+        result.insert(std::pair<QString,QString>(query.record().value(primaryKey).toString(),str));
     }
 }
+
