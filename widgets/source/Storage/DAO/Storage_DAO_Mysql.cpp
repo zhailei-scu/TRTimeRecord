@@ -255,11 +255,14 @@ void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString
 }
 
 
-void DAO_Mysql::updateARow_Patient(const QString & primaryKey,const std::map<QString,unsigned int> & colName,const QString & values,const bool lock = true){
+void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
+                                   const QString & primaryValue,
+                                   const std::map<QString,unsigned int> & colName,
+                                   const QString & values,
+                                   const bool lock){
     std::map<QString,QString>  list;
     bool flag = true;
     QSqlQuery query(*this->theDataBase);
-    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QString str;
     if(!this->tableExisted(patientInfo_TableName)){
         qDebug()<<"Table is not existed, create a new table: "<<patientInfo_TableName;
@@ -274,45 +277,12 @@ void DAO_Mysql::updateARow_Patient(const QString & primaryKey,const std::map<QSt
         }
     }
 
-
-
-    this->getRowValueByItemValue_Patient(primaryKey,it_find->second.second,"","","",list);
-
-                if(list.size() == patientInfos.size()){
-                    for(auto it_rep = patientInfos.begin();it_rep != patientInfos.end();it_rep++){
-
-                        if(list.count(it_rep->second.first) <= 0 || list.at(it_rep->second.first) != it_rep->second.second){
-                            flag = false;
-                            break;
-                        }
-                    }
-                }else{
-                    flag = false;
-                }
-
-                if(flag){
-
-                    if(lock){
-                        query.exec(QString("unlock tables;"));
-                        if(QSqlError::NoError != query.lastError().type()){
-                            QMessageBox::critical(nullptr,"Error",query.lastError().text());
-                            exit(-1);
-                        }
-                    }
-
-                    return;
-                }
-
-                query.exec(QString("DELETE FROM %1 WHERE %2 = '%3';")
+    query.exec(QString("DELETE FROM %1 WHERE %2 = '%3';")
                                .arg(patientInfo_TableName)
-                               .arg(it->second.infoName)
-                               .arg(it_find->second.second));
+                               .arg(primaryKey)
+                               .arg(primaryValue));
 
-                qDebug()<<query.lastError();
-                break;
-            }
-        }
-    }
+    qDebug()<<query.lastError();
 
     this->generateSQL_appendARow_Patient(colName,values,str);
     query.exec(str);
@@ -329,7 +299,6 @@ void DAO_Mysql::updateARow_Patient(const QString & primaryKey,const std::map<QSt
         }
     }
 }
-
 
 void DAO_Mysql::appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock){
     std::map<QString,QString>  list;

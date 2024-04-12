@@ -23,9 +23,13 @@ public:
     virtual void appendARow_TR(const QString & tableName,
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes);
-    virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,bool lock = true);
+    virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,const bool lock = true);
+    virtual void updateARow_Patient(const QString & primaryKey,
+                                    const QString & primaryValue,
+                                    const std::map<QString,unsigned int> & colName,
+                                    const QString & values,
+                                    const bool lock = true);
     virtual void appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock = true);
-    virtual void updateARow_Patient(const std::map<QString,unsigned int> & colName,const bool lock = true);
     virtual void deleteLastRecord(const QString & tableName);
     virtual std::list<QString> getAllTablesName();
     virtual std::list<QString> getLikelyTablesName(const QString & tableName);

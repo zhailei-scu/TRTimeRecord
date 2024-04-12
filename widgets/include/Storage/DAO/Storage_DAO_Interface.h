@@ -31,7 +31,11 @@ public:
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes) = 0;
     virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,const bool lock = true) = 0;
-    virtual void updateARow_Patient(const std::map<QString,unsigned int> & colName,const bool lock = true) = 0;
+    virtual void updateARow_Patient(const QString & primaryKey,
+                                    const QString & primaryValue,
+                                    const std::map<QString,unsigned int> & colName,
+                                    const QString & values,
+                                    const bool lock = true) = 0;
     virtual void appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock = true) = 0;
     virtual void deleteLastRecord(const QString & tableName) = 0;
     virtual std::list<QString> getAllTablesName() = 0;

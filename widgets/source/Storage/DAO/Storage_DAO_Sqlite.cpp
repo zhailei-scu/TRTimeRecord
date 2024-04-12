@@ -293,6 +293,35 @@ void DAO_Sqlite::updateARow_Patient(const std::map<unsigned int,std::pair<QStrin
     }
 }
 
+void DAO_Sqlite::updateARow_Patient(const QString & primaryKey,
+                                    const QString & primaryValue,
+                                    const std::map<QString,unsigned int> & colName,
+                                    const QString & values,
+                                    const bool lock){
+    std::map<QString,QString>  list;
+    bool flag = true;
+    QSqlQuery query(*this->theDataBase);
+    QString str;
+    if(!this->tableExisted(patientInfo_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_TableName;
+        this->createEmptyTable_Patient();
+    }
+
+    query.exec(QString("DELETE FROM %1 WHERE %2 = '%3';")
+                   .arg(patientInfo_TableName)
+                   .arg(primaryKey)
+                   .arg(primaryValue));
+
+    qDebug()<<query.lastError();
+
+    this->generateSQL_appendARow_Patient(colName,values,str);
+    query.exec(str);
+    if(QSqlError::NoError != query.lastError().type()){
+        QMessageBox::critical(nullptr,"Error",query.lastError().text());
+        exit(-1);
+    }
+}
+
 void DAO_Sqlite::appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock){
     std::map<QString,QString>  list;
     QSqlQuery query(*this->theDataBase);

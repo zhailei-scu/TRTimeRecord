@@ -201,8 +201,8 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
         if(data_Local.end() != it_find){
             if(it->second != it_find->second){
                 this->MergeBasedOnFirst(it_find->second,it->second);
-                local->updateARow_Patient(primaryKey,localColumnNames,it_find->second);
-                remote->updateARow_Patient(primaryKey,localColumnNames,it_find->second,false);
+                local->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second);
+                remote->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second,false);
             }
 
             data_Local.erase(it_find);
