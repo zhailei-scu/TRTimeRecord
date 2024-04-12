@@ -79,7 +79,7 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
             QStringList().swap(list);
             list.clear();
             if(DAO::getInstance()->getPatientInfoConnection()->columnExisted(patientInfo_TableName,it->second.infoName)){
-                DAO::getInstance()->getPatientInfoConnection()->getAllValueByKey_Patient(it->second.infoName,list);
+                DAO::getInstance()->getPatientInfoConnection()->getOneColData_Patient(it->second.infoName,"","","",list);
             }else{
                 qDebug()<<"Not existed..."<<it->second.infoName;
             }
@@ -267,7 +267,7 @@ void PatientInput::fillInfo(const QString & value){
     std::map<QString,QString> list;
     QWidget* editContent = NULL;
     QString key = qobject_cast<QCompleter*>(sender())->objectName();
-    DAO::getInstance()->getPatientInfoConnection()->getRowValueByItemValue_Patient(key,value,list);
+    DAO::getInstance()->getPatientInfoConnection()->getRowValueByItemValue_Patient(key,value,"","","",list);
 
     const std::map<unsigned int,OnePatientPattern>* pattern = ConfigLoader::getInstance()->getThePatientInfoPatten();
 

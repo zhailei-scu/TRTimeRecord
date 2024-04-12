@@ -192,17 +192,17 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
         exit(-1);
     }
 
-    /*
-    /sync between remote and local/
-    remote->getAllData_Patient(primaryKey,localColumnNames,data_Remote);
-    local->getAllData_Patient(primaryKey,localColumnNames,data_Local);
+    /*sync between remote and local*/
+    remote->getMultiColData_Patient(primaryKey,localColumnNames,",","'","'",data_Remote);
+    local->getMultiColData_Patient(primaryKey,localColumnNames,",","'","'",data_Local);
+
     for(std::map<QString,QString>::iterator it = data_Remote.begin();it != data_Remote.end();it++){
         std::map<QString,QString>::iterator it_find = data_Local.find(it->first);
         if(data_Local.end() != it_find){
             if(it->second != it_find->second){
                 this->MergeBasedOnFirst(it_find->second,it->second);
-                local->appendARow_Patient(localColumnNames,it_find->second);
-                remote->appendARow_Patient(localColumnNames,it_find->second);
+                local->updateARow_Patient(primaryKey,localColumnNames,it_find->second);
+                remote->updateARow_Patient(primaryKey,localColumnNames,it_find->second,false);
             }
 
             data_Local.erase(it_find);
@@ -210,9 +210,10 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
             local->appendARow_Patient(localColumnNames,it->second);
         }
     }
-    //sync reminded items from local to remote/
+
+    /*sync reminded items from local to remote*/
     for(std::map<QString,QString>::iterator it = data_Local.begin();it != data_Local.end();it++){
-        remote->appendARow_Patient(localColumnNames,it_find->second);
+        remote->appendARow_Patient(localColumnNames,it->second,false);
     }
 
     query_remote.exec(QString("unlock tables;"));
@@ -220,7 +221,6 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
         QMessageBox::critical(nullptr,"Error",query_remote.lastError().text());
         exit(-1);
     }
-    */
 
 }
 
