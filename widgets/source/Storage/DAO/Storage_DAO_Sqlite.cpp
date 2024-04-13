@@ -379,7 +379,7 @@ void DAO_Sqlite::generateSQL_appendARow_Patient(const QString & colNamesCombine,
     result.append(") VALUES (").append(values).append(");");
 }
 
-void DAO_Sqlite::deleteLastRecord(const QString & tableName){
+void DAO_Sqlite::deleteLastRecord(const QString & tableName,bool lock){
     QString str("");
     QSqlQuery query(*this->theDataBase);
     if(this->tableExisted(tableName)){
@@ -389,7 +389,6 @@ void DAO_Sqlite::deleteLastRecord(const QString & tableName){
                          ";").arg(tableName);
 
         query.exec(str);
-
         if(QSqlError::NoError != query.lastError().type()){
             QMessageBox::critical(nullptr,"Error",query.lastError().text());
             exit(-1);
@@ -525,9 +524,18 @@ bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,OnePatien
     return flag;
 }
 
-void DAO_Sqlite::updateTable_Patient(){
-    std::map<QString,unsigned int> list_PatientPattern;
-    std::map<QString,unsigned int> columnNames;
+void DAO_Sqlite::insertACol_Patient(const QString & colName,const QString & colType,bool lock){
+    QSqlQuery query(*this->theDataBase);
+    query.exec(QString("alter table %1 add %2 %3;").arg(patientInfo_TableName).arg(colName).arg(colType));
+    if(QSqlError::NoError != query.lastError().type()){
+        QMessageBox::critical(nullptr,"Error",query.lastError().text());
+        exit(-1);
+    }
+}
+
+void DAO_Sqlite::updateTable_Patient(bool lock){
+    std::map<QString,QString> list_PatientPattern;
+    std::map<QString,QString> columnNames;
     const std::map<unsigned int,OnePatientPattern> * patientPattern = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QSqlQuery query(*this->theDataBase);
 
@@ -608,7 +616,7 @@ void DAO_Sqlite::getOneColData_Patient(const QString & key,
 }
 
 void DAO_Sqlite::getMultiColData_Patient(const QString & primaryKey,
-                                         const std::map<QString,unsigned int> & columNames,
+                                         const std::map<QString,QString> & columNames,
                                          const QString & seperate,
                                          const QString & preAppendStr,
                                          const QString & postAppendStr,
@@ -617,9 +625,9 @@ void DAO_Sqlite::getMultiColData_Patient(const QString & primaryKey,
     unsigned int size = columNames.size();
     unsigned int index = 0;
 
-    for(std::map<QString,unsigned int>::const_iterator it = columNames.begin();
-                                                       it != columNames.end();
-                                                       it++){
+    for(std::map<QString,QString>::const_iterator it = columNames.begin();
+                                                  it != columNames.end();
+                                                  it++){
         index++;
         queryColumn.append(it->first);
 

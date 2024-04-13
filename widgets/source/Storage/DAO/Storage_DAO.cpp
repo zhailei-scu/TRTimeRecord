@@ -127,8 +127,8 @@ void DAO::MergeBasedOnFirst(QString & first,const QString & second){
 }
 
 void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite* local){
-    std::map<QString,unsigned int> remoteColumnNames;
-    std::map<QString,unsigned int> localColumnNames;
+    std::map<QString,QString> remoteColumnNames;
+    std::map<QString,QString> localColumnNames;
     QString primaryKey = "";
     std::map<QString,QString> data_Remote;
     std::map<QString,QString> data_Local;
@@ -144,56 +144,64 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
         local->createEmptyTable_Patient();
     }
 
-    if(remote->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
-        remote->updateTable_Patient();
-    }
-
-    if(local->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
-        local->updateTable_Patient();
-    }
-
     query_remote.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
     if(QSqlError::NoError != query_remote.lastError().type()){
         QMessageBox::critical(nullptr,"Error",query_remote.lastError().text());
         exit(-1);
     }
 
+    if(remote->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
+        remote->updateTable_Patient(false);
+    }
+
+    if(local->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
+        local->updateTable_Patient(false);
+    }
+
     /*syncBack of local column*/
     remote->getAllColumnName(patientInfo_TableName,remoteColumnNames);
     local->getAllColumnName(patientInfo_TableName,localColumnNames);
 
-    for(std::map<QString,unsigned int>::iterator it = remoteColumnNames.begin();
-                                                 it != remoteColumnNames.end();
-                                                 it++){
-        std::map<QString,unsigned int>::iterator it_find = localColumnNames.find(it->first);
+    for(std::map<QString,QString>::iterator it = remoteColumnNames.begin();
+                                            it != remoteColumnNames.end();
+                                            it++){
+        std::map<QString,QString>::iterator it_find = localColumnNames.find(it->first);
         if(localColumnNames.end() == it_find){
-            QMessageBox::critical(nullptr,"Error",QString("The lack of defination of column %1 in local database even after sync").arg(it->first));
-            exit(-1);
+            local->insertACol_Patient(it->first,it->second,false);
+        }
+    }
+
+    for(std::map<QString,QString>::iterator it = localColumnNames.begin();
+                                            it != localColumnNames.end();
+                                            it++){
+        std::map<QString,QString>::iterator it_find = remoteColumnNames.find(it->first);
+        if(remoteColumnNames.end() == it_find){
+            remote->insertACol_Patient(it->first,it->second,false);
         }
     }
 
     /*check column between remote and local again*/
-    std::map<QString,unsigned int>().swap(remoteColumnNames);
+    std::map<QString,QString>().swap(remoteColumnNames);
     remoteColumnNames.clear();
     remote->getAllColumnName(patientInfo_TableName,remoteColumnNames);
-    std::map<QString,unsigned int>().swap(localColumnNames);
+    std::map<QString,QString>().swap(localColumnNames);
     localColumnNames.clear();
     local->getAllColumnName(patientInfo_TableName,localColumnNames);
 
-    for(std::map<QString,unsigned int>::iterator it = remoteColumnNames.begin();
-                                                 it != remoteColumnNames.end();
-                                                 it++){
-        std::map<QString,unsigned int>::iterator it_find = localColumnNames.find(it->first);
+    for(std::map<QString,QString>::iterator it = remoteColumnNames.begin();
+                                            it != remoteColumnNames.end();
+                                            it++){
+        std::map<QString,QString>::iterator it_find = localColumnNames.find(it->first);
         if(localColumnNames.end() == it_find){
             QMessageBox::critical(nullptr,"Error",QString("The lack of defination of column %1 in local database even after sync").arg(it->first));
             exit(-1);
         }
     }
 
-    for(std::map<QString,unsigned int>::iterator it = localColumnNames.begin();
-                                                 it != localColumnNames.end();
-                                                 it++){
-        std::map<QString,unsigned int>::iterator it_find = remoteColumnNames.find(it->first);
+    for(std::map<QString,QString>::iterator it = localColumnNames.begin();
+                                            it != localColumnNames.end();
+                                            it++){
+        std::map<QString,QString>::iterator it_find = remoteColumnNames.find(it->first);
         if(remoteColumnNames.end() == it_find){
             QMessageBox::critical(nullptr,"Error",QString("The lack of defination of column %1 in remote database even after sync").arg(it->first));
             exit(-1);
@@ -223,13 +231,13 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
         if(data_Local.end() != it_find){
             if(it->second != it_find->second){
                 this->MergeBasedOnFirst(it_find->second,it->second);
-                local->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second);
+                local->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second,false);
                 remote->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second,false);
             }
 
             data_Local.erase(it_find);
         }else{
-            local->appendARow_Patient(localColumnNames,it->second);
+            local->appendARow_Patient(localColumnNames,it->second,false);
         }
     }
 
@@ -252,7 +260,7 @@ void DAO::Start(){
     }
 
     if(DAO::getInstance()->getPatientInfoConnection()->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
-        DAO::getInstance()->getPatientInfoConnection()->updateTable_Patient();
+        DAO::getInstance()->getPatientInfoConnection()->updateTable_Patient(true);
     }
 
     qDebug()<<"DataBase Started...";

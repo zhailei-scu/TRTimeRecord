@@ -257,7 +257,7 @@ void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString
 
 void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
                                    const QString & primaryValue,
-                                   const std::map<QString,unsigned int> & colName,
+                                   const std::map<QString,QString> & colName,
                                    const QString & values,
                                    const bool lock){
     std::map<QString,QString>  list;
@@ -300,7 +300,7 @@ void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
     }
 }
 
-void DAO_Mysql::appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock){
+void DAO_Mysql::appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,bool lock){
     std::map<QString,QString>  list;
     QSqlQuery query(*this->theDataBase);
     QString str;
@@ -351,11 +351,11 @@ void DAO_Mysql::generateSQL_appendARow_Patient(const std::map<unsigned int,std::
     this->generateSQL_appendARow_Patient(colnumNames,values,result);
 }
 
-void DAO_Mysql::generateSQL_appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,QString & result){
+void DAO_Mysql::generateSQL_appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,QString & result){
     QString colnumNames;
     unsigned int size = colName.size();
     unsigned int index = 0;
-    for(std::map<QString,unsigned int>::const_iterator it = colName.begin(); it != colName.end(); it++){
+    for(std::map<QString,QString>::const_iterator it = colName.begin(); it != colName.end(); it++){
          index++;
         colnumNames.append(it->first);
 
@@ -373,15 +373,17 @@ void DAO_Mysql::generateSQL_appendARow_Patient(const QString & colNamesCombine,c
     result.append(") VALUES (").append(values).append(");");
 }
 
-void DAO_Mysql::deleteLastRecord(const QString & tableName){
+void DAO_Mysql::deleteLastRecord(const QString & tableName,bool lock){
     QString str("");
     QSqlQuery query(*this->theDataBase);
     if(this->tableExisted(tableName)){
 
-        query.exec(QString("lock table %1 write;").arg(tableName));
-        if(QSqlError::NoError != query.lastError().type()){
-            QMessageBox::critical(nullptr,"Error",query.lastError().text());
-            exit(-1);
+        if(lock){
+            query.exec(QString("lock table %1 write;").arg(tableName));
+            if(QSqlError::NoError != query.lastError().type()){
+                QMessageBox::critical(nullptr,"Error",query.lastError().text());
+                exit(-1);
+            }
         }
 
         str = str.append("delete from %1 where id like ("
@@ -396,10 +398,12 @@ void DAO_Mysql::deleteLastRecord(const QString & tableName){
             exit(-1);
         }
 
-        query.exec(QString("unlock tables;"));
-        if(QSqlError::NoError != query.lastError().type()){
-            QMessageBox::critical(nullptr,"Error",query.lastError().text());
-            exit(-1);
+        if(lock){
+            query.exec(QString("unlock tables;"));
+            if(QSqlError::NoError != query.lastError().type()){
+                QMessageBox::critical(nullptr,"Error",query.lastError().text());
+                exit(-1);
+            }
         }
     }
 }
@@ -438,8 +442,8 @@ bool DAO_Mysql::columnExisted(const QString & tableName,const QString & colName)
 }
 
 void DAO_Mysql::updateTableName_TR(QString & tableName,
-                                    const std::map<unsigned int,OnePatientPattern> & patientPattern,
-                                    const std::map<unsigned int,OneOperationPattern> & OperationPattern){
+                                   const std::map<unsigned int,OnePatientPattern> & patientPattern,
+                                   const std::map<unsigned int,OneOperationPattern> & OperationPattern){
     QMessageBox::critical(nullptr,"Error","Internal error: query to wrong database.");
     exit(-1);
 }
@@ -468,7 +472,32 @@ bool DAO_Mysql::needToUpdateTable_Patient(const std::map<unsigned int,OnePatient
     return flag;
 }
 
-void DAO_Mysql::updateTable_Patient(){
+void DAO_Mysql::insertACol_Patient(const QString & colName,const QString & colType,bool lock){
+    QSqlQuery query(*this->theDataBase);
+    if(lock){
+        query.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
+    }
+
+    query.exec(QString("alter table %1 add %2 %3;").arg(patientInfo_TableName).arg(colName).arg(colType));
+    if(QSqlError::NoError != query.lastError().type()){
+        QMessageBox::critical(nullptr,"Error",query.lastError().text());
+        exit(-1);
+    }
+
+    if(lock){
+        query.exec(QString("unlock tables;"));
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
+    }
+}
+
+void DAO_Mysql::updateTable_Patient(bool lock){
     std::map<QString,QString> columnNames;
     const std::map<unsigned int,OnePatientPattern> * patientPattern = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QSqlQuery query(*this->theDataBase);
@@ -479,10 +508,12 @@ void DAO_Mysql::updateTable_Patient(){
         return;
     }
 
-    query.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
-    if(QSqlError::NoError != query.lastError().type()){
-        QMessageBox::critical(nullptr,"Error",query.lastError().text());
-        exit(-1);
+    if(lock){
+        query.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
     }
 
     /*create table pp as select id from patientInfo*/
@@ -501,10 +532,12 @@ void DAO_Mysql::updateTable_Patient(){
         }
     }
 
-    query.exec(QString("unlock tables;"));
-    if(QSqlError::NoError != query.lastError().type()){
-        QMessageBox::critical(nullptr,"Error",query.lastError().text());
-        exit(-1);
+    if(lock){
+        query.exec(QString("unlock tables;"));
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
     }
 }
 
@@ -564,7 +597,7 @@ void DAO_Mysql::getRowValueByItemValue_Patient(const QString & key,
 }
 
 void DAO_Mysql::getMultiColData_Patient(const QString & primaryKey,
-                                        const std::map<QString,unsigned int> & columNames,
+                                        const std::map<QString,QString> & columNames,
                                         const QString & seperate,
                                         const QString & preAppendStr,
                                         const QString & postAppendStr,
@@ -574,9 +607,9 @@ void DAO_Mysql::getMultiColData_Patient(const QString & primaryKey,
     unsigned int size = columNames.size();
     unsigned int index = 0;
 
-    for(std::map<QString,unsigned int>::const_iterator it = columNames.begin();
-                                                       it != columNames.end();
-                                                       it++){
+    for(std::map<QString,QString>::const_iterator it = columNames.begin();
+                                                  it != columNames.end();
+                                                  it++){
         index++;
 
         queryColumn.append(it->first);

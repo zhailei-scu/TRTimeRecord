@@ -719,7 +719,7 @@ void TRTimeOperator::queryForNextPatient(){
             QMessageBox::information(nullptr,"Error",QString("Input: %1, you should input 'hficm'").arg(inputed));
         }
         if(OK){
-            DAO::getInstance()->getTrInfoConnection()->deleteLastRecord(Record::getInstance()->lastTableName);
+            DAO::getInstance()->getTrInfoConnection()->deleteLastRecord(Record::getInstance()->lastTableName,true);
             CSVWriter::getInstance()->deleteLastRecord();
         }
         this->inputPatientInfo(PatientInputMode(Modify));
@@ -758,7 +758,7 @@ void TRTimeOperator::inputPatientInfo(PatientInputMode model){
 
         if(QDialog::Accepted == result){
             if(DAO::getInstance()->getPatientInfoConnection()->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
-                DAO::getInstance()->getPatientInfoConnection()->updateTable_Patient();
+                DAO::getInstance()->getPatientInfoConnection()->updateTable_Patient(true);
             }
 
             DAO::getInstance()->getPatientInfoConnection()->updateARow_Patient(Record::getInstance()->patientInfoRecord,true);

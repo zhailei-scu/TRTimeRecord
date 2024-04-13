@@ -23,21 +23,23 @@ public:
     virtual void appendARow_TR(const QString & tableName,
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes);
-    virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,const bool lock = true);
+    virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
+                                    const bool lock);
     virtual void updateARow_Patient(const QString & primaryKey,
                                     const QString & primaryValue,
                                     const std::map<QString,QString> & colName,
                                     const QString & values,
-                                    const bool lock = true);
-    virtual void appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,bool lock = true);
-    virtual void deleteLastRecord(const QString & tableName);
+                                    const bool lock);
+    virtual void appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,bool lock);
+    virtual void insertACol_Patient(const QString & colName,const QString & colType,bool lock);
+    virtual void deleteLastRecord(const QString & tableName,bool lock);
     virtual std::list<QString> getAllTablesName();
     virtual std::list<QString> getLikelyTablesName(const QString & tableName);
     virtual void updateTableName_TR(QString & str,
                                     const std::map<unsigned int,OnePatientPattern> & patientPattern,
                                     const std::map<unsigned int,OneOperationPattern> & OperationPattern);
     virtual bool needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern);
-    virtual void updateTable_Patient();
+    virtual void updateTable_Patient(bool lock);
 
     virtual void getOneColData_Patient(const QString & key,
                                        const QString & seperate,
