@@ -405,15 +405,15 @@ void DAO_Mysql::deleteLastRecord(const QString & tableName){
 }
 
 void DAO_Mysql::getAllColumnName(const QString & tableName,
-                                 std::map<QString,unsigned int> & result) const{
+                                 std::map<QString,QString> & result) const{
     QSqlQuery query(*this->theDataBase);
 
-    query.exec(QString("SELECT COLUMN_NAME FROM information_schema.COLUMNS where table_name='%1';").arg(tableName));
+    query.exec(QString("SELECT COLUMN_NAME,COLUMN_TYPE FROM information_schema.COLUMNS where table_name='%1';").arg(tableName));
     qDebug()<<query.lastError();
 
     while(query.next()){
         if(query.value(0).isValid()){
-            result.insert(std::pair<QString,unsigned int>(query.value(0).toString(),0));
+            result.insert(std::pair<QString,QString>(query.value(0).toString(),query.value(1).toString()));
         }
     }
 }
@@ -445,14 +445,14 @@ void DAO_Mysql::updateTableName_TR(QString & tableName,
 }
 
 bool DAO_Mysql::needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern){
-    std::map<QString,unsigned int> list_PatientPattern;
-    std::map<QString,unsigned int> list_TableColumnName;
+    std::map<QString,QString> list_PatientPattern;
+    std::map<QString,QString> list_TableColumnName;
     bool flag = false;
 
     for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
                                                                  it != patientPattern.end();
                                                                  it++){
-        list_PatientPattern.insert(std::pair<QString,unsigned int>(it->second.infoName,0));
+        list_PatientPattern.insert(std::pair<QString,QString>(it->second.infoName,""));
     }
 
     if(tableExisted(patientInfo_TableName)){
@@ -469,8 +469,7 @@ bool DAO_Mysql::needToUpdateTable_Patient(const std::map<unsigned int,OnePatient
 }
 
 void DAO_Mysql::updateTable_Patient(){
-    std::map<QString,unsigned int> list_PatientPattern;
-    std::map<QString,unsigned int> columnNames;
+    std::map<QString,QString> columnNames;
     const std::map<unsigned int,OnePatientPattern> * patientPattern = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QSqlQuery query(*this->theDataBase);
 

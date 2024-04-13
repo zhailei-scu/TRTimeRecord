@@ -33,10 +33,12 @@ public:
     virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,const bool lock = true) = 0;
     virtual void updateARow_Patient(const QString & primaryKey,
                                     const QString & primaryValue,
-                                    const std::map<QString,unsigned int> & colName,
+                                    const std::map<QString,QString> & colName,
                                     const QString & values,
                                     const bool lock = true) = 0;
-    virtual void appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock = true) = 0;
+    virtual void appendARow_Patient(const std::map<QString,QString> & colName,
+                                    const QString & values,
+                                    bool lock = true) = 0;
     virtual void deleteLastRecord(const QString & tableName) = 0;
     virtual std::list<QString> getAllTablesName() = 0;
     virtual std::list<QString> getLikelyTablesName(const QString & tableName) = 0;
@@ -59,7 +61,7 @@ public:
                                        const QString & postAppendStr,
                                        QStringList & result) const = 0;
     virtual void getMultiColData_Patient(const QString & primaryKey,
-                                         const std::map<QString,unsigned int> & columNames,
+                                         const std::map<QString,QString> & columNames,
                                          const QString & seperate,
                                          const QString & preAppendStr,
                                          const QString & postAppendStr,
@@ -79,11 +81,11 @@ public:
                                                 std::map<QString,QString> & result) const = 0;
 
     virtual bool columnExisted(const QString & tableName,const QString & colName) const = 0;
-    virtual void getAllColumnName(const QString & tableName,std::map<QString,unsigned int> & result) const = 0;
+    virtual void getAllColumnName(const QString & tableName,std::map<QString,QString> & result) const = 0;
 
 
     virtual void generateSQL_appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,QString & result) = 0;
-    virtual void generateSQL_appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,QString & result)  = 0;
+    virtual void generateSQL_appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,QString & result)  = 0;
     virtual void generateSQL_appendARow_Patient(const QString & colName,const QString & values,QString & result)  = 0;
 };
 #endif // STORAGE_DAO_INTERFACE_H

@@ -26,10 +26,10 @@ public:
     virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,const bool lock = true);
     virtual void updateARow_Patient(const QString & primaryKey,
                                     const QString & primaryValue,
-                                    const std::map<QString,unsigned int> & colName,
+                                    const std::map<QString,QString> & colName,
                                     const QString & values,
                                     const bool lock = true);
-    virtual void appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock = true);
+    virtual void appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,bool lock = true);
     virtual void deleteLastRecord(const QString & tableName);
     virtual std::list<QString> getAllTablesName();
     virtual std::list<QString> getLikelyTablesName(const QString & tableName);
@@ -45,7 +45,7 @@ public:
                                        const QString & postAppendStr,
                                        QStringList & result) const;
     virtual void getMultiColData_Patient(const QString & primaryKey,
-                                         const std::map<QString,unsigned int> & columNames,
+                                         const std::map<QString,QString> & columNames,
                                          const QString & seperate,
                                          const QString & preAppendStr,
                                          const QString & postAppendStr,
@@ -65,10 +65,10 @@ public:
                                                 std::map<QString,QString> & result) const;
 
     virtual bool columnExisted(const QString & tableName,const QString & colName) const;
-    virtual void getAllColumnName(const QString & tableName,std::map<QString,unsigned int> & result) const;
+    virtual void getAllColumnName(const QString & tableName,std::map<QString,QString> & result) const;
 private:
     virtual void generateSQL_appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,QString & result);
-    virtual void generateSQL_appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,QString & result);
+    virtual void generateSQL_appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,QString & result);
     virtual void generateSQL_appendARow_Patient(const QString & colName,const QString & values,QString & result);
     void clear();
 };

@@ -148,13 +148,17 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
         remote->updateTable_Patient();
     }
 
+    if(local->needToUpdateTable_Patient(*ConfigLoader::getInstance()->getThePatientInfoPatten())){
+        local->updateTable_Patient();
+    }
+
     query_remote.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
     if(QSqlError::NoError != query_remote.lastError().type()){
         QMessageBox::critical(nullptr,"Error",query_remote.lastError().text());
         exit(-1);
     }
 
-    /*check column between remote and local*/
+    /*syncBack of local column*/
     remote->getAllColumnName(patientInfo_TableName,remoteColumnNames);
     local->getAllColumnName(patientInfo_TableName,localColumnNames);
 
@@ -163,7 +167,25 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
                                                  it++){
         std::map<QString,unsigned int>::iterator it_find = localColumnNames.find(it->first);
         if(localColumnNames.end() == it_find){
-            QMessageBox::critical(nullptr,"Error","The lack of defination of column %1 in local database even after sync");
+            QMessageBox::critical(nullptr,"Error",QString("The lack of defination of column %1 in local database even after sync").arg(it->first));
+            exit(-1);
+        }
+    }
+
+    /*check column between remote and local again*/
+    std::map<QString,unsigned int>().swap(remoteColumnNames);
+    remoteColumnNames.clear();
+    remote->getAllColumnName(patientInfo_TableName,remoteColumnNames);
+    std::map<QString,unsigned int>().swap(localColumnNames);
+    localColumnNames.clear();
+    local->getAllColumnName(patientInfo_TableName,localColumnNames);
+
+    for(std::map<QString,unsigned int>::iterator it = remoteColumnNames.begin();
+                                                 it != remoteColumnNames.end();
+                                                 it++){
+        std::map<QString,unsigned int>::iterator it_find = localColumnNames.find(it->first);
+        if(localColumnNames.end() == it_find){
+            QMessageBox::critical(nullptr,"Error",QString("The lack of defination of column %1 in local database even after sync").arg(it->first));
             exit(-1);
         }
     }
@@ -173,7 +195,7 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
                                                  it++){
         std::map<QString,unsigned int>::iterator it_find = remoteColumnNames.find(it->first);
         if(remoteColumnNames.end() == it_find){
-            QMessageBox::critical(nullptr,"Error","The lack of defination of column %1 in remote database even after sync");
+            QMessageBox::critical(nullptr,"Error",QString("The lack of defination of column %1 in remote database even after sync").arg(it->first));
             exit(-1);
         }
     }

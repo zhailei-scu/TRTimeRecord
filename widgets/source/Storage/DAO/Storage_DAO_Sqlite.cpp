@@ -295,7 +295,7 @@ void DAO_Sqlite::updateARow_Patient(const std::map<unsigned int,std::pair<QStrin
 
 void DAO_Sqlite::updateARow_Patient(const QString & primaryKey,
                                     const QString & primaryValue,
-                                    const std::map<QString,unsigned int> & colName,
+                                    const std::map<QString,QString> & colName,
                                     const QString & values,
                                     const bool lock){
     std::map<QString,QString>  list;
@@ -322,7 +322,7 @@ void DAO_Sqlite::updateARow_Patient(const QString & primaryKey,
     }
 }
 
-void DAO_Sqlite::appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,bool lock){
+void DAO_Sqlite::appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,bool lock){
     std::map<QString,QString>  list;
     QSqlQuery query(*this->theDataBase);
     QString str;
@@ -357,11 +357,11 @@ void DAO_Sqlite::generateSQL_appendARow_Patient(const std::map<unsigned int,std:
     this->generateSQL_appendARow_Patient(colnumNames,values,result);
 }
 
-void DAO_Sqlite::generateSQL_appendARow_Patient(const std::map<QString,unsigned int> & colName,const QString & values,QString & result){
+void DAO_Sqlite::generateSQL_appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,QString & result){
     QString colnumNames;
     unsigned int size = colName.size();
     unsigned int index = 0;
-    for(std::map<QString,unsigned int>::const_iterator it = colName.begin(); it != colName.end(); it++){
+    for(std::map<QString,QString>::const_iterator it = colName.begin(); it != colName.end(); it++){
         index++;
         colnumNames.append(it->first);
 
@@ -397,14 +397,14 @@ void DAO_Sqlite::deleteLastRecord(const QString & tableName){
     }
 }
 
-void DAO_Sqlite::getAllColumnName(const QString & tableName,std::map<QString,unsigned int> & result) const{
+void DAO_Sqlite::getAllColumnName(const QString & tableName,std::map<QString,QString> & result) const{
     QSqlQuery query(*this->theDataBase);
 
     query.exec(QString("PRAGMA table_info(%1)").arg(tableName));
     qDebug()<<query.lastError();
     while(query.next()){
         if(query.value(0).isValid()){
-            result.insert(std::pair<QString,unsigned int>(query.value(1).toString(),0));
+            result.insert(std::pair<QString,QString>(query.value(1).toString(),query.value(2).toString()));
         }
     }
 }
@@ -502,14 +502,14 @@ void DAO_Sqlite::updateTableName_TR(QString & tableName,
 }
 
 bool DAO_Sqlite::needToUpdateTable_Patient(const std::map<unsigned int,OnePatientPattern> & patientPattern){
-    std::map<QString,unsigned int> list_PatientPattern;
-    std::map<QString,unsigned int> list_TableColumnName;
+    std::map<QString,QString> list_PatientPattern;
+    std::map<QString,QString> list_TableColumnName;
     bool flag = false;
 
     for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientPattern.begin();
          it != patientPattern.end();
          it++){
-        list_PatientPattern.insert(std::pair<QString,unsigned int>(it->second.infoName,0));
+        list_PatientPattern.insert(std::pair<QString,QString>(it->second.infoName,""));
     }
 
     if(tableExisted(patientInfo_TableName)){
