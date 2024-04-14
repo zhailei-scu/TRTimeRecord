@@ -60,6 +60,11 @@ DAO_Mysql::DAO_Mysql(QWidget* parent,const QString & linkName):DAO_Interface(par
     this->theDataBase->setUserName(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(3)));
     this->theDataBase->setPassword(ConfigLoader::getInstance()->getOnlineDatabaseInfo().at(OnlineInfoPattern::getInstance()->getDefalutPattern().at(4)));
     this->theDataBase->open();
+
+    if(!this->theDataBase || !this->theDataBase->isOpen() || this->theDataBase->isOpenError() || !this->theDataBase->isValid()){
+        QMessageBox::information(nullptr,"Information",this->theDataBase->lastError().text());
+    }
+
     this->hide();
 }
 

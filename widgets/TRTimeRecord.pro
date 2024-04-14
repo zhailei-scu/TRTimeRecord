@@ -65,3 +65,6 @@ RESOURCES += \
     ui/qrc/icon.qrc \
     ui/qrc/qml.qrc \
     ui/qrc/style.qrc
+	
+RC_ICONS +=  \
+	ui/qrc/img/logo.ico

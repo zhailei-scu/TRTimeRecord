@@ -1,2 +1,5 @@
 build-qml*/
 build-TRTimeRecord*/
+Deploy/DeployFiles/
+Deploy/DeployOut/
+Deploy/DeployScripts/

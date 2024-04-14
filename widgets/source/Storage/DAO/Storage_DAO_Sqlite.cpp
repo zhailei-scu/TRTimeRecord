@@ -54,6 +54,11 @@ DAO_Sqlite::DAO_Sqlite(QWidget* parent,const QString & linkName):DAO_Interface(p
     this->theDataBase = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE",linkName));
     this->theDataBase->setDatabaseName(systemDBPath);
     this->theDataBase->open();
+
+    if(!this->theDataBase || !this->theDataBase->isOpen() || this->theDataBase->isOpenError() || !this->theDataBase->isValid()){
+        QMessageBox::information(nullptr,"Information",this->theDataBase->lastError().text());
+    }
+
     this->hide();
 }
 
