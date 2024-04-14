@@ -10,6 +10,12 @@
 
 const char appendFlag = 'F';
 const QString patientInfo_TableName = "patientInfo";
+const QString patientInfo_ManualMark_TableName = "patientInfo_ManualMark";
+
+enum ManualMark{
+    ProActive = 0,
+    Passive = 1
+};
 
 class DAO_Interface:public QDialog{
 
@@ -27,21 +33,30 @@ public:
     virtual QString getRowCount(const QString & tableName) = 0;
     virtual void createEmptyTable_TR(const QString & tableName) = 0;
     virtual void createEmptyTable_Patient() = 0;
+    virtual void createEmptyTable_Patient_ManualMark() = 0;
     virtual void appendARow_TR(const QString & tableName,
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes) = 0;
     virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
-                                    const bool lock) = 0;
+                                    const bool lock,
+                                    ManualMark mark) = 0;
     virtual void updateARow_Patient(const QString & primaryKey,
                                     const QString & primaryValue,
                                     const std::map<QString,QString> & colName,
                                     const QString & values,
-                                    const bool lock) = 0;
+                                    const bool lock,
+                                    ManualMark mark) = 0;
     virtual void appendARow_Patient(const std::map<QString,QString> & colName,
                                     const QString & values,
-                                    bool lock) = 0;
-    virtual void insertACol_Patient(const QString & colName,const QString & colType,bool lock) = 0;
-    virtual void deleteLastRecord(const QString & tableName,bool lock) = 0;
+                                    bool lock,
+                                    ManualMark mark) = 0;
+    virtual void insertACol_Patient(const QString & colName,
+                                    const QString & colType,
+                                    bool lock,
+                                    ManualMark mark) = 0;
+    virtual void deleteLastRecord(const QString & tableName,
+                                  bool lock,
+                                  ManualMark mark) = 0;
     virtual std::list<QString> getAllTablesName() = 0;
     virtual std::list<QString> getLikelyTablesName(const QString & tableName) = 0;
     virtual void updateTableName_TR(QString & str,
