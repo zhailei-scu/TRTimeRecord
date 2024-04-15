@@ -106,6 +106,16 @@ void TRTimeOperator::uiConstruct(){
                      this,
                      &TRTimeOperator::networkSetting);
 
+    QObject::connect(this->toolBar->toolsMap->at("Port"),
+                     SIGNAL(pressed()),
+                     this,
+                     SLOT(networkSetting()));
+
+    QObject::connect(this->toolBar->toolsMap->at("sync"),
+                     SIGNAL(pressed()),
+                     this,
+                     SLOT(sync()));
+
     this->uiForm->tabWidget->setGeometry(0,
                                          this->toolBar->geometry().bottom(),
                                          this->geometry().width(),
@@ -695,6 +705,18 @@ void TRTimeOperator::networkSetting(){
 
     delete databaseSettingForm;
     databaseSettingForm = NULL;
+}
+
+void TRTimeOperator::sync(){
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Sync confirm");
+    msgBox.setInformativeText("Are you sure to sync database?");
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    int ret = msgBox.exec();
+    if(ret == QMessageBox::Ok){
+        DAO::getInstance()->sync_PatientInfo();
+    }
 }
 
 void TRTimeOperator::changeButtonStatus(unsigned int buttonID){

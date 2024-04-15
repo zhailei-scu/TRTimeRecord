@@ -70,6 +70,7 @@ private slots:
     void patientInfoSetting();
     void pipleLineSetting();
     void networkSetting();
+    void sync();
 };
 
 

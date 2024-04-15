@@ -31,9 +31,8 @@ public:
     DAO_Interface * getTrInfoConnection();
     static void Start();
     void patientInfoReConnect();
-
-private:
     void sync_PatientInfo();
+private:
     void DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite* local);
     void MergeBasedOnFirst(QString & first,
                            const std::map<QString,QString> & localColumnNames_Ori,

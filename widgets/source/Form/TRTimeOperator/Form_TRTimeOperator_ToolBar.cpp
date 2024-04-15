@@ -33,6 +33,21 @@ void OperatorToolBar::uiConstruct(const QRect & geometry){
     dataView->addAction("DataBase Viewer");
     this->toolsMap->insert(std::pair<QString,QToolButton*>("DataView",dataView));
     dataView->setPopupMode(QToolButton::InstantPopup);
+
+    QToolButton *sync = new QToolButton();
+    sync->setIcon(QIcon(":/img/sync.svg"));
+    sync->setText("sync");
+    this->addWidget(sync);
+    this->toolsMap->insert(std::pair<QString,QToolButton*>("sync",sync));
+
+    QToolButton *Port = new QToolButton();
+    Port->setIcon(QIcon(":/img/Port.svg"));
+    Port->setText("Port");
+    this->addWidget(Port);
+    Port->setCheckable(false);
+    this->toolsMap->insert(std::pair<QString,QToolButton*>("Port",Port));
+    Port->setPopupMode(QToolButton::InstantPopup);
+
     //this->layout()->addWidget(this->toolBar);
 
     //this->layout()->setAlignment(Qt::AlignTop);
