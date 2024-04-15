@@ -121,15 +121,28 @@ void DAO::MergeBasedOnFirst(QString & first,
                             ManualMark mark_Remote){
     QStringList firstSplited = first.split(",");
     QStringList secondSplited = second.split(",");
-    unsigned int size = firstSplited.size();
-    for(unsigned int i = 0;i<size;i++){
-        if(firstSplited.at(i) != secondSplited.at(i)){
-            if(firstSplited.at(i) == "null" ||
-               firstSplited.at(i) == "NULL" ||
-               firstSplited.at(i).simplified() == ""){
-                firstSplited[i] = secondSplited.at(i);
+    unsigned int index = 0;
+
+    if(firstSplited.size() != localColumnNames.size() || secondSplited.size() != remoteColumnNames.size() ||
+        localColumnNames.size() != remoteColumnNames.size()){
+        QMessageBox::critical(nullptr,"Error","Size checked failed");
+        exit(-1);
+    }
+
+    for(std::map<QString,QString>::const_iterator it = localColumnNames.begin();
+                                                  it != localColumnNames.end();
+                                                  it++){
+        if(firstSplited.at(index) != secondSplited.at(index)){
+            if(localColumnNames_Ori.count(it->first) > 0){
+                if(ManualMark(Passive) == mark_Local){
+                    firstSplited[index] = secondSplited.at(index);
+                }
+            }else{
+                firstSplited[index] = secondSplited.at(index);
             }
         }
+
+        index++;
     }
 }
 

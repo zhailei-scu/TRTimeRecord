@@ -35,7 +35,14 @@ public:
 private:
     void sync_PatientInfo();
     void DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite* local);
-    void MergeBasedOnFirst(QString & first,const QString & second);
+    void MergeBasedOnFirst(QString & first,
+                           const std::map<QString,QString> & localColumnNames_Ori,
+                           const std::map<QString,QString> & localColumnNames,
+                           ManualMark mark_Local,
+                           const QString & second,
+                           const std::map<QString,QString> & remoteColumnNames_Ori,
+                           const std::map<QString,QString> & remoteColumnNames,
+                           ManualMark mark_Remote);
     void clear();
 private:
     class GbClear{

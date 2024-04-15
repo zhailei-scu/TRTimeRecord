@@ -35,7 +35,9 @@ void OperatorMenuBar::uiConstruct(const QRect & geometry){
 
     //this->menuBar->addSeparator();
 
-    this->addMenu("Help?");
+    menu = this->addMenu("Help?");
+    this->menuMap->insert(std::pair<QString,const QMenu &>("Help?",*menu));
+    menu->addAction("About");
     //this->menuBar->addSeparator();
 
     this->setGeometry(geometry);

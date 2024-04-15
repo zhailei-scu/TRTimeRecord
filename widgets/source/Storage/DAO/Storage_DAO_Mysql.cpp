@@ -749,3 +749,15 @@ void DAO_Mysql::getMultiColData_Patient(const QString & primaryKey,
         result.insert(std::pair<QString,QString>(query.record().value(primaryKey).toString(),str));
     }
 }
+
+void DAO_Mysql::getManualMark(const QString & primaryKey,std::map<QString,QString> & result) const{
+    QSqlQuery query(*this->theDataBase);
+    query.exec(QString("select * from %1;").arg(patientInfo_ManualMark_TableName));
+
+    qDebug()<<query.lastError();
+
+    while(query.next()){
+        result.insert(std::pair<QString,QString>(query.record().value(primaryKey).toString(),
+                                                 query.record().value("Mark").toString()));
+    }
+}

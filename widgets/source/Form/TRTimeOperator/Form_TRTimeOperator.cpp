@@ -10,6 +10,7 @@
 #include "../../../include/Common/Ui/Common_Ui_SelfPushButton.h"
 #include "../../../include/Form/OperationLoop/Form_OperationLoop.h"
 #include "../../../include/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.h"
+#include "../../../include/Form/About/Form_About.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
@@ -75,6 +76,10 @@ void TRTimeOperator::uiConstruct(){
                      &QAction::triggered,
                      this,
                      &TRTimeOperator::networkSetting);
+    QObject::connect(this->menuBar->getMenu("Help?")->actions().at(0),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::ShowHelp);
 
     this->toolBar = new OperatorToolBar(this);
     this->toolBar->uiConstruct(QRect(0,
@@ -634,6 +639,15 @@ void TRTimeOperator::dataBaseView_PatientInfo(){
 
 void TRTimeOperator::storageSetting(){
     QMessageBox::information(nullptr,"Info","789");
+}
+
+void TRTimeOperator::ShowHelp(){
+    About* aboutForm = new About(this);
+
+    aboutForm->exec();
+
+    delete aboutForm;
+    aboutForm = NULL;
 }
 
 void TRTimeOperator::patientInfoSetting(){

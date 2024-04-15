@@ -70,6 +70,8 @@ public:
                                          const QString & postAppendStr,
                                          std::map<QString,QString> & result) const;
 
+    virtual void getManualMark(const QString & primaryKey,std::map<QString,QString> & result) const;
+
     virtual void getRowValueByItemValue_Patient(const QString & key,
                                                 const QString & value,
                                                 const QString & seperate,

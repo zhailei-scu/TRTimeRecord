@@ -8,6 +8,7 @@ SOURCES += \
     source/Common/Ui/Common_Ui_SelfPushButton.cpp \
     source/Common/Util/Common_Util_Base.cpp \
     source/Common/Util/Common_Util_JsonExt.cpp \
+    source/Form/About/Form_About.cpp \
     source/Global/Communication/Global_Communication_Record.cpp \
     source/Global/Config/Global_Config_ConfigLoader.cpp \
     source/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     include/Common/Ui/Common_Ui_SelfPushButton.h \
     include/Common/Util/Common_Util_Base.h \
     include/Common/Util/Common_Util_JsonExt.h \
+    include/Form/About/Form_About.h \
     include/Global/Communication/Global_Communication_Record.h \
     include/Global/Config/Global_Config_ConfigLoader.h \
     include/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.h \
@@ -54,6 +56,7 @@ HEADERS += \
     include/Storage/DAO/Storage_DAO_Viewer.h
 
 FORMS += \
+    ui/Form/About.ui \
     ui/Form/OnlineDatabaseSetting.ui \
     ui/Form/OperationLoop.ui \
     ui/Form/OperationPipelineSetting.ui \

@@ -66,6 +66,7 @@ private slots:
     void dataBaseView();
     void csvView();
     void storageSetting();
+    void ShowHelp();
     void patientInfoSetting();
     void pipleLineSetting();
     void networkSetting();
