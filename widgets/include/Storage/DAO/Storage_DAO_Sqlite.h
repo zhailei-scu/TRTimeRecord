@@ -20,6 +20,7 @@ public:
     virtual QString getRowCount(const QString & tableName);
     virtual void createEmptyTable_TR(const QString & tableName);
     virtual void createEmptyTable_Patient();
+    virtual void createEmptyTable_Patient_ManualMark();
     virtual void appendARow_TR(const QString & tableName,
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes);
@@ -30,9 +31,17 @@ public:
                                     const std::map<QString,QString> & colName,
                                     const QString & values,
                                     const bool lock);
-    virtual void appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,bool lock);
-    virtual void insertACol_Patient(const QString & colName,const QString & colType,bool lock);
-    virtual void deleteLastRecord(const QString & tableName,bool lock);
+    virtual void appendARow_Patient(const std::map<QString,QString> & colName,
+                                    const QString & values,
+                                    bool lock);
+    virtual void updateARow_PatientManualMark(const QString & primaryKey,
+                                              const QString & primaryKeyValue,
+                                              ManualMark mark,
+                                              bool lock);
+    virtual void insertACol_Patient(const QString & colName,
+                                    const QString & colType,
+                                    bool lock);
+    virtual void deleteLastRecord_TR(const QString & tableName);
     virtual std::list<QString> getAllTablesName();
     virtual std::list<QString> getLikelyTablesName(const QString & tableName);
     virtual void updateTableName_TR(QString & str,

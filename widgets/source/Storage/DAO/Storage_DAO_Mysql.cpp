@@ -1,4 +1,5 @@
 #include "../../../include/Storage/DAO/Storage_DAO_Mysql.h"
+#include "../../../include/Common/Util/Common_Util_Base.h"
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -172,6 +173,37 @@ void DAO_Mysql::createEmptyTable_Patient(){
     qDebug()<<query.lastError();
 }
 
+void DAO_Mysql::createEmptyTable_Patient_ManualMark(){
+    QString str("create table ");
+    bool finded = false;
+    QSqlQuery query(*this->theDataBase);
+    str.append(patientInfo_ManualMark_TableName).append(" (");
+
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
+                                                                 it != patientInfoPatten->end();
+                                                                 it++){
+        if(it->second.primaryKey){
+            str.append(it->second.infoName).append(" varchar(50) ");
+            str.append(" primary key unique,");
+            finded = true;
+            break;
+        }
+    }
+
+    if(!finded){
+        QMessageBox::critical(nullptr,"Error","No primary key finded!");
+        exit(-1);
+    }
+
+    str.append("Mark integer");
+
+    str.append(");");
+
+    query.exec(str);
+    qDebug()<<query.lastError();
+}
+
 void DAO_Mysql::appendARow_TR(const QString & tableName,
                               const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                               const std::map<unsigned int,QString> & operatorTimes){
@@ -179,12 +211,15 @@ void DAO_Mysql::appendARow_TR(const QString & tableName,
     exit(-1);
 }
 
-void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,const bool lock){
+void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
+                                   const bool lock){
     std::map<QString,QString>  list;
     bool flag = true;
     QSqlQuery query(*this->theDataBase);
     const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QString str;
+    QString primaryKey;
+    QString primaryKeyValue;
     if(!this->tableExisted(patientInfo_TableName)){
         qDebug()<<"Table is not existed, create a new table: "<<patientInfo_TableName;
         this->createEmptyTable_Patient();
@@ -202,10 +237,12 @@ void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString
                                                                  it != patientInfoPatten->end();
                                                                  it++){
         if(it->second.primaryKey){
-            auto it_find = patientInfos.find(it->first);
+            auto it_find = std::find_if(patientInfos.begin(),patientInfos.end(),map_value_finder_PairInValue<unsigned int,QString,QString>(it->second.infoName));
             if(it_find != patientInfos.end()){
+                primaryKey = it_find->second.first;
+                primaryKeyValue = it_find->second.second;
 
-                this->getRowValueByItemValue_Patient(it->second.infoName,it_find->second.second,"","","",list);
+                this->getRowValueByItemValue_Patient(primaryKey,primaryKeyValue,"","","",list);
 
                 if(list.size() == patientInfos.size()){
                     for(auto it_rep = patientInfos.begin();it_rep != patientInfos.end();it_rep++){
@@ -234,12 +271,18 @@ void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString
 
                 query.exec(QString("DELETE FROM %1 WHERE %2 = '%3';")
                                .arg(patientInfo_TableName)
-                               .arg(it->second.infoName)
-                               .arg(it_find->second.second));
+                               .arg(primaryKey)
+                               .arg(primaryKeyValue));
 
                 qDebug()<<query.lastError();
                 break;
+            }else{
+                QMessageBox::critical(nullptr,"Error","No primary key finded in inputed patient infos.");
+                exit(-1);
             }
+        }else{
+            QMessageBox::critical(nullptr,"Error","No primary key finded.");
+            exit(-1);
         }
     }
 
@@ -259,14 +302,12 @@ void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString
     }
 }
 
-
 void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
                                    const QString & primaryValue,
                                    const std::map<QString,QString> & colName,
                                    const QString & values,
                                    const bool lock){
     std::map<QString,QString>  list;
-    bool flag = true;
     QSqlQuery query(*this->theDataBase);
     QString str;
     if(!this->tableExisted(patientInfo_TableName)){
@@ -305,7 +346,9 @@ void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
     }
 }
 
-void DAO_Mysql::appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,bool lock){
+void DAO_Mysql::appendARow_Patient(const std::map<QString,QString> & colName,
+                                   const QString & values,
+                                   bool lock){
     std::map<QString,QString>  list;
     QSqlQuery query(*this->theDataBase);
     QString str;
@@ -323,6 +366,61 @@ void DAO_Mysql::appendARow_Patient(const std::map<QString,QString> & colName,con
     }
 
     this->generateSQL_appendARow_Patient(colName,values,str);
+    query.exec(str);
+    if(QSqlError::NoError != query.lastError().type()){
+        QMessageBox::critical(nullptr,"Error",query.lastError().text().append(str));
+        exit(-1);
+    }
+
+    if(lock){
+        query.exec(QString("unlock tables;"));
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
+    }
+}
+
+void DAO_Mysql::updateARow_PatientManualMark(const QString & primaryKey,
+                                             const QString & primaryKeyValue,
+                                             ManualMark mark,
+                                             bool lock){
+    QSqlQuery query(*this->theDataBase);
+    QString str;
+    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
+        this->createEmptyTable_Patient_ManualMark();
+    }
+
+    if(lock){
+        query.exec(QString("lock table %1 write;").arg(patientInfo_ManualMark_TableName));
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
+    }
+
+    query.exec(QString("select * from %1 where %2 = '%3';")
+                        .arg(patientInfo_ManualMark_TableName)
+                        .arg(primaryKey)
+                        .arg(primaryKeyValue));
+
+    if(query.size() > 0){
+        query.exec(QString("delete from %1 where %2 = '%3';")
+                        .arg(patientInfo_ManualMark_TableName)
+                        .arg(primaryKey)
+                        .arg(primaryKeyValue));
+    }
+
+    str.append("INSERT INTO ");
+    str.append(patientInfo_ManualMark_TableName).append(" (");
+    str.append(primaryKey).append(",");
+    str.append("Mark");
+    str.append(") VALUES (");
+    str.append(primaryKeyValue).append(",");
+    str.append(std::to_string((int)mark).c_str());
+    str.append(");");
+
     query.exec(str);
     if(QSqlError::NoError != query.lastError().type()){
         QMessageBox::critical(nullptr,"Error",query.lastError().text().append(str));
@@ -378,18 +476,10 @@ void DAO_Mysql::generateSQL_appendARow_Patient(const QString & colNamesCombine,c
     result.append(") VALUES (").append(values).append(");");
 }
 
-void DAO_Mysql::deleteLastRecord(const QString & tableName,bool lock){
+void DAO_Mysql::deleteLastRecord_TR(const QString & tableName){
     QString str("");
     QSqlQuery query(*this->theDataBase);
     if(this->tableExisted(tableName)){
-
-        if(lock){
-            query.exec(QString("lock table %1 write;").arg(tableName));
-            if(QSqlError::NoError != query.lastError().type()){
-                QMessageBox::critical(nullptr,"Error",query.lastError().text());
-                exit(-1);
-            }
-        }
 
         str = str.append("delete from %1 where id like ("
                          "select id from %1 order by id desc limit 1"
@@ -401,14 +491,6 @@ void DAO_Mysql::deleteLastRecord(const QString & tableName,bool lock){
         if(QSqlError::NoError != query.lastError().type()){
             QMessageBox::critical(nullptr,"Error",query.lastError().text());
             exit(-1);
-        }
-
-        if(lock){
-            query.exec(QString("unlock tables;"));
-            if(QSqlError::NoError != query.lastError().type()){
-                QMessageBox::critical(nullptr,"Error",query.lastError().text());
-                exit(-1);
-            }
         }
     }
 }

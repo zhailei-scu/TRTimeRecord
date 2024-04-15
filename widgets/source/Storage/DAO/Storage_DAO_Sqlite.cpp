@@ -185,6 +185,37 @@ void DAO_Sqlite::createEmptyTable_Patient(){
     qDebug()<<query.lastError();
 }
 
+void DAO_Sqlite::createEmptyTable_Patient_ManualMark(){
+    QString str("create table ");
+    bool finded = false;
+    QSqlQuery query(*this->theDataBase);
+    str.append(patientInfo_ManualMark_TableName).append(" (");
+
+    const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
+         it != patientInfoPatten->end();
+         it++){
+        if(it->second.primaryKey){
+            str.append(it->second.infoName).append(" varchar(50) ");
+            str.append(" primary key unique,");
+            finded = true;
+            break;
+        }
+    }
+
+    if(!finded){
+        QMessageBox::critical(nullptr,"Error","No primary key finded!");
+        exit(-1);
+    }
+
+    str.append("Mark integer");
+
+    str.append(");");
+
+    query.exec(str);
+    qDebug()<<query.lastError();
+}
+
 void DAO_Sqlite::appendARow_TR(const QString & tableName,
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes){
@@ -344,6 +375,61 @@ void DAO_Sqlite::appendARow_Patient(const std::map<QString,QString> & colName,co
     }
 }
 
+void DAO_Sqlite::updateARow_PatientManualMark(const QString & primaryKey,
+                                              const QString & primaryKeyValue,
+                                              ManualMark mark,
+                                              bool lock){
+    QSqlQuery query(*this->theDataBase);
+    QString str;
+    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
+        this->createEmptyTable_Patient_ManualMark();
+    }
+
+    if(lock){
+        query.exec(QString("lock table %1 write;").arg(patientInfo_ManualMark_TableName));
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
+    }
+
+    query.exec(QString("select * from %1 where %2 = '%3';")
+                   .arg(patientInfo_ManualMark_TableName)
+                   .arg(primaryKey)
+                   .arg(primaryKeyValue));
+
+    if(query.size() > 0){
+        query.exec(QString("delete from %1 where %2 = '%3';")
+                       .arg(patientInfo_ManualMark_TableName)
+                       .arg(primaryKey)
+                       .arg(primaryKeyValue));
+    }
+
+    str.append("INSERT INTO ");
+    str.append(patientInfo_ManualMark_TableName).append(" (");
+    str.append(primaryKey).append(",");
+    str.append("Mark");
+    str.append(") VALUES (");
+    str.append(primaryKeyValue).append(",");
+    str.append(std::to_string((int)mark).c_str());
+    str.append(");");
+
+    query.exec(str);
+    if(QSqlError::NoError != query.lastError().type()){
+        QMessageBox::critical(nullptr,"Error",query.lastError().text().append(str));
+        exit(-1);
+    }
+
+    if(lock){
+        query.exec(QString("unlock tables;"));
+        if(QSqlError::NoError != query.lastError().type()){
+            QMessageBox::critical(nullptr,"Error",query.lastError().text());
+            exit(-1);
+        }
+    }
+}
+
 void DAO_Sqlite::generateSQL_appendARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,QString & result){
     QString colnumNames;
     QString values;
@@ -384,7 +470,7 @@ void DAO_Sqlite::generateSQL_appendARow_Patient(const QString & colNamesCombine,
     result.append(") VALUES (").append(values).append(");");
 }
 
-void DAO_Sqlite::deleteLastRecord(const QString & tableName,bool lock){
+void DAO_Sqlite::deleteLastRecord_TR(const QString & tableName){
     QString str("");
     QSqlQuery query(*this->theDataBase);
     if(this->tableExisted(tableName)){

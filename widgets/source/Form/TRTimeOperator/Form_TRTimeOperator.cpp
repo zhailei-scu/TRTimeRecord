@@ -719,7 +719,7 @@ void TRTimeOperator::queryForNextPatient(){
             QMessageBox::information(nullptr,"Error",QString("Input: %1, you should input 'hficm'").arg(inputed));
         }
         if(OK){
-            DAO::getInstance()->getTrInfoConnection()->deleteLastRecord(Record::getInstance()->lastTableName,true);
+            DAO::getInstance()->getTrInfoConnection()->deleteLastRecord_TR(Record::getInstance()->lastTableName);
             CSVWriter::getInstance()->deleteLastRecord();
         }
         this->inputPatientInfo(PatientInputMode(Modify));
