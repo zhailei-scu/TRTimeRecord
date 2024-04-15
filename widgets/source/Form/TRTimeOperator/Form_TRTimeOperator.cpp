@@ -761,7 +761,7 @@ void TRTimeOperator::inputPatientInfo(PatientInputMode model){
                 DAO::getInstance()->getPatientInfoConnection()->updateTable_Patient(true);
             }
 
-            DAO::getInstance()->getPatientInfoConnection()->updateARow_Patient(Record::getInstance()->patientInfoRecord,true);
+            DAO::getInstance()->getPatientInfoConnection()->updateARow_Patient(Record::getInstance()->patientInfoRecord,ManualMark(ProActive),true);
         }
     }
     delete patientForm;

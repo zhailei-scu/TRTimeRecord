@@ -212,9 +212,11 @@ void DAO_Mysql::appendARow_TR(const QString & tableName,
 }
 
 void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
+                                   ManualMark mark,
                                    const bool lock){
     std::map<QString,QString>  list;
     bool flag = true;
+    bool finded = false;
     QSqlQuery query(*this->theDataBase);
     const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QString str;
@@ -225,8 +227,13 @@ void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString
         this->createEmptyTable_Patient();
     }
 
+    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
+        this->createEmptyTable_Patient_ManualMark();
+    }
+
     if(lock){
-        query.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
+        query.exec(QString("lock tables %1 write,%2 write;").arg(patientInfo_TableName).arg(patientInfo_ManualMark_TableName));
         if(QSqlError::NoError != query.lastError().type()){
             QMessageBox::critical(nullptr,"Error",query.lastError().text());
             exit(-1);
@@ -237,6 +244,7 @@ void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString
                                                                  it != patientInfoPatten->end();
                                                                  it++){
         if(it->second.primaryKey){
+            finded = true;
             auto it_find = std::find_if(patientInfos.begin(),patientInfos.end(),map_value_finder_PairInValue<unsigned int,QString,QString>(it->second.infoName));
             if(it_find != patientInfos.end()){
                 primaryKey = it_find->second.first;
@@ -280,11 +288,15 @@ void DAO_Mysql::updateARow_Patient(const std::map<unsigned int,std::pair<QString
                 QMessageBox::critical(nullptr,"Error","No primary key finded in inputed patient infos.");
                 exit(-1);
             }
-        }else{
-            QMessageBox::critical(nullptr,"Error","No primary key finded.");
-            exit(-1);
         }
     }
+
+    if(!finded){
+        QMessageBox::critical(nullptr,"Error","No primary key finded.");
+        exit(-1);
+    }
+
+    this->updateARow_PatientManualMark(primaryKey,primaryKeyValue,mark);
 
     this->generateSQL_appendARow_Patient(patientInfos,str);
     query.exec(str);
@@ -306,7 +318,8 @@ void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
                                    const QString & primaryValue,
                                    const std::map<QString,QString> & colName,
                                    const QString & values,
-                                   const bool lock){
+                                   ManualMark mark,
+                                   bool lock){
     std::map<QString,QString>  list;
     QSqlQuery query(*this->theDataBase);
     QString str;
@@ -315,8 +328,13 @@ void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
         this->createEmptyTable_Patient();
     }
 
+    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
+        this->createEmptyTable_Patient_ManualMark();
+    }
+
     if(lock){
-        query.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
+        query.exec(QString("lock tables %1 write,%2 write;").arg(patientInfo_TableName).arg(patientInfo_ManualMark_TableName));
         if(QSqlError::NoError != query.lastError().type()){
             QMessageBox::critical(nullptr,"Error",query.lastError().text());
             exit(-1);
@@ -329,6 +347,8 @@ void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
                                .arg(primaryValue));
 
     qDebug()<<query.lastError();
+
+    this->updateARow_PatientManualMark(primaryKey,primaryValue,mark);
 
     this->generateSQL_appendARow_Patient(colName,values,str);
     query.exec(str);
@@ -346,8 +366,11 @@ void DAO_Mysql::updateARow_Patient(const QString & primaryKey,
     }
 }
 
-void DAO_Mysql::appendARow_Patient(const std::map<QString,QString> & colName,
+void DAO_Mysql::appendARow_Patient(const QString & primaryKey,
+                                   const QString & primaryValue,
+                                   const std::map<QString,QString> & colName,
                                    const QString & values,
+                                   ManualMark mark,
                                    bool lock){
     std::map<QString,QString>  list;
     QSqlQuery query(*this->theDataBase);
@@ -357,13 +380,20 @@ void DAO_Mysql::appendARow_Patient(const std::map<QString,QString> & colName,
         this->createEmptyTable_Patient();
     }
 
+    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
+        this->createEmptyTable_Patient_ManualMark();
+    }
+
     if(lock){
-        query.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
+        query.exec(QString("lock tables %1 write,%2 write;").arg(patientInfo_TableName).arg(patientInfo_ManualMark_TableName));
         if(QSqlError::NoError != query.lastError().type()){
             QMessageBox::critical(nullptr,"Error",query.lastError().text());
             exit(-1);
         }
     }
+
+    this->updateARow_PatientManualMark(primaryKey,primaryValue,mark);
 
     this->generateSQL_appendARow_Patient(colName,values,str);
     query.exec(str);
@@ -383,22 +413,9 @@ void DAO_Mysql::appendARow_Patient(const std::map<QString,QString> & colName,
 
 void DAO_Mysql::updateARow_PatientManualMark(const QString & primaryKey,
                                              const QString & primaryKeyValue,
-                                             ManualMark mark,
-                                             bool lock){
+                                             ManualMark mark){
     QSqlQuery query(*this->theDataBase);
     QString str;
-    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
-        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
-        this->createEmptyTable_Patient_ManualMark();
-    }
-
-    if(lock){
-        query.exec(QString("lock table %1 write;").arg(patientInfo_ManualMark_TableName));
-        if(QSqlError::NoError != query.lastError().type()){
-            QMessageBox::critical(nullptr,"Error",query.lastError().text());
-            exit(-1);
-        }
-    }
 
     query.exec(QString("select * from %1 where %2 = '%3';")
                         .arg(patientInfo_ManualMark_TableName)
@@ -417,22 +434,14 @@ void DAO_Mysql::updateARow_PatientManualMark(const QString & primaryKey,
     str.append(primaryKey).append(",");
     str.append("Mark");
     str.append(") VALUES (");
-    str.append(primaryKeyValue).append(",");
-    str.append(std::to_string((int)mark).c_str());
+    str.append("'").append(primaryKeyValue).append("'").append(",");
+    str.append("'").append(std::to_string((int)mark).c_str()).append("'");
     str.append(");");
 
     query.exec(str);
     if(QSqlError::NoError != query.lastError().type()){
         QMessageBox::critical(nullptr,"Error",query.lastError().text().append(str));
         exit(-1);
-    }
-
-    if(lock){
-        query.exec(QString("unlock tables;"));
-        if(QSqlError::NoError != query.lastError().type()){
-            QMessageBox::critical(nullptr,"Error",query.lastError().text());
-            exit(-1);
-        }
     }
 }
 

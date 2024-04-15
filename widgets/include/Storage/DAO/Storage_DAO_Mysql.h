@@ -23,19 +23,23 @@ public:
                                const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
                                const std::map<unsigned int,QString> & operatorTimes);
     virtual void updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
+                                    ManualMark mark,
                                     const bool lock);
     virtual void updateARow_Patient(const QString & primaryKey,
                                     const QString & primaryValue,
                                     const std::map<QString,QString> & colName,
                                     const QString & values,
-                                    const bool lock);
-    virtual void appendARow_Patient(const std::map<QString,QString> & colName,
+                                    ManualMark mark,
+                                    bool lock);
+    virtual void appendARow_Patient(const QString & primaryKey,
+                                    const QString & primaryValue,
+                                    const std::map<QString,QString> & colName,
                                     const QString & values,
+                                    ManualMark mark,
                                     bool lock);
     virtual void updateARow_PatientManualMark(const QString & primaryKey,
                                               const QString & primaryKeyValue,
-                                              ManualMark mark,
-                                              bool lock);
+                                              ManualMark mark);
     virtual void insertACol_Patient(const QString & colName,
                                     const QString & colType,
                                     bool lock);

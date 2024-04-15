@@ -1,4 +1,5 @@
 #include "../../../include/Storage/DAO/Storage_DAO_Sqlite.h"
+#include "../../../include/Common/Util/Common_Util_Base.h"
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -274,9 +275,14 @@ void DAO_Sqlite::appendARow_TR(const QString & tableName,
     }
 }
 
-void DAO_Sqlite::updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,const bool lock){
+void DAO_Sqlite::updateARow_Patient(const std::map<unsigned int,std::pair<QString,QString>> & patientInfos,
+                                    ManualMark mark,
+                                    const bool lock){
     std::map<QString,QString>  list;
     bool flag = true;
+    bool finded = false;
+    QString primaryKey;
+    QString primaryKeyValue;
     QSqlQuery query(*this->theDataBase);
     const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QString str;
@@ -285,13 +291,20 @@ void DAO_Sqlite::updateARow_Patient(const std::map<unsigned int,std::pair<QStrin
         this->createEmptyTable_Patient();
     }
 
-    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
-         it != patientInfoPatten->end();
-         it++){
-        if(it->second.primaryKey){
-            auto it_find = patientInfos.find(it->first);
-            if(it_find != patientInfos.end()){
+    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
+        this->createEmptyTable_Patient_ManualMark();
+    }
 
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin();
+                                                                 it != patientInfoPatten->end();
+                                                                 it++){
+        if(it->second.primaryKey){
+            finded = true;
+            auto it_find = std::find_if(patientInfos.begin(),patientInfos.end(),map_value_finder_PairInValue<unsigned int,QString,QString>(it->second.infoName));
+            if(it_find != patientInfos.end()){
+                primaryKey = it_find->second.first;
+                primaryKeyValue = it_find->second.second;
                 this->getRowValueByItemValue_Patient(it->second.infoName,it_find->second.second,"","","",list);
 
                 if(list.size() == patientInfos.size()){
@@ -317,9 +330,20 @@ void DAO_Sqlite::updateARow_Patient(const std::map<unsigned int,std::pair<QStrin
 
                 qDebug()<<query.lastError();
                 break;
+            }else{
+                QMessageBox::critical(nullptr,"Error","No primary key finded in inputed patient infos.");
+                exit(-1);
             }
         }
     }
+
+
+    if(!finded){
+        QMessageBox::critical(nullptr,"Error","No primary key finded.");
+        exit(-1);
+    }
+
+    this->updateARow_PatientManualMark(primaryKey,primaryKeyValue,mark);
 
     this->generateSQL_appendARow_Patient(patientInfos,str);
     query.exec(str);
@@ -333,6 +357,7 @@ void DAO_Sqlite::updateARow_Patient(const QString & primaryKey,
                                     const QString & primaryValue,
                                     const std::map<QString,QString> & colName,
                                     const QString & values,
+                                    ManualMark mark,
                                     const bool lock){
     std::map<QString,QString>  list;
     bool flag = true;
@@ -343,12 +368,19 @@ void DAO_Sqlite::updateARow_Patient(const QString & primaryKey,
         this->createEmptyTable_Patient();
     }
 
+    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
+        this->createEmptyTable_Patient_ManualMark();
+    }
+
     query.exec(QString("DELETE FROM %1 WHERE %2 = '%3';")
                    .arg(patientInfo_TableName)
                    .arg(primaryKey)
                    .arg(primaryValue));
 
     qDebug()<<query.lastError();
+
+    this->updateARow_PatientManualMark(primaryKey,primaryValue,mark);
 
     this->generateSQL_appendARow_Patient(colName,values,str);
     query.exec(str);
@@ -358,7 +390,12 @@ void DAO_Sqlite::updateARow_Patient(const QString & primaryKey,
     }
 }
 
-void DAO_Sqlite::appendARow_Patient(const std::map<QString,QString> & colName,const QString & values,bool lock){
+void DAO_Sqlite::appendARow_Patient(const QString & primaryKey,
+                                    const QString & primaryValue,
+                                    const std::map<QString,QString> & colName,
+                                    const QString & values,
+                                    ManualMark mark,
+                                    bool lock){
     std::map<QString,QString>  list;
     QSqlQuery query(*this->theDataBase);
     QString str;
@@ -366,6 +403,13 @@ void DAO_Sqlite::appendARow_Patient(const std::map<QString,QString> & colName,co
         qDebug()<<"Table is not existed, create a new table: "<<patientInfo_TableName;
         this->createEmptyTable_Patient();
     }
+
+    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
+        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
+        this->createEmptyTable_Patient_ManualMark();
+    }
+
+    this->updateARow_PatientManualMark(primaryKey,primaryValue,mark);
 
     this->generateSQL_appendARow_Patient(colName,values,str);
     query.exec(str);
@@ -377,33 +421,27 @@ void DAO_Sqlite::appendARow_Patient(const std::map<QString,QString> & colName,co
 
 void DAO_Sqlite::updateARow_PatientManualMark(const QString & primaryKey,
                                               const QString & primaryKeyValue,
-                                              ManualMark mark,
-                                              bool lock){
+                                              ManualMark mark){
     QSqlQuery query(*this->theDataBase);
     QString str;
-    if(!this->tableExisted(patientInfo_ManualMark_TableName)){
-        qDebug()<<"Table is not existed, create a new table: "<<patientInfo_ManualMark_TableName;
-        this->createEmptyTable_Patient_ManualMark();
-    }
-
-    if(lock){
-        query.exec(QString("lock table %1 write;").arg(patientInfo_ManualMark_TableName));
-        if(QSqlError::NoError != query.lastError().type()){
-            QMessageBox::critical(nullptr,"Error",query.lastError().text());
-            exit(-1);
-        }
-    }
 
     query.exec(QString("select * from %1 where %2 = '%3';")
                    .arg(patientInfo_ManualMark_TableName)
                    .arg(primaryKey)
                    .arg(primaryKeyValue));
 
-    if(query.size() > 0){
-        query.exec(QString("delete from %1 where %2 = '%3';")
+    qDebug()<<query.lastQuery();
+
+    qDebug()<<query.lastError();
+    if(query.next()){
+        if(query.value(0).isValid()){
+            query.exec(QString("delete from %1 where %2 = '%3';")
                        .arg(patientInfo_ManualMark_TableName)
                        .arg(primaryKey)
                        .arg(primaryKeyValue));
+
+            qDebug()<<query.lastError();
+        }
     }
 
     str.append("INSERT INTO ");
@@ -411,22 +449,14 @@ void DAO_Sqlite::updateARow_PatientManualMark(const QString & primaryKey,
     str.append(primaryKey).append(",");
     str.append("Mark");
     str.append(") VALUES (");
-    str.append(primaryKeyValue).append(",");
-    str.append(std::to_string((int)mark).c_str());
+    str.append("'").append(primaryKeyValue).append("'").append(",");
+    str.append("'").append(std::to_string((int)mark).c_str()).append("'");
     str.append(");");
 
     query.exec(str);
     if(QSqlError::NoError != query.lastError().type()){
         QMessageBox::critical(nullptr,"Error",query.lastError().text().append(str));
         exit(-1);
-    }
-
-    if(lock){
-        query.exec(QString("unlock tables;"));
-        if(QSqlError::NoError != query.lastError().type()){
-            QMessageBox::critical(nullptr,"Error",query.lastError().text());
-            exit(-1);
-        }
     }
 }
 

@@ -111,7 +111,14 @@ void DAO::sync_PatientInfo(){
     sqliteConnection = NULL;
 }
 
-void DAO::MergeBasedOnFirst(QString & first,const QString & second){
+void DAO::MergeBasedOnFirst(QString & first,
+                            const std::map<QString,QString> & localColumnNames_Ori,
+                            const std::map<QString,QString> & localColumnNames,
+                            ManualMark mark_Local,
+                            const QString & second,
+                            const std::map<QString,QString> & remoteColumnNames_Ori,
+                            const std::map<QString,QString> & remoteColumnNames,
+                            ManualMark mark_Remote){
     QStringList firstSplited = first.split(",");
     QStringList secondSplited = second.split(",");
     unsigned int size = firstSplited.size();
@@ -127,24 +134,38 @@ void DAO::MergeBasedOnFirst(QString & first,const QString & second){
 }
 
 void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite* local){
+    std::map<QString,QString> remoteColumnNames_Ori;
+    std::map<QString,QString> localColumnNames_Ori;
     std::map<QString,QString> remoteColumnNames;
     std::map<QString,QString> localColumnNames;
     QString primaryKey = "";
     std::map<QString,QString> data_Remote;
     std::map<QString,QString> data_Local;
+    std::map<QString,QString> data_RemoteManualMark;
+    std::map<QString,QString> data_LocalManualMark;
+    ManualMark mark_Remote;
+    ManualMark mark_Local;
     const std::map<unsigned int,OnePatientPattern> * patientInfoPatten = ConfigLoader::getInstance()->getThePatientInfoPatten();
     QSqlQuery query_remote(*remote->getTheDataBase());
     QSqlQuery query_local(*local->getTheDataBase());
 
     if(!remote->tableExisted(patientInfo_TableName)){
         remote->createEmptyTable_Patient();
+    }else{
+        remote->getAllColumnName(patientInfo_TableName,remoteColumnNames_Ori);
+    }
+
+    if(!remote->tableExisted(patientInfo_ManualMark_TableName)){
+        remote->createEmptyTable_Patient_ManualMark();
     }
 
     if(!local->tableExisted(patientInfo_TableName)){
         local->createEmptyTable_Patient();
+    }else{
+        local->getAllColumnName(patientInfo_TableName,localColumnNames_Ori);
     }
 
-    query_remote.exec(QString("lock table %1 write;").arg(patientInfo_TableName));
+    query_remote.exec(QString("lock tables %1 write,%2 write;").arg(patientInfo_TableName).arg(patientInfo_ManualMark_TableName));
     if(QSqlError::NoError != query_remote.lastError().type()){
         QMessageBox::critical(nullptr,"Error",query_remote.lastError().text());
         exit(-1);
@@ -226,24 +247,41 @@ void DAO::DoSync_PatientInfo_BetweenReomteAndLocal(DAO_Mysql* remote,DAO_Sqlite*
     remote->getMultiColData_Patient(primaryKey,localColumnNames,",","'","'",data_Remote);
     local->getMultiColData_Patient(primaryKey,localColumnNames,",","'","'",data_Local);
 
+    remote->getManualMark(primaryKey,data_RemoteManualMark);
+    local->getManualMark(primaryKey,data_LocalManualMark);
     for(std::map<QString,QString>::iterator it = data_Remote.begin();it != data_Remote.end();it++){
         std::map<QString,QString>::iterator it_find = data_Local.find(it->first);
         if(data_Local.end() != it_find){
+            std::map<QString,QString>::iterator it_ManualMark_Remote = data_RemoteManualMark.find(it->first);
+            mark_Remote = it_ManualMark_Remote == data_RemoteManualMark.end() ? ManualMark(Passive): ManualMark(it_ManualMark_Remote->second.toInt());
+            std::map<QString,QString>::iterator it_ManualMark_Local = data_LocalManualMark.find(it->first);
+            mark_Local = it_ManualMark_Local == data_LocalManualMark.end() ? ManualMark(Passive): ManualMark(it_ManualMark_Local->second.toInt());
+
+            qDebug()<<"Need update between "<<it->first<<"   "<<it->second;
             if(it->second != it_find->second){
-                this->MergeBasedOnFirst(it_find->second,it->second);
-                local->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second,false);
-                remote->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second,false);
+                this->MergeBasedOnFirst(it_find->second,
+                                        localColumnNames_Ori,
+                                        localColumnNames,
+                                        mark_Local,
+                                        it->second,
+                                        remoteColumnNames_Ori,
+                                        remoteColumnNames,
+                                        mark_Remote);
+                local->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second,ManualMark(Passive),false);
+                remote->updateARow_Patient(primaryKey,it_find->first,localColumnNames,it_find->second,ManualMark(Passive),false);
             }
 
             data_Local.erase(it_find);
         }else{
-            local->appendARow_Patient(localColumnNames,it->second,false);
+            qDebug()<<"Need insert to local "<<it->first<<"   "<<it->second;
+            local->appendARow_Patient(primaryKey,it->first,localColumnNames,it->second,ManualMark(Passive),false);
         }
     }
 
     /*sync reminded items from local to remote*/
     for(std::map<QString,QString>::iterator it = data_Local.begin();it != data_Local.end();it++){
-        remote->appendARow_Patient(localColumnNames,it->second,false);
+        qDebug()<<"Need insert to remote "<<it->first<<"   "<<it->second;
+        remote->appendARow_Patient(primaryKey,it->first,localColumnNames,it->second,ManualMark(Passive),false);
     }
 
     query_remote.exec(QString("unlock tables;"));
