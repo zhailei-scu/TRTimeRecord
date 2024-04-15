@@ -57,6 +57,7 @@ void TRTimeOperator::uiConstruct(){
                                      0,
                                      this->geometry().width(),
                                      this->geometry().height()/25));
+    this->menuBar->raise();
 
     QObject::connect(this->menuBar->getMenu("DataView")->actions().at(0),&QAction::triggered,this,&TRTimeOperator::csvView);
     QObject::connect(this->menuBar->getMenu("DataView")->actions().at(1),&QAction::triggered,this,&TRTimeOperator::dataBaseView);
@@ -86,6 +87,24 @@ void TRTimeOperator::uiConstruct(){
                                      this->geometry().height()/25,
                                      this->geometry().width(),
                                      this->geometry().height()/25));
+    QObject::connect(this->toolBar->toolsMap->at("DataView")->actions().at(0),&QAction::triggered,this,&TRTimeOperator::csvView);
+    QObject::connect(this->toolBar->toolsMap->at("DataView")->actions().at(1),&QAction::triggered,this,&TRTimeOperator::dataBaseView);
+    QObject::connect(this->toolBar->toolsMap->at("Setting")->actions().at(0),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::storageSetting);
+    QObject::connect(this->toolBar->toolsMap->at("Setting")->actions().at(1),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::patientInfoSetting);
+    QObject::connect(this->toolBar->toolsMap->at("Setting")->actions().at(2),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::pipleLineSetting);
+    QObject::connect(this->toolBar->toolsMap->at("Setting")->actions().at(3),
+                     &QAction::triggered,
+                     this,
+                     &TRTimeOperator::networkSetting);
 
     this->uiForm->tabWidget->setGeometry(0,
                                          this->toolBar->geometry().bottom(),

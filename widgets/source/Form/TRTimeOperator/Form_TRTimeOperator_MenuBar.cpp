@@ -12,7 +12,6 @@ OperatorMenuBar::~OperatorMenuBar(){
 }
 
 void OperatorMenuBar::uiConstruct(const QRect & geometry){
-
     QMenu *menu = this->addMenu("Setting");
     this->menuMap->insert(std::pair<QString,const QMenu &>("Setting",*menu));
     menu->addAction("Storage");

@@ -3,6 +3,7 @@
 
 #include "Form_TRTimeOperator_Interface.h"
 #include <QToolBar>
+#include <QToolButton>
 
 class OperatorToolBar:public QToolBar{
 public:
@@ -11,6 +12,8 @@ public:
 public:
     void uiConstruct(const QRect & geometry);
     void uiDeConstruct();
+
+    std::map<QString,QToolButton*>* toolsMap = NULL;
 };
 
 #endif // FORM_TRTIMEOPERATOR_TOOLBAR_H
