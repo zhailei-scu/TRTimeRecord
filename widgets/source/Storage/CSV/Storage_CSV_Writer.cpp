@@ -29,10 +29,10 @@ CSVWriter::CSVWriter(){
     std::ifstream ifs;
     this->clear();
 
-    ofs.open(systemCSVPath.toStdString().c_str(),std::ios::out | std::ios::app);
+    ofs.open(ConfigLoader::getInstance()->getSystemCSVPath().toStdString().c_str(),std::ios::out | std::ios::app);
 
     if(!ofs.is_open()){
-        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(systemCSVPath));
+        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(ConfigLoader::getInstance()->getSystemCSVPath()));
         exit(-1);
     }
 
@@ -40,10 +40,10 @@ CSVWriter::CSVWriter(){
 
     qDebug()<<this->lastLabel;
 
-    ifs.open(systemCSVPath.toStdString().c_str(),std::ios::in);
+    ifs.open(ConfigLoader::getInstance()->getSystemCSVPath().toStdString().c_str(),std::ios::in);
 
     if(!ifs.is_open()){
-        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(systemCSVPath));
+        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(ConfigLoader::getInstance()->getSystemCSVPath()));
         exit(-1);
     }
     ifs.seekg(0,std::ios::end);
@@ -139,7 +139,7 @@ void CSVWriter::deleteLastRecord(){
         QMessageBox::critical(nullptr,"Fatal Error!","The delete operation will delete file from postion 0, please stop it and contact Lei.Zhai !!!!");
         exit(-1);
     }
-    std::filesystem::resize_file(systemCSVPath.toStdString(),this->lastItemWritePos);
+    std::filesystem::resize_file(ConfigLoader::getInstance()->getSystemCSVPath().toStdString(),this->lastItemWritePos);
     this->ofs.flush();
 }
 
@@ -149,7 +149,7 @@ QString CSVWriter::findLastLabel(){
     char tempChar;
     std::string tempLine;
 
-    ifs.open(systemCSVPath.toStdString().c_str(),std::ios::ate);
+    ifs.open(ConfigLoader::getInstance()->getSystemCSVPath().toStdString().c_str(),std::ios::ate);
     if(ifs.is_open()){
         ifs.seekg(0,std::ios::end);
         std::streampos size = ifs.tellg();
@@ -182,7 +182,7 @@ QString CSVWriter::findLastLabel(){
         }
 
     }else{
-        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(systemCSVPath));
+        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(ConfigLoader::getInstance()->getSystemCSVPath()));
         exit(-1);
     }
 

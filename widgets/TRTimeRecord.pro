@@ -9,6 +9,7 @@ SOURCES += \
     source/Common/Util/Common_Util_Base.cpp \
     source/Common/Util/Common_Util_JsonExt.cpp \
     source/Form/About/Form_About.cpp \
+    source/Form/StorageSetting/Form_StorageSetting.cpp \
     source/Global/Communication/Global_Communication_Record.cpp \
     source/Global/Config/Global_Config_ConfigLoader.cpp \
     source/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
     include/Common/Util/Common_Util_Base.h \
     include/Common/Util/Common_Util_JsonExt.h \
     include/Form/About/Form_About.h \
+    include/Form/StorageSetting/Form_StorageSetting.h \
     include/Global/Communication/Global_Communication_Record.h \
     include/Global/Config/Global_Config_ConfigLoader.h \
     include/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.h \
@@ -61,6 +63,7 @@ FORMS += \
     ui/Form/OperationLoop.ui \
     ui/Form/OperationPipelineSetting.ui \
     ui/Form/PatientInfoSetting.ui \
+    ui/Form/StorageSetting.ui \
     ui/Form/TRTimeOperator.ui
 
 RESOURCES += \

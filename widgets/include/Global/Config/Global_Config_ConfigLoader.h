@@ -6,7 +6,6 @@
 #include <string>
 #include <QString>
 
-static QString systemCSVPath = "TR.csv";
 static QString systemDBPath = "TR.db";
 static QString systemCfgPath = "TR.json";
 static unsigned long totalShowCSVLine = 1000;
@@ -206,7 +205,8 @@ public:
     void setTheOperationPattern(const std::map<unsigned int,OneOperationPattern> & operationPattern);
     const std::map<QString,QString> & getOnlineDatabaseInfo() const;
     void setOnlineDatabaseInfo(const std::map<QString,QString> & );
-
+    void setSystemCSVPath(const QString &);
+    const QString & getSystemCSVPath() const;
 private:
     bool readOnlineDatabaseInfoFromFile();
     void writeOnlineDatabaseInfoToFile(const std::map<QString,QString> &);
@@ -222,7 +222,7 @@ private:
     std::map<unsigned int,OnePatientPattern>* thePatientInfoPatten = NULL;
     std::map<unsigned int,OneOperationPattern>* theOperationPatten = NULL;
     std::map<QString,QString> onlineDBInfo;
-
+    QString systemCSVPath = "TR.csv";
 private:
     void ConstructOnlineDBInfo();
     void ConstructPatientInfoPatten();

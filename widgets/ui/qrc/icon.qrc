@@ -13,5 +13,6 @@
         <file>img/sync.svg</file>
         <file>img/Network.svg</file>
         <file>img/Port.svg</file>
+        <file>img/folder.svg</file>
     </qresource>
 </RCC>

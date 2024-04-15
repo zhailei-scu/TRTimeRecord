@@ -11,6 +11,7 @@
 #include "../../../include/Form/OperationLoop/Form_OperationLoop.h"
 #include "../../../include/Form/OnlineDatabaseSetting/Form_OnlineDatabaseSetting.h"
 #include "../../../include/Form/About/Form_About.h"
+#include "../../../include/Form/StorageSetting/Form_StorageSetting.h"
 #include <QMessageBox>
 #include <QErrorMessage>
 #include <QString>
@@ -391,7 +392,7 @@ void TRTimeOperator::csvView(){
     unsigned long rowId = 0;
     QTabWidget* tempWidgetTable = new QTabWidget(this->uiForm->tabWidget);
     OneCSVViewer* oneCSVViewer = new OneCSVViewer();
-    QFile fileReader(systemCSVPath);
+    QFile fileReader(ConfigLoader::getInstance()->getSystemCSVPath());
 
     csvViewer->insertOneLeaf(tempWidgetTable,oneCSVViewer);
 
@@ -481,7 +482,7 @@ void TRTimeOperator::csvView(){
 
         tempOneCSVViewerCompents->tableView->show();
     }else{
-        QMessageBox::critical(nullptr,"Error",QString("The csv file %1 cannot be opened").arg(systemCSVPath));
+        QMessageBox::critical(nullptr,"Error",QString("The csv file %1 cannot be opened").arg(ConfigLoader::getInstance()->getSystemCSVPath()));
         exit(-1);
     }
 
@@ -667,7 +668,11 @@ void TRTimeOperator::dataBaseView_PatientInfo(){
 }
 
 void TRTimeOperator::storageSetting(){
-    QMessageBox::information(nullptr,"Info","789");
+    StorageSetting* form = new StorageSetting(this);
+    form->exec();
+
+    delete form;
+    form = NULL;
 }
 
 void TRTimeOperator::ShowHelp(){

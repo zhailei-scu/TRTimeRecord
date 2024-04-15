@@ -8,6 +8,7 @@
 static std::string str_OnlineDatabaseInfo = "OnlineDatabaseInfo";
 static std::string str_PatientInfoPattern = "PatientInfoPattern";
 static std::string str_OperationPattern = "OperationPattern";
+static std::string str_CSVStorage = "CSVStorage";
 
 static std::string str_OperationLabel = "OperationLabel";
 static std::string str_OperationName = "OperationName";
@@ -297,6 +298,84 @@ void ConfigLoader::writeOnlineDatabaseInfoToFile(const std::map<QString,QString>
 
     delete ext;
     ext = NULL;
+}
+
+void ConfigLoader::setSystemCSVPath(const QString & path){
+    this->systemCSVPath = path;
+    std::ifstream ifs;
+    std::stringstream ss;
+    JsonExt* ext = new JsonExt();
+    JsonBase* base = NULL;
+
+    ifs.open(systemCfgPath.toStdString());
+    if(ifs.is_open()){
+        ext->Extract(ifs);
+    }
+    ifs.close();
+
+    base = ext->getJsonInfo();
+    if(base){
+        if(ext->getJsonInfo()->namedObjects){
+            for(std::map<std::string,JsonBase*>::iterator it = ext->getJsonInfo()->namedObjects->begin();
+                 it != ext->getJsonInfo()->namedObjects->end();
+                 it++){
+                if(str_CSVStorage == it->first){
+                    //remove
+                    ext->getJsonInfo()->namedObjects->erase(it);
+                }
+            }
+        }
+    }else{
+        base = new JsonBase();
+        ext->setJsonInfo(base);
+    }
+
+    if(!base->namedObjects){
+        base->namedObjects = new std::map<std::string,JsonBase*>();
+    }
+
+    patientPattern = new JsonBase();
+
+    patientPattern->namedObjects = new std::map<std::string,JsonBase*>();
+
+    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = input.begin();
+         it != input.end();
+         it++){
+        if(it->first >= idShift){
+            ss.str("");
+            ss.clear();
+            ss<<it->first - idShift;
+            str_Index = "";
+            ss>>str_Index;
+            onePatientInfoLine = new JsonBase();
+            onePatientInfoLine->namedPairs = new std::map<std::string,std::string>();
+            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoLabel,it->second.labelName.toStdString()));
+            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoName,it->second.infoName.toStdString()));
+            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoNecessary,it->second.necessary.toStdString()));
+
+            if("true" == it->second.supportPreQuery){
+                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoSupportPreQuery,it->second.supportPreQuery.toStdString()));
+            }else{
+                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoSupportPreQuery,"false"));
+            }
+            if(true == it->second.unRemoveable){
+                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoUnRemoveable,"true"));
+            }
+
+            patientPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,onePatientInfoLine));
+        }
+    }
+
+    base->namedObjects->insert(std::pair<std::string,JsonBase*>(str_PatientInfoPattern,patientPattern));
+
+    ext->WriteBackToFile(systemCfgPath.toStdString().c_str(),std::ios::ate);
+
+    delete ext;
+    ext = NULL;
+}
+
+const QString & ConfigLoader::getSystemCSVPath() const{
+    return this->systemCSVPath;
 }
 
 bool ConfigLoader::readPatientInfoPatternFromFile(){
@@ -926,6 +1005,8 @@ void ConfigLoader::clear(){
 
     std::map<QString,QString>().swap(this->onlineDBInfo);
     this->onlineDBInfo.clear();
+
+    this->systemCSVPath = "TR.csv";
     //this->onlineDBInfo = OnlineInfoPattern::getInstance()->getDefalutPattern();
 }
 
