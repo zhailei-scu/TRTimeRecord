@@ -1,9 +1,12 @@
 #include "../../../include/Form/StorageSetting/Form_StorageSetting.h"
 #include "ui_StorageSetting.h"
 #include "../../../include/Global/Config/Global_Config_ConfigLoader.h"
+#include "../../../include/Storage/CSV/Storage_CSV_Writer.h"
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QFileDialog>
+#include <QFile>
+#include <QFileDevice>
 
 StorageSetting::StorageSetting(QWidget* parent):QDialog(parent),uiForm(new Ui::StorageSetting){
     uiForm->setupUi(this);
@@ -40,10 +43,11 @@ void StorageSetting::closeEvent(QCloseEvent *event){
 
 void StorageSetting::SaveConfigHandle(){
     QFile file(ConfigLoader::getInstance()->getSystemCSVPath());
-    QString cleanPath = QDir::cleanPath(ConfigLoader::getInstance()->getSystemCSVPath());
-    ConfigLoader::getInstance()->setSystemCSVPath(this->theSettingPath.append("/").append(cleanPath));
+    ConfigLoader::getInstance()->setSystemCSVPath(this->theSettingPath);
+    file.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner);
     file.copy(ConfigLoader::getInstance()->getSystemCSVPath());
     file.close();
+    CSVWriter::getInstance()->reOpen();
     accept();
 }
 
@@ -53,6 +57,6 @@ void StorageSetting::CancelHandle(){
 
 void StorageSetting::openFileDialog(){
     QString theDir = QFileDialog::getExistingDirectory();
-    this->theSettingPath = theDir;
+    this->theSettingPath = theDir.append("/TR.csv");
     this->uiForm->lineEdit->setText(theDir);
 }

@@ -123,6 +123,7 @@ ConfigLoader::ConfigLoader(){
     this->ConstructPatientInfoPatten();
     this->ConstructOperationPatten();
     this->ConstructOnlineDBInfo();
+    this->readCSVStorageFromFile();
 
     qDebug()<<"Comming";
 }
@@ -300,12 +301,61 @@ void ConfigLoader::writeOnlineDatabaseInfoToFile(const std::map<QString,QString>
     ext = NULL;
 }
 
+bool ConfigLoader::readCSVStorageFromFile(){
+    std::stringstream ss;
+    bool result = false;
+    std::ifstream ifs;
+    JsonExt* ext = new JsonExt();
+    std::string csvDriver = "";
+    std::string csvPath = "";
+
+    ifs.open(systemCfgPath.toStdString().c_str());
+
+    if(ifs.is_open()){
+        ext->Extract(ifs);
+
+        if(ext->getJsonInfo() && ext->getJsonInfo()->namedObjects){
+            std::map<std::string,JsonBase*>::const_iterator it_top = ext->getJsonInfo()->namedObjects->find(str_CSVStorage);
+            if(it_top != ext->getJsonInfo()->namedObjects->end()){
+                if(it_top->second && it_top->second->namedPairs){
+                    std::map<std::string,std::string>::iterator it_find = it_top->second->namedPairs->find("driver");
+                    if(it_top->second->namedPairs->end() != it_find){
+                        csvDriver = it_find->second.c_str();
+                    }
+
+                    it_find = it_top->second->namedPairs->find("path");
+                    if(it_top->second->namedPairs->end() != it_find){
+                        result = true;
+                        csvPath = it_find->second.c_str();
+                        if("" == csvDriver){
+                            this->systemCSVPath = csvPath.c_str();
+                        }else{
+                            this->systemCSVPath = csvDriver.append(":/").append(csvPath).c_str();
+                        }
+                    }
+                }
+            }
+        }
+
+        ifs.close();
+    }
+
+    delete ext;
+    ext = NULL;
+
+    return result;
+}
+
 void ConfigLoader::setSystemCSVPath(const QString & path){
     this->systemCSVPath = path;
     std::ifstream ifs;
     std::stringstream ss;
     JsonExt* ext = new JsonExt();
     JsonBase* base = NULL;
+    JsonBase* csvStorageBase = NULL;
+    QStringList result;
+    std::string csvDriver = "";
+    std::string csvPath = "";
 
     ifs.open(systemCfgPath.toStdString());
     if(ifs.is_open()){
@@ -317,8 +367,8 @@ void ConfigLoader::setSystemCSVPath(const QString & path){
     if(base){
         if(ext->getJsonInfo()->namedObjects){
             for(std::map<std::string,JsonBase*>::iterator it = ext->getJsonInfo()->namedObjects->begin();
-                 it != ext->getJsonInfo()->namedObjects->end();
-                 it++){
+                                                          it != ext->getJsonInfo()->namedObjects->end();
+                                                          it++){
                 if(str_CSVStorage == it->first){
                     //remove
                     ext->getJsonInfo()->namedObjects->erase(it);
@@ -334,39 +384,22 @@ void ConfigLoader::setSystemCSVPath(const QString & path){
         base->namedObjects = new std::map<std::string,JsonBase*>();
     }
 
-    patientPattern = new JsonBase();
+    csvStorageBase = new JsonBase();
 
-    patientPattern->namedObjects = new std::map<std::string,JsonBase*>();
+    csvStorageBase->namedPairs = new std::map<std::string,std::string>();
 
-    for(std::map<unsigned int,OnePatientPattern>::const_iterator it = input.begin();
-         it != input.end();
-         it++){
-        if(it->first >= idShift){
-            ss.str("");
-            ss.clear();
-            ss<<it->first - idShift;
-            str_Index = "";
-            ss>>str_Index;
-            onePatientInfoLine = new JsonBase();
-            onePatientInfoLine->namedPairs = new std::map<std::string,std::string>();
-            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoLabel,it->second.labelName.toStdString()));
-            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoName,it->second.infoName.toStdString()));
-            onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoNecessary,it->second.necessary.toStdString()));
-
-            if("true" == it->second.supportPreQuery){
-                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoSupportPreQuery,it->second.supportPreQuery.toStdString()));
-            }else{
-                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoSupportPreQuery,"false"));
-            }
-            if(true == it->second.unRemoveable){
-                onePatientInfoLine->namedPairs->insert(std::pair<std::string,std::string>(str_PatientInfoUnRemoveable,"true"));
-            }
-
-            patientPattern->namedObjects->insert(std::pair<std::string, JsonBase*>(str_Index,onePatientInfoLine));
-        }
+    result = ConfigLoader::getInstance()->getSystemCSVPath().split(':');
+    if(result.size() > 1){
+        csvDriver = result.at(0).toStdString();
+        csvPath = result.at(1).toStdString();
+    }else{
+        csvDriver = "";
+        csvPath = result.at(0).toStdString();
     }
+    csvStorageBase->namedPairs->insert(std::pair<std::string,std::string>("driver",csvDriver));
+    csvStorageBase->namedPairs->insert(std::pair<std::string,std::string>("path",csvPath));
 
-    base->namedObjects->insert(std::pair<std::string,JsonBase*>(str_PatientInfoPattern,patientPattern));
+    base->namedObjects->insert(std::pair<std::string,JsonBase*>(str_CSVStorage,csvStorageBase));
 
     ext->WriteBackToFile(systemCfgPath.toStdString().c_str(),std::ios::ate);
 

@@ -28,6 +28,7 @@ public:
                        const std::map<unsigned int,QString> & operatorTimes);
 
     void deleteLastRecord();
+    void reOpen();
 
     /*Realize the interface*/
 

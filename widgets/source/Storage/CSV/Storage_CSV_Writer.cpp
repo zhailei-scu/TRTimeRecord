@@ -26,31 +26,7 @@ CSVWriter* CSVWriter::thePtr = nullptr;
 CSVWriter::GbClear CSVWriter::m_GbClear;
 
 CSVWriter::CSVWriter(){
-    std::ifstream ifs;
-    this->clear();
-
-    ofs.open(ConfigLoader::getInstance()->getSystemCSVPath().toStdString().c_str(),std::ios::out | std::ios::app);
-
-    if(!ofs.is_open()){
-        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(ConfigLoader::getInstance()->getSystemCSVPath()));
-        exit(-1);
-    }
-
-    this->lastLabel = findLastLabel();
-
-    qDebug()<<this->lastLabel;
-
-    ifs.open(ConfigLoader::getInstance()->getSystemCSVPath().toStdString().c_str(),std::ios::in);
-
-    if(!ifs.is_open()){
-        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error!").arg(ConfigLoader::getInstance()->getSystemCSVPath()));
-        exit(-1);
-    }
-    ifs.seekg(0,std::ios::end);
-    this->lastItemWritePos = ifs.tellg();
-    qDebug()<<this->lastItemWritePos;
-
-    ifs.close();
+    this->reOpen();
 }
 
 CSVWriter::~CSVWriter(){
@@ -83,7 +59,6 @@ void CSVWriter::appendARecord(const QString & tableName,
 
         for(std::map<unsigned int,OnePatientPattern>::const_iterator it = patientInfoPatten->begin(); it != patientInfoPatten->end(); it++){
             ofs<<std::setw(30)<<it->second.infoName.toStdString()<<",";
-            ofs<<std::setw(30)<<"necessary"<<",";
         }
 
         for(std::map<unsigned int,OneOperationPattern>::const_iterator it = operatorPatten->begin(); it != operatorPatten->end(); it++){
@@ -189,6 +164,34 @@ QString CSVWriter::findLastLabel(){
     ifs.close();
 
     return result;
+}
+
+void CSVWriter::reOpen(){
+    std::ifstream ifs;
+    this->clear();
+
+    ofs.open(ConfigLoader::getInstance()->getSystemCSVPath().toStdString().c_str(),std::ios::out | std::ios::app);
+
+    if(!ofs.is_open()){
+        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error for write!").arg(ConfigLoader::getInstance()->getSystemCSVPath()));
+        exit(-1);
+    }
+
+    this->lastLabel = findLastLabel();
+
+    qDebug()<<this->lastLabel;
+
+    ifs.open(ConfigLoader::getInstance()->getSystemCSVPath().toStdString().c_str(),std::ios::in);
+
+    if(!ifs.is_open()){
+        QMessageBox::critical(nullptr,"Error",QString("File: %1 opend error for read!").arg(ConfigLoader::getInstance()->getSystemCSVPath()));
+        exit(-1);
+    }
+    ifs.seekg(0,std::ios::end);
+    this->lastItemWritePos = ifs.tellg();
+    qDebug()<<this->lastItemWritePos;
+
+    ifs.close();
 }
 
 void CSVWriter::clear(){

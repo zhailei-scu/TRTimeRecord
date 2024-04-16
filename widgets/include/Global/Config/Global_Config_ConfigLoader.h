@@ -207,6 +207,7 @@ public:
     void setOnlineDatabaseInfo(const std::map<QString,QString> & );
     void setSystemCSVPath(const QString &);
     const QString & getSystemCSVPath() const;
+    bool readCSVStorageFromFile();
 private:
     bool readOnlineDatabaseInfoFromFile();
     void writeOnlineDatabaseInfoToFile(const std::map<QString,QString> &);
