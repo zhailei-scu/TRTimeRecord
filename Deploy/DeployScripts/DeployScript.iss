@@ -27,9 +27,9 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 PrivilegesRequired=admin
 PrivilegesRequiredOverridesAllowed=dialog
-OutputDir=D:\Development\TRTime\Deploy\DeployOut
+OutputDir=E:\TRTimeRecord\Deploy\DeployOut
 OutputBaseFilename=TRTimeRecord_Setup
-SetupIconFile=D:\Development\TRTime\widgets\ui\qrc\img\logo.ico
+SetupIconFile=E:\TRTimeRecord\widgets\ui\qrc\img\logo.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -41,8 +41,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\Development\TRTime\build-TRTimeRecord-Desktop_Qt_6_6_2_MinGW_64_bit-Release\release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Development\TRTime\Deploy\DeployFiles\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "E:\TRTimeRecord\Deploy\Manifest\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\TRTimeRecord\Deploy\DeployFiles\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]

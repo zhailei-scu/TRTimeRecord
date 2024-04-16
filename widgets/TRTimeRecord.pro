@@ -74,3 +74,6 @@ RESOURCES += \
 	
 RC_ICONS +=  \
 	ui/qrc/img/logo.ico
+
+DISTFILES += \
+    ../Deploy/Manifest/manifest.xml
