@@ -184,7 +184,7 @@ Window {
     Text {
         id: authors1
         x: 392
-        y: 218
+        y: 198
         color: "#888383"
         text: "@Lei Zhai"
         font.pixelSize: 10
@@ -196,7 +196,7 @@ Window {
     Text {
         id: authors2
         x: 392
-        y: 238
+        y: 218
         color: "#888383"
         text: "@Chao Shan"
         font.pixelSize: 10
@@ -208,9 +208,21 @@ Window {
     Text {
         id: authors3
         x: 392
-        y: 258
+        y: 238
         color: "#888383"
         text: "@Yangfan Zhang"
+        font.pixelSize: 10
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        font.family: "Arial"
+    }
+
+    Text {
+        id: authors4
+        x: 392
+        y: 258
+        color: "#888383"
+        text: "@Ming Liu"
         font.pixelSize: 10
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

@@ -29,7 +29,6 @@ PrivilegesRequired=admin
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=E:\TRTimeRecord\Deploy\DeployOut
 OutputBaseFilename=TRTimeRecord_Setup
-SetupIconFile=E:\TRTimeRecord\widgets\ui\qrc\img\logo.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
