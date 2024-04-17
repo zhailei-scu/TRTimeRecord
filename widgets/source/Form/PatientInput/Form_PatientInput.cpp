@@ -65,9 +65,9 @@ PatientInput::PatientInput(QWidget* parent,std::map<unsigned int,std::pair<QStri
         label = new QLabel(backGround);
         label->setText(it->second.labelName);
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        label->setGeometry(0.45*backGround->geometry().width() - basicWidth*1.1,
+        label->setGeometry(0.45*backGround->geometry().width() - basicWidth*1.6,
                            (it->first*2 + 1)*basicHeight,
-                           basicWidth,
+                           basicWidth*1.5,
                            basicHeight);
 
         if("true" != it->second.supportPreQuery){

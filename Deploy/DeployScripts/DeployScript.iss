@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TRTimeRecord"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.1"
 #define MyAppPublisher "Hefei ion medical center && Hefei CAS Ion Medical and Technical Devices Co., Ltd"
 #define MyAppURL "http://www.himc.org.cn/"
 #define MyAppExeName "TRTimeRecord.exe"
@@ -13,10 +13,10 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{F906952D-0681-45B0-B396-68CBCEDD8004}
+AppId={7D0A5FBF-C69B-46A6-89F3-423D555F6B61}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName}_{#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -28,7 +28,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=E:\TRTimeRecord\Deploy\DeployOut
-OutputBaseFilename=TRTimeRecord_Setup
+OutputBaseFilename=TRTimeRecord_Setup_{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern

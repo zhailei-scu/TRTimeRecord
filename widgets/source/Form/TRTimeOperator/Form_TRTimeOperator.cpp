@@ -211,7 +211,7 @@ void TRTimeOperator::buttonConstruct(){
     QPushButton* button = NULL;
     QFrame* line = NULL;
     QString lineColor = "rgb(0, 254, 255)";
-    double buttonWidth = this->width()*0.2;
+    double buttonWidth = this->width()*0.3;
     double buttonHeight = this->height()*0.1;
     double buttonTop = buttonHeight*0.7;
     double buttonLeft = this->width()/2 - buttonWidth*0.5;
