@@ -197,9 +197,10 @@ bool OperationPipelineSetting::setOperationPipelineSetting(){
 
         QTextEdit* editor = dynamic_cast<QTextEdit*>(this->uiForm->tableWidget->cellWidget(i,3));
 
-
-        for(int iline = 0;iline<editor->document()->lineCount();iline++){
-            oneInfos.insert(std::pair<unsigned int,QString>(iline,editor->document()->findBlockByLineNumber(iline).text()));
+        if(editor && editor->document()){
+            for(int iline = 0;iline<editor->document()->lineCount();iline++){
+                oneInfos.insert(std::pair<unsigned int,QString>(iline,editor->document()->findBlockByLineNumber(iline).text()));
+            }
         }
 
         if(Name.count(' ') > 0){
@@ -219,8 +220,6 @@ bool OperationPipelineSetting::setOperationPipelineSetting(){
         }
 
         opereation.insert(std::pair<unsigned int,OneOperationPattern>(i,OneOperationPattern(Label,Name,repeatTime,oneInfos)));
-
-        qDebug()<<oneInfos;
     }
 
     ConfigLoader::getInstance()->setTheOperationPattern(opereation);
