@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TRTimeRecord"
-#define MyAppVersion "1.1"
+#define MyAppVersion "1.2"
 #define MyAppPublisher "Hefei ion medical center && Hefei CAS Ion Medical and Technical Devices Co., Ltd"
 #define MyAppURL "http://www.himc.org.cn/"
 #define MyAppExeName "TRTimeRecord.exe"
@@ -42,6 +42,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "E:\TRTimeRecord\Deploy\Manifest\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\TRTimeRecord\Deploy\DeployFiles\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "E:\TRTimeRecord\Deploy\Configuration\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]

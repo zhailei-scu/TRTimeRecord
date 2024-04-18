@@ -1,0 +1,98 @@
+{
+OnlineDatabaseInfo:
+  {
+  onlineDBIP:localhost
+  onlineDBName:tr_patientinfo
+  onlineDBPassword:123456
+  onlineDBPort:3306
+  onlineDBUserName:root
+  }
+OperationPattern:
+  {
+  0:
+      {
+      OperationLabel:Entry Room
+      OperationName:EntryRoom
+      RepeatTimes:2
+      HintInfos:
+              {
+              0:Click again For entry end!
+              }
+      }
+  1:
+      {
+      OperationLabel:Imaging/Position
+      OperationName:PatientImaging
+      RepeatTimes:2
+      HintInfos:
+              {
+              0:Click again For Imaging/Position end!
+              }
+      }
+  2:
+      {
+      OperationLabel:Beam On/Off
+      OperationName:BeamOnOff
+      RepeatTimes:-1
+      HintInfos:
+              {
+              0:Click again For next beam!
+              }
+      }
+  3:
+      {
+      OperationLabel:Leave Room
+      OperationName:LeaveRoom
+      RepeatTimes:2
+      HintInfos:
+              {
+              0:Click again For leaving end!
+              }
+      }
+  }
+PatientInfoPattern:
+  {
+  0:
+      {
+      Necessary:false
+      PatientInfoLabel:UUID2
+      PatientInfoName:UUID2
+      SupportPreQuery:true
+      }
+  1:
+      {
+      Necessary:true
+      PatientInfoLabel:PatientName
+      PatientInfoName:PatientName
+      SupportPreQuery:false
+      }
+  2:
+      {
+      Necessary:true
+      PatientInfoLabel:Gender
+      PatientInfoName:Gender
+      SupportPreQuery:false
+      }
+  3:
+      {
+      Necessary:false
+      PatientInfoLabel:TargetPosition
+      PatientInfoName:TargetPosition
+      SupportPreQuery:false
+      }
+  4:
+      {
+      Necessary:true
+      PatientInfoLabel:FieldNums
+      PatientInfoName:FieldNums
+      SupportPreQuery:false
+      }
+  5:
+      {
+      Necessary:true
+      PatientInfoLabel:BeamRequestMode
+      PatientInfoName:BeamRequestMode
+      SupportPreQuery:false
+      }
+  }
+}
