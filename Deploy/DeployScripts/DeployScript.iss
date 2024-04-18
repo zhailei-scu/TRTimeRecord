@@ -41,8 +41,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "E:\TRTimeRecord\Deploy\Manifest\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\TRTimeRecord\Deploy\DeployFiles\TR.db"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist onlyifdoesntexist uninsneveruninstall
+Source: "E:\TRTimeRecord\Deploy\DeployFiles\TR.csv"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist onlyifdoesntexist uninsneveruninstall
 Source: "E:\TRTimeRecord\Deploy\DeployFiles\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "E:\TRTimeRecord\Deploy\Configuration\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "E:\TRTimeRecord\Deploy\Configuration\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist onlyifdoesntexist uninsneveruninstall
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
@@ -58,4 +60,8 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent runasoriginaluser
+
+[UninstallDelete]
+Type: files; Name: "{app}\*.dll";
+Type: files; Name: "{app}\*.exe";
 
